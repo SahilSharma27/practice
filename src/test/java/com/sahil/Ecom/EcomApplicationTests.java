@@ -2,15 +2,15 @@ package com.sahil.Ecom;
 
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
+import com.sahil.Ecom.entity.Role;
 import com.sahil.Ecom.entity.Seller;
+import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @SpringBootTest
 class EcomApplicationTests {
@@ -18,12 +18,36 @@ class EcomApplicationTests {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
 	@Test
 	void contextLoads() {
 	}
 
+    @Test
+    void testRole(){
+        roleRepository.deleteAll();
+
+        Role role1 = new Role();
+        role1.setId(1L);
+        role1.setAuthority("ADMIN");
+
+        Role role2 = new Role();
+        role2.setId(2L);
+        role2.setAuthority("SELLER");
+
+        Role role3 = new Role();
+        role3.setId(3L);
+        role3.setAuthority("CUSTOMER");
+
+        roleRepository.save(role1);
+        roleRepository.save(role2);
+        roleRepository.save(role3);
+    }
+
 	@Test
-	void testCreate(){
+	void testCreateCustomer(){
 
 		Customer c1 =  new Customer();
         c1.setContact("123");
@@ -52,12 +76,16 @@ class EcomApplicationTests {
 
         c1.setAddresses(addressSet);
 
+        c1.setRoles(Arrays.asList(roleRepository.findByAuthority("CUSTOMER")));
+//
+
+
         userRepository.save(c1);
 
 	}
 
     @Test
-    void testCreate1(){
+    void testCreateSeller(){
 
         Seller s1 =  new Seller();
 
@@ -74,6 +102,8 @@ class EcomApplicationTests {
         s1.setGst("123");
         s1.setCompanyContact("123");
         s1.setCompanyName("Atest");
+
+        s1.setRoles(Arrays.asList(roleRepository.findByAuthority("SELLER")));
 
         userRepository.save(s1);
 

@@ -2,6 +2,7 @@ package com.sahil.Ecom.entity;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -50,6 +51,12 @@ public abstract class User {
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     Set<Address> addresses;
+
+    @ManyToMany
+            @JoinTable(name = "USER_ROLE",
+            joinColumns = @JoinColumn(name = "USER_ID",referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "ROLE_ID",referencedColumnName = "ID"))
+    List<Role> roles;
 
     public Long getId() {
         return id;
@@ -153,5 +160,13 @@ public abstract class User {
 
     public void setAddresses(Set<Address> addresses) {
         this.addresses = addresses;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 }
