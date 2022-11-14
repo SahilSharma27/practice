@@ -10,6 +10,10 @@ public class Customer extends User{
     @Column(name = "CONTACT")
     private String contact;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="USER_ID", referencedColumnName="ID")
+    List<Address> addressList;
+
     public Customer() {
     }
 
@@ -19,5 +23,14 @@ public class Customer extends User{
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+
+    public List<Address> getAddressList() {
+        return addressList;
+    }
+
+    public void setAddressList(List<Address> addressList) {
+        this.addressList = addressList;
     }
 }

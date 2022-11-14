@@ -7,7 +7,9 @@ import com.sahil.Ecom.entity.User;
 
 public interface UserService {
 
-    public User register(User user,String role);
+    public Customer register(Customer customer);
+
+    public Seller register(Seller seller);
 
     public Iterable<User> getAllUsers();
 

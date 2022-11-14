@@ -2,6 +2,7 @@ package com.sahil.Ecom;
 
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.repository.RoleRepository;
+import com.sahil.Ecom.repository.SellerRepository;
 import com.sahil.Ecom.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ class EcomApplicationTests {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private SellerRepository sellerRepository;
 
 	@Test
 	void contextLoads() {
@@ -66,12 +70,12 @@ class EcomApplicationTests {
         a1.setLabel("test");
         a1.setZipCode("test");
         a1.setState("test");
-        a1.setUser(c1);
+       // a1.setUser(c1);
 
         List<Address> addressList = new ArrayList<>();
         addressList.add(a1);
 
-        c1.setAddresses(addressList);
+        c1.setAddressList(addressList);
 
         c1.setRoles(Arrays.asList(roleRepository.findByAuthority("CUSTOMER")));
 //
@@ -99,19 +103,17 @@ class EcomApplicationTests {
         s1.setCompanyContact("123");
         s1.setCompanyName("Atest");
 
-//        Address a2 = new Address();
-//        a2.setCity("test");
-//        a2.setCountry("test");
-//        a2.setAddressLine("test");
-//        a2.setLabel("test");
-//        a2.setZipCode("test");
-//        a2.setState("test");
-//        a2.setUser(s1);
-//
-//        List<Address> addressList = new ArrayList<>();
-//        addressList.add(a2);
-//
-//        s1.setAddresses(addressList);
+        Address a2 = new Address();
+        a2.setCity("test");
+        a2.setCountry("test");
+        a2.setAddressLine("test");
+        a2.setLabel("test");
+        a2.setZipCode("test");
+        a2.setState("test");
+        //a2.setUser(s1);
+
+
+        s1.setAddress(a2);
 
         s1.setRoles(Arrays.asList(roleRepository.findByAuthority("SELLER")));
 

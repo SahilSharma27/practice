@@ -8,6 +8,8 @@ import com.sahil.Ecom.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 public class UserServiceImpl implements UserService{
 
@@ -15,14 +17,20 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
 
     @Autowired
-    private SellerRepository sellerRepository;
-
-    @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private SellerRepository sellerRepository;
+
+
     @Override
-    public User register(User user,String role) {
-        return null;
+    public Customer register(Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    @Override
+    public Seller register(Seller seller) {
+        return sellerRepository.save(seller);
     }
 
     @Override

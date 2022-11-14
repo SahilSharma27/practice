@@ -24,10 +24,15 @@ public class UserController {
         return userService.getAllSellers();
     }
 
-    @PostMapping("/register")
-    public User registerUser(@RequestParam(name = "ROLE") String role , @RequestBody User user){
-        User newUser = userService.register(user,role);
-        return newUser;
+
+    @PostMapping(value = "/register",params = "role=customer")
+    public Customer registerCustomer(@RequestBody Customer customer){
+        return userService.register(customer);
     }
 
+    @PostMapping(value = "/register",params = "role=seller")
+    public Seller registerSeller(@RequestBody Seller seller){
+        return userService.register(seller);
+
+    }
 }

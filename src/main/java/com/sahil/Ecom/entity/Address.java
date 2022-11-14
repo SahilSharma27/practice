@@ -31,9 +31,9 @@ public class Address {
     @Column(name = "LABEL")
     private String label;
 
-    @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    User user;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "USER_ID")
+//    User user;
 
     public Address() {
     }
@@ -94,11 +94,11 @@ public class Address {
         this.label = label;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+//    public User getUser() {
+//        return user;
+//    }
+//
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
 }
