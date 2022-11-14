@@ -49,8 +49,8 @@ public abstract class User {
     Date passwordUpdateDate;
 
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    Set<Address> addresses;
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    List<Address> addresses;
 
     @ManyToMany
             @JoinTable(name = "USER_ROLE",
@@ -154,11 +154,11 @@ public abstract class User {
         this.passwordUpdateDate = passwordUpdateDate;
     }
 
-    public Set<Address> getAddresses() {
+    public List<Address> getAddresses() {
         return addresses;
     }
 
-    public void setAddresses(Set<Address> addresses) {
+    public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
     }
 

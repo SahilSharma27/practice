@@ -1,9 +1,6 @@
 package com.sahil.Ecom;
 
-import com.sahil.Ecom.entity.Address;
-import com.sahil.Ecom.entity.Customer;
-import com.sahil.Ecom.entity.Role;
-import com.sahil.Ecom.entity.Seller;
+import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -49,7 +46,7 @@ class EcomApplicationTests {
 	@Test
 	void testCreateCustomer(){
 
-		Customer c1 =  new Customer();
+		Customer c1 = new Customer();
         c1.setContact("123");
         c1.setEmail("test");
         c1.setFirstName("test");
@@ -71,14 +68,13 @@ class EcomApplicationTests {
         a1.setState("test");
         a1.setUser(c1);
 
-        Set<Address> addressSet = new HashSet<>();
-        addressSet.add(a1);
+        List<Address> addressList = new ArrayList<>();
+        addressList.add(a1);
 
-        c1.setAddresses(addressSet);
+        c1.setAddresses(addressList);
 
         c1.setRoles(Arrays.asList(roleRepository.findByAuthority("CUSTOMER")));
 //
-
 
         userRepository.save(c1);
 
@@ -102,6 +98,20 @@ class EcomApplicationTests {
         s1.setGst("123");
         s1.setCompanyContact("123");
         s1.setCompanyName("Atest");
+
+//        Address a2 = new Address();
+//        a2.setCity("test");
+//        a2.setCountry("test");
+//        a2.setAddressLine("test");
+//        a2.setLabel("test");
+//        a2.setZipCode("test");
+//        a2.setState("test");
+//        a2.setUser(s1);
+//
+//        List<Address> addressList = new ArrayList<>();
+//        addressList.add(a2);
+//
+//        s1.setAddresses(addressList);
 
         s1.setRoles(Arrays.asList(roleRepository.findByAuthority("SELLER")));
 
