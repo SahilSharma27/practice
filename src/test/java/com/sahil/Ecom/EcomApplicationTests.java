@@ -74,8 +74,7 @@ class EcomApplicationTests {
 
         List<Address> addressList = new ArrayList<>();
         addressList.add(a1);
-
-        c1.setAddressList(addressList);
+        c1.setAddresses(addressList);
 
         c1.setRoles(Arrays.asList(roleRepository.findByAuthority("CUSTOMER")));
 //
@@ -110,15 +109,14 @@ class EcomApplicationTests {
         a2.setLabel("test");
         a2.setZipCode("test");
         a2.setState("test");
+
         //a2.setUser(s1);
 
-
-        s1.setAddress(a2);
+        s1.setAddresses(Arrays.asList(a2));
 
         s1.setRoles(Arrays.asList(roleRepository.findByAuthority("SELLER")));
 
         userRepository.save(s1);
-
 
     }
 

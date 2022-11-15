@@ -16,9 +16,9 @@ public class Seller extends User{
     @Column(name = "COMPANY_NAME")
     private String companyName;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="USER_ID", referencedColumnName="ID")
-    private Address address;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name="USER_ID",referencedColumnName = "ID")
+//    private Address address;
 
     public Seller() {
     }
@@ -46,12 +46,12 @@ public class Seller extends User{
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
+//
+//    public Address getAddress() {
+//        return address;
+//    }
+//
+//    public void setAddress(Address address) {
+//        this.address = address;
+//    }
 }

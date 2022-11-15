@@ -34,6 +34,9 @@ public class Address {
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "USER_ID")
 //    User user;
+//
+//    @OneToOne
+//    private Seller seller;
 
     public Address() {
     }
@@ -100,5 +103,14 @@ public class Address {
 //
 //    public void setUser(User user) {
 //        this.user = user;
+//    }
+
+//
+//    public Seller getSeller() {
+//        return seller;
+//    }
+//
+//    public void setSeller(Seller seller) {
+//        this.seller = seller;
 //    }
 }

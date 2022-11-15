@@ -33,6 +33,18 @@ public class UserServiceImpl implements UserService{
         return sellerRepository.save(seller);
     }
 
+
+    @Override
+    public User activate(Long id) {
+        User foundUser = userRepository.findById(id).orElse(null);
+
+        if(foundUser !=null && !foundUser.isActive())
+            foundUser.setActive(true);
+
+
+        return userRepository.save(foundUser);
+    }
+
     @Override
     public Iterable<User> getAllUsers() {
         return userRepository.findAll();

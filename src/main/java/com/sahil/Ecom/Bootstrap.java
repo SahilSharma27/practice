@@ -24,7 +24,7 @@ public class Bootstrap implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        roleRepository.deleteAll();
+//        roleRepository.deleteAll();
 
         Role role1 = new Role();
         role1.setId(1L);

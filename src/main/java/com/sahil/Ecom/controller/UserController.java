@@ -33,6 +33,10 @@ public class UserController {
     @PostMapping(value = "/register",params = "role=seller")
     public Seller registerSeller(@RequestBody Seller seller){
         return userService.register(seller);
+    }
 
+    @PutMapping(value = "users/activate/{id}")
+    public User activate(@PathVariable Long id){
+        return userService.activate(id);
     }
 }

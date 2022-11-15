@@ -11,6 +11,8 @@ public interface UserService {
 
     public Seller register(Seller seller);
 
+    public User activate(Long id);
+
     public Iterable<User> getAllUsers();
 
     public Iterable<Customer> getAllCustomers();
