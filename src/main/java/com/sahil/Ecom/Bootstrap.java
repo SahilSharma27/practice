@@ -1,13 +1,19 @@
 package com.sahil.Ecom;
 
 
+import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Role;
+import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.SellerRepository;
 import com.sahil.Ecom.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Date;
 
 @Component
 public class Bootstrap implements CommandLineRunner {
@@ -21,6 +27,9 @@ public class Bootstrap implements CommandLineRunner {
     @Autowired
     private SellerRepository sellerRepository;
 
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -28,19 +37,43 @@ public class Bootstrap implements CommandLineRunner {
 
         Role role1 = new Role();
         role1.setId(1L);
-        role1.setAuthority("ADMIN");
+        role1.setAuthority("ROLE_ADMIN");
 
         Role role2 = new Role();
         role2.setId(2L);
-        role2.setAuthority("SELLER");
+        role2.setAuthority("ROLE_SELLER");
 
         Role role3 = new Role();
         role3.setId(3L);
-        role3.setAuthority("CUSTOMER");
+        role3.setAuthority("ROLE_CUSTOMER");
 
         roleRepository.save(role1);
         roleRepository.save(role2);
         roleRepository.save(role3);
+
+
+        User admin =  new User();
+        admin.setEmail("admin@gmail.com");
+        admin.setFirstName("admin");
+        admin.setMiddleName("admin");
+        admin.setLastName("admin");
+        admin.setPassword(bCryptPasswordEncoder.encode("admin"));
+        admin.setActive(true);
+        admin.setExpired(false);
+        admin.setDeleted(false);
+        admin.setLocked(false);
+        admin.setPasswordUpdateDate(new Date());
+
+
+//        Address a2 = new Address();
+//        a2.setCity("a");
+//        a2.setCountry("test");
+//        a2.setAddressLine("test");
+//        a2.setLabel("test");
+//        a2.setZipCode("test");
+//        a2.setState("test");
+        admin.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_ADMIN")));
+        userRepository.save(admin);
 
     }
 }

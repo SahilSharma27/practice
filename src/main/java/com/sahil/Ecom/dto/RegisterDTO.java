@@ -1,70 +1,45 @@
-package com.sahil.Ecom.entity;
+package com.sahil.Ecom.dto;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
-@Entity
-@Table(name = "USER")
-@Inheritance(strategy = InheritanceType.JOINED)
-public  class User {
+public class RegisterDTO {
 
-    @Id
-    @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "EMAIL")
     private String email;
 
-    @Column(name = "FIRST_NAME")
-    private  String firstName;
+    private String firstName;
 
-    @Column(name = "MIDDLE_NAME")
-    private  String middleName;
+    private String middleName;
 
-    @Column(name = "LAST_NAME")
-    private  String lastName;
+    private String lastName;
 
-    @Column(name = "PASSWORD")
     private String password;
 
-    @Column(name = "IS_DELETED")
-    private  boolean isDeleted;
+    private String confirmPassword;
 
-    @Column(name = "IS_ACTIVE")
+    private String role;
+
+    private String contact;
+
+    private String gst;
+
+    private String companyContact;
+
+    private String companyName;
+
+    private boolean isDeleted;
+
     private boolean isActive;
 
-    @Column(name = "IS_EXPIRED")
     private boolean isExpired;
 
-    @Column(name = "IS_LOCKED")
     private boolean isLocked;
 
-    @Column(name = "INVALID_ATTEMPT_COUNT")
     private int invalidAttemptCount;
 
-    @Column(name = "PASSWORD_UPDATE_DATE")
     private Date passwordUpdateDate;
 
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name="USER_ID", referencedColumnName="ID")
-    List<Address> addresses;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-            @JoinTable(name = "USER_ROLE",
-            joinColumns = @JoinColumn(name = "USER_ID",referencedColumnName = "ID"),
-            inverseJoinColumns = @JoinColumn(name = "ROLE_ID",referencedColumnName = "ID"))
-    List<Role> roles;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public RegisterDTO() {
     }
 
     public String getEmail() {
@@ -105,6 +80,54 @@ public  class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getGst() {
+        return gst;
+    }
+
+    public void setGst(String gst) {
+        this.gst = gst;
+    }
+
+    public String getCompanyContact() {
+        return companyContact;
+    }
+
+    public void setCompanyContact(String companyContact) {
+        this.companyContact = companyContact;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public boolean isDeleted() {
@@ -153,21 +176,5 @@ public  class User {
 
     public void setPasswordUpdateDate(Date passwordUpdateDate) {
         this.passwordUpdateDate = passwordUpdateDate;
-    }
-
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
     }
 }
