@@ -1,16 +1,22 @@
 package com.sahil.Ecom.service;
+import com.sahil.Ecom.controller.UserController;
 import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.entity.User;
+import com.sahil.Ecom.entity.UserAccessToken;
 import com.sahil.Ecom.repository.CustomerRepository;
 import com.sahil.Ecom.repository.SellerRepository;
+import com.sahil.Ecom.repository.UserAccessTokenRepository;
 import com.sahil.Ecom.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.net.MalformedURLException;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -25,7 +31,18 @@ public class UserServiceImpl implements UserService{
     private SellerRepository sellerRepository;
 
     @Autowired
+    private UserAccessTokenRepository accessTokenRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    EmailSenderService emailSenderService;
+
+    @Autowired
+    private AccessTokenService accessTokenService;
+
+    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 
     @Override
@@ -55,8 +72,8 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
-    public User activate(Long id) {
-        User foundUser = userRepository.findById(id).orElse(null);
+    public User activate(String email) {
+        User foundUser = userRepository.findByEmail(email).orElse(null);
 
         if(foundUser !=null && !foundUser.isActive()){
 
@@ -87,5 +104,40 @@ public class UserServiceImpl implements UserService{
     @Override
     public boolean checkUserEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+
+    @Override
+    public void activationHelper(String email) {
+//        generate token
+        String token = accessTokenService.getAccessToken();
+
+//        save in db
+        UserAccessToken userAccessToken =  new UserAccessToken();
+        userAccessToken.setAccessToken(token);
+        userAccessToken.setEmail(email);
+        accessTokenRepository.save(userAccessToken);
+
+        logger.info("UUID as String: " + token);
+
+        //generate url
+        String emailBody = "";
+        try {
+        emailBody= "Activation Link: " + accessTokenService.generateURL(token);
+        }catch (MalformedURLException e){
+            logger.info("URL Error" + e);
+            e.printStackTrace();
+        }
+//send email
+        emailSenderService.sendEmail(email,"Account activation",emailBody);
+    }
+
+    @Override
+    public String findEmailFromToken(String uuid) {
+        UserAccessToken userAccessToken = accessTokenRepository.findByAccessToken(uuid);
+        if(userAccessToken != null){
+            return userAccessToken.getEmail();
+        }
+        else throw new UsernameNotFoundException("NO mail Found for token");
     }
 }

@@ -16,7 +16,7 @@ public interface UserService {
 
     public Seller register(Seller seller);
 
-    public User activate(Long id);
+    public User activate(String email);
 
     public Iterable<User> getAllUsers();
 
@@ -25,6 +25,12 @@ public interface UserService {
     public Iterable<Seller> getAllSellers();
 
     public boolean checkUserEmail(String email);
+
+    void  activationHelper(String email);
+
+    String findEmailFromToken(String uuid);
+
+
 
 
 

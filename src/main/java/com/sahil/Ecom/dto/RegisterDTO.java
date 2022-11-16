@@ -17,9 +17,9 @@ public class RegisterDTO {
 
     private String confirmPassword;
 
-    private String role;
-
     private String contact;
+
+    private String role;
 
     private String gst;
 

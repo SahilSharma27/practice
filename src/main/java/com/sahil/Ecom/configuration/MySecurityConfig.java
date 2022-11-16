@@ -1,6 +1,7 @@
 package com.sahil.Ecom.configuration;
 
 
+import com.sahil.Ecom.enums.EcomRoles;
 import com.sahil.Ecom.service.MyCustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,8 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
@@ -35,9 +34,14 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().disable()
                 .authorizeRequests()
                 .antMatchers("/register").permitAll()
+                .antMatchers("/registertemp").permitAll()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/welcome").permitAll()
-                .antMatchers("/users").permitAll()
+                .antMatchers("/users/activate/**").permitAll()
+                .antMatchers("/users").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers("/users/sellers").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers("/users/customer").hasRole(EcomRoles.ADMIN.label)
+
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
