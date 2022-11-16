@@ -28,13 +28,12 @@ public interface UserService {
 
     void  activationHelper(String email);
 
-    String findEmailFromToken(String uuid);
+    String findEmailFromAccessToken(String uuid);
+
+    void forgotPasswordHelper(String email);
+
+    String findEmailFromResetPassToken(String uuid);
 
 
-
-
-
-
-
-
+    void resetPassword(String email,String newPassword);
 }
