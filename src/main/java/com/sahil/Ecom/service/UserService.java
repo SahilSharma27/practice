@@ -36,4 +36,6 @@ public interface UserService {
 
 
     void resetPassword(String email,String newPassword);
+
+    void sendSellerAcknowledgement(String email);
 }

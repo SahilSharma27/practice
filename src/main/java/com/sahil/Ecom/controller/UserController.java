@@ -49,28 +49,27 @@ public class UserController {
 //        return userService.getAllUsers();
 //    }
 
-    @PostMapping(value = "/register",params = "role=customer")
-    public ResponseEntity<String> registerCustomer(@RequestBody Customer customer) throws Exception {
+//    @PostMapping(value = "/register",params = "role=customer")
+//    public ResponseEntity<String> registerCustomer(@RequestBody Customer customer) throws Exception {
+//
+////      Check if email taken
+//        if(userService.checkUserEmail(customer.getEmail())){
+//            return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
+//        }
+//
+////        1)save user
+//        userService.register(customer);
+//
+////        2)send activation link
+//        userService.activationHelper(customer.getEmail());
+//
+//        return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
+//    }
 
-//      Check if email taken
-        if(userService.checkUserEmail(customer.getEmail())){
-            return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
-        }
-
-//        1)save user
-        userService.register(customer);
-
-//        2)send activation link
-        userService.activationHelper(customer.getEmail());
-
-        return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
-    }
-
-    @PostMapping(value = "/register",params = "role=seller")
-    public Seller registerSeller(@RequestBody Seller seller){
-        return userService.register(seller);
-    }
-
+//    @PostMapping(value = "/register",params = "role=seller")
+//    public Seller registerSeller(@RequestBody Seller seller){
+//        return userService.register(seller);
+//    }
 
 
     @PostMapping(value = "/login",params = "role=admin")
@@ -144,6 +143,12 @@ public class UserController {
 
     @PostMapping(value = "/users/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestParam String token,@RequestBody ResetPassDTO resetPassDTO){
+//        1 check token in db
+//        2 get email
+//        3 update account pass
+
+
+
         logger.info("------------------------------------------------------------------");
         logger.info(resetPassDTO.getNewPassword() +"  "+resetPassDTO.getConfirmNewPassword());
         logger.info("------------------------------------------------------------------");
@@ -158,9 +163,6 @@ public class UserController {
             return new ResponseEntity<>("User Password Updated",HttpStatus.OK);
         }
 
-        //        1 check token in db
-//        2 get email
-//        3 update account pass
 
         return new ResponseEntity<>("Password doesn't match with confirm password",HttpStatus.BAD_REQUEST);
 

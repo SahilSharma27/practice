@@ -1,5 +1,6 @@
 package com.sahil.Ecom.service;
 import com.sahil.Ecom.entity.*;
+import com.sahil.Ecom.enums.EcomRoles;
 import com.sahil.Ecom.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +10,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.Date;
 
 @Service
 public class UserServiceImpl implements UserService{
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -45,13 +51,36 @@ public class UserServiceImpl implements UserService{
 
         String password = customer.getPassword();
         customer.setPassword(passwordEncoder.encode(password));
+
+        customer.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_CUSTOMER")));
+
+        customer.setActive(false);
+        customer.setDeleted(false);
+        customer.setExpired(false);
+        customer.setLocked(false);
+        customer.setPasswordUpdateDate(new Date());
+        customer.setInvalidAttemptCount(0);
+
         return customerRepository.save(customer);
+
     }
 
     @Override
     public Seller register(Seller seller) {
         String password = seller.getPassword();
         seller.setPassword(passwordEncoder.encode(password));
+
+        seller.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_SELLER")));
+
+        seller.setActive(false);
+        seller.setDeleted(false);
+        seller.setExpired(false);
+        seller.setLocked(false);
+
+        seller.setPasswordUpdateDate(new Date());
+        seller.setInvalidAttemptCount(0);
+
+
         return sellerRepository.save(seller);
     }
 
@@ -184,5 +213,13 @@ public class UserServiceImpl implements UserService{
         }
 //send email
         emailSenderService.sendEmail(email,"Reset Password",emailBody);
+    }
+
+    @Override
+    public void sendSellerAcknowledgement(String email) {
+
+        String emailBody = "ACCOUNT CREATED WAITING FOR APPROVAL" ;
+        emailSenderService.sendEmail(email,"Registration Successfully",emailBody);
+
     }
 }

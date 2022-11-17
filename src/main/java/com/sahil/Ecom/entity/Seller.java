@@ -1,6 +1,7 @@
 package com.sahil.Ecom.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -8,17 +9,16 @@ import java.util.List;
 public class Seller extends User{
 
     @Column(name = "GST")
+    @NotNull
     private String gst;
 
     @Column(name = "COMPANY_CONTACT")
+    @NotNull
     private String companyContact;
 
     @Column(name = "COMPANY_NAME")
+    @NotNull
     private String companyName;
-
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name="USER_ID",referencedColumnName = "ID")
-//    private Address address;
 
     public Seller() {
     }
@@ -46,12 +46,5 @@ public class Seller extends User{
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
-//
-//    public Address getAddress() {
-//        return address;
-//    }
-//
-//    public void setAddress(Address address) {
-//        this.address = address;
-//    }
+
 }

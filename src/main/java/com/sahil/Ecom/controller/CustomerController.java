@@ -13,11 +13,36 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 public class CustomerController {
 
     @Autowired
     UserService userService;
+
+
+    @PostMapping(value = "/register",params = "role=customer")
+    public ResponseEntity<String> registerCustomer(@Valid @RequestBody Customer customer) throws Exception {
+
+//      Check if email taken
+        if(userService.checkUserEmail(customer.getEmail())){
+            return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
+        }
+
+//      check pass and cpass
+
+        if(!customer.getPassword().equals(customer.getConfirmPassword()))
+            return new ResponseEntity<>("Password and confirm password doesn't match",HttpStatus.BAD_REQUEST);
+
+//        1)save user
+        userService.register(customer);
+
+//        2)send activation link
+     //   userService.activationHelper(customer.getEmail());
+
+        return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
+    }
 
     @PostMapping(value = "/users/address",params = "role=customer")
     public ResponseEntity<String> addAddress(@RequestBody AddressDTO addressDTO){
