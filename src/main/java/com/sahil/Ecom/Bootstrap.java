@@ -58,7 +58,7 @@ public class Bootstrap implements CommandLineRunner {
         admin.setMiddleName("admin");
         admin.setLastName("admin");
         admin.setPassword(bCryptPasswordEncoder.encode("admin"));
-        admin.setConfirmPassword(bCryptPasswordEncoder.encode("admin"));
+//        admin.setConfirmPassword(bCryptPasswordEncoder.encode("admin"));
 
         admin.setActive(true);
         admin.setExpired(false);

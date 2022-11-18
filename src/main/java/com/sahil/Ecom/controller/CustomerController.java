@@ -2,8 +2,10 @@ package com.sahil.Ecom.controller;
 
 
 import com.sahil.Ecom.dto.AddressDTO;
+import com.sahil.Ecom.dto.CustomerDTO;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
+import com.sahil.Ecom.service.CustomerService;
 import com.sahil.Ecom.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,39 +23,68 @@ public class CustomerController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    CustomerService customerService;
+
+
+//    @PostMapping(value = "/register",params = "role=customer")
+//    public ResponseEntity<String> registerCustomer(@Valid @RequestBody Customer customer) throws Exception {
+//
+////      Check if email taken
+//        if(userService.checkUserEmail(customer.getEmail())){
+//            return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
+//        }
+//
+////      check pass and cpass
+//
+//        if(!customer.getPassword().equals(customer.getConfirmPassword()))
+//            return new ResponseEntity<>("Password and confirm password doesn't match",HttpStatus.BAD_REQUEST);
+//
+////        1)save user
+//        userService.register(customer);
+//
+////        2)send activation link
+//     //   userService.activationHelper(customer.getEmail());
+//
+//        return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
+//    }
+
 
     @PostMapping(value = "/register",params = "role=customer")
-    public ResponseEntity<String> registerCustomer(@Valid @RequestBody Customer customer) throws Exception {
+    public ResponseEntity<String> registerCustomer(@Valid @RequestBody CustomerDTO customerDTO) throws Exception {
 
 //      Check if email taken
-        if(userService.checkUserEmail(customer.getEmail())){
+        if(userService.checkUserEmail(customerDTO.getEmail())){
             return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
         }
 
 //      check pass and cpass
 
-        if(!customer.getPassword().equals(customer.getConfirmPassword()))
+        if(!customerDTO.getPassword().equals(customerDTO.getConfirmPassword()))
             return new ResponseEntity<>("Password and confirm password doesn't match",HttpStatus.BAD_REQUEST);
 
 //        1)save user
-        userService.register(customer);
+        customerService.register(customerDTO);
 
 //        2)send activation link
-     //   userService.activationHelper(customer.getEmail());
+          // userService.activationHelper(customerDTO.getEmail());
 
         return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
     }
 
-    @PostMapping(value = "/users/address",params = "role=customer")
-    public ResponseEntity<String> addAddress(@RequestBody AddressDTO addressDTO){
-        if(userService.checkUserEmail(addressDTO.getUserEmail())){
-            //add address to the table
 
-            return new ResponseEntity<>("Address ADDED", HttpStatus.OK);
-        }
 
-        return new ResponseEntity<>("USER NOT FOUND", HttpStatus.NOT_FOUND);
 
-    }
+//    @PostMapping(value = "/users/address",params = "role=customer")
+//    public ResponseEntity<String> addAddress(@RequestBody AddressDTO addressDTO){
+//        if(userService.checkUserEmail(addressDTO.getUserEmail())){
+//            //add address to the table
+//
+//            return new ResponseEntity<>("Address ADDED", HttpStatus.OK);
+//        }
+//
+//        return new ResponseEntity<>("USER NOT FOUND", HttpStatus.NOT_FOUND);
+//
+//    }
 
 }

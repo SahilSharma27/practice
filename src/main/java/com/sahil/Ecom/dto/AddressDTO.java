@@ -3,9 +3,6 @@ package com.sahil.Ecom.dto;
 import javax.persistence.Column;
 
 public class AddressDTO {
-
-    private String userEmail;
-
     private String city;
     private String state;
     private String country;
@@ -14,14 +11,6 @@ public class AddressDTO {
     private String label;
 
     public AddressDTO() {
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
     }
 
     public String getCity() {

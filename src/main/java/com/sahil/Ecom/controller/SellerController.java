@@ -1,5 +1,6 @@
 package com.sahil.Ecom.controller;
 
+import com.sahil.Ecom.dto.SellerDTO;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.service.SellerService;
 import com.sahil.Ecom.service.TokenGeneratorHelper;
@@ -29,32 +30,64 @@ public class SellerController {
 
     Logger logger = LoggerFactory.getLogger(SellerController.class);
 
+//    @PostMapping(value = "/register",params = "role=seller")
+//    public ResponseEntity<String> registerSeller(@RequestBody Seller seller){
+//        //unique email
+//        if(userService.checkUserEmail(seller.getEmail())){
+//            return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
+//        }
+//
+//        //unique company name
+//        if(sellerService.checkSellerCompanyName(seller.getCompanyName())){
+//            return new ResponseEntity<>("Company name already exists",HttpStatus.BAD_REQUEST);
+//        }
+//
+//        //unique gst
+//        if(sellerService.checkSellerGst(seller.getGst())){
+//            return new ResponseEntity<>("Gst already exists",HttpStatus.BAD_REQUEST);
+//        }
+//
+////      check pass and cpass
+////        if(!seller.getPassword().equals(seller.getConfirmPassword()))
+////            return new ResponseEntity<>("Password and confirm password doesn't match",HttpStatus.BAD_REQUEST);
+//
+////        1)save user
+//        userService.register(seller);
+//
+//        //send acknowledgment
+//        userService.sendSellerAcknowledgement(seller.getEmail());
+//
+//        return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
+//
+//    }
+
+
     @PostMapping(value = "/register",params = "role=seller")
-    public ResponseEntity<String> registerSeller(@RequestBody Seller seller){
+    public ResponseEntity<String> registerSeller(@RequestBody SellerDTO sellerDTO){
         //unique email
-        if(userService.checkUserEmail(seller.getEmail())){
+        if(userService.checkUserEmail(sellerDTO.getEmail())){
             return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
         }
 
         //unique company name
-        if(sellerService.checkSellerCompanyName(seller.getCompanyName())){
+        if(sellerService.checkSellerCompanyName(sellerDTO.getCompanyName())){
             return new ResponseEntity<>("Company name already exists",HttpStatus.BAD_REQUEST);
         }
 
         //unique gst
-        if(sellerService.checkSellerGst(seller.getGst())){
+        if(sellerService.checkSellerGst(sellerDTO.getGst())){
             return new ResponseEntity<>("Gst already exists",HttpStatus.BAD_REQUEST);
         }
 
 //      check pass and cpass
-        if(!seller.getPassword().equals(seller.getConfirmPassword()))
+        if(!sellerDTO.getPassword().equals(sellerDTO.getConfirmPassword()))
             return new ResponseEntity<>("Password and confirm password doesn't match",HttpStatus.BAD_REQUEST);
 
 //        1)save user
-        userService.register(seller);
+        sellerService.register(sellerDTO);
 
         //send acknowledgment
-        userService.sendSellerAcknowledgement(seller.getEmail());
+       // userService.sendSellerAcknowledgement(sellerDTO.getEmail());
 
         return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
 

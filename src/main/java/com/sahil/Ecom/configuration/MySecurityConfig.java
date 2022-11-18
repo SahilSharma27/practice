@@ -40,9 +40,10 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/forgotPassword").permitAll()
                 .antMatchers("/users/resetPassword/**").permitAll()
                 .antMatchers("/users").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers("/users/customers").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/users/sellers").hasRole(EcomRoles.ADMIN.label)
-                .antMatchers("/users/customer").hasRole(EcomRoles.ADMIN.label)
 
+                .antMatchers("users/seller/activate").hasRole(EcomRoles.ADMIN.label)
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
@@ -56,7 +57,6 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService);
     }
-
 
     @Bean
     BCryptPasswordEncoder passwordEncoder(){

@@ -12,10 +12,6 @@ public interface UserService {
 
     public Seller login(Seller seller);
 
-    public Customer register(Customer customer);
-
-    public Seller register(Seller seller);
-
     public User activate(String email);
 
     public Iterable<User> getAllUsers();
@@ -38,4 +34,5 @@ public interface UserService {
     void resetPassword(String email,String newPassword);
 
     void sendSellerAcknowledgement(String email);
+
 }

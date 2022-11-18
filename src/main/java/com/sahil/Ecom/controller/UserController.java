@@ -1,11 +1,8 @@
 package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.ForgotPasswordDTO;
-import com.sahil.Ecom.dto.RegisterDTO;
 import com.sahil.Ecom.dto.ResetPassDTO;
 import com.sahil.Ecom.entity.*;
-import com.sahil.Ecom.service.AccessTokenService;
-import com.sahil.Ecom.service.EmailSenderService;
 import com.sahil.Ecom.service.TokenGeneratorHelper;
 import com.sahil.Ecom.service.UserService;
 import org.slf4j.Logger;
@@ -14,14 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URL;
-import java.util.UUID;
 
 @RestController
 public class UserController {
@@ -35,41 +25,6 @@ public class UserController {
 
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
-//    @GetMapping(value = "/users/customers")
-//    public Iterable<Customer> getAllCustomers(){return userService.getAllCustomers();
-//    }
-//
-//    @GetMapping(value = "/users/sellers")
-//    public Iterable<Seller> getAllSellers(){
-//        return userService.getAllSellers();
-//    }
-//
-//    @GetMapping(value = "/users",params = "role=admin")
-//    public Iterable<User> getAllUsers(){
-//        return userService.getAllUsers();
-//    }
-
-//    @PostMapping(value = "/register",params = "role=customer")
-//    public ResponseEntity<String> registerCustomer(@RequestBody Customer customer) throws Exception {
-//
-////      Check if email taken
-//        if(userService.checkUserEmail(customer.getEmail())){
-//            return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
-//        }
-//
-////        1)save user
-//        userService.register(customer);
-//
-////        2)send activation link
-//        userService.activationHelper(customer.getEmail());
-//
-//        return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
-//    }
-
-//    @PostMapping(value = "/register",params = "role=seller")
-//    public Seller registerSeller(@RequestBody Seller seller){
-//        return userService.register(seller);
-//    }
 
 
     @PostMapping(value = "/login",params = "role=admin")

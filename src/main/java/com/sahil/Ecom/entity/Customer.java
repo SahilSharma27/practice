@@ -9,7 +9,6 @@ import java.util.List;
 public class Customer extends User{
 
     @Column(name = "CONTACT")
-    @NotNull
     private String contact;
 
     public Customer() {

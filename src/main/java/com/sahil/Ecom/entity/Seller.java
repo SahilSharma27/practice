@@ -9,15 +9,13 @@ import java.util.List;
 public class Seller extends User{
 
     @Column(name = "GST")
-    @NotNull
+
     private String gst;
 
     @Column(name = "COMPANY_CONTACT")
-    @NotNull
     private String companyContact;
 
     @Column(name = "COMPANY_NAME")
-    @NotNull
     private String companyName;
 
     public Seller() {

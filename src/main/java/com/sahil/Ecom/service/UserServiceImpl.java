@@ -47,44 +47,6 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
-    public Customer register(Customer customer) {
-
-        String password = customer.getPassword();
-        customer.setPassword(passwordEncoder.encode(password));
-
-        customer.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_CUSTOMER")));
-
-        customer.setActive(false);
-        customer.setDeleted(false);
-        customer.setExpired(false);
-        customer.setLocked(false);
-        customer.setPasswordUpdateDate(new Date());
-        customer.setInvalidAttemptCount(0);
-
-        return customerRepository.save(customer);
-
-    }
-
-    @Override
-    public Seller register(Seller seller) {
-        String password = seller.getPassword();
-        seller.setPassword(passwordEncoder.encode(password));
-
-        seller.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_SELLER")));
-
-        seller.setActive(false);
-        seller.setDeleted(false);
-        seller.setExpired(false);
-        seller.setLocked(false);
-
-        seller.setPasswordUpdateDate(new Date());
-        seller.setInvalidAttemptCount(0);
-
-
-        return sellerRepository.save(seller);
-    }
-
-    @Override
     public Customer login(Customer customer) {
         return null;
     }
@@ -222,4 +184,6 @@ public class UserServiceImpl implements UserService{
         emailSenderService.sendEmail(email,"Registration Successfully",emailBody);
 
     }
+
+
 }

@@ -19,28 +19,20 @@ public  class User {
 
     @Column(name = "EMAIL")
     @Email
-    @NotNull
     private String email;
 
     @Column(name = "FIRST_NAME")
-    @NotNull
     private  String firstName;
 
     @Column(name = "MIDDLE_NAME")
-    @NotNull
     private  String middleName;
 
     @Column(name = "LAST_NAME")
-    @NotNull
     private  String lastName;
 
     @Column(name = "PASSWORD")
-    @NotNull
     private String password;
 
-    @Transient
-    @NotNull
-    private String confirmPassword;
 
     @Column(name = "IS_DELETED")
     private  boolean isDeleted;
@@ -183,12 +175,4 @@ public  class User {
         this.roles = roles;
     }
 
-
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
 }
