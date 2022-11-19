@@ -30,40 +30,10 @@ public class SellerController {
 
     Logger logger = LoggerFactory.getLogger(SellerController.class);
 
-//    @PostMapping(value = "/register",params = "role=seller")
-//    public ResponseEntity<String> registerSeller(@RequestBody Seller seller){
-//        //unique email
-//        if(userService.checkUserEmail(seller.getEmail())){
-//            return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);
-//        }
-//
-//        //unique company name
-//        if(sellerService.checkSellerCompanyName(seller.getCompanyName())){
-//            return new ResponseEntity<>("Company name already exists",HttpStatus.BAD_REQUEST);
-//        }
-//
-//        //unique gst
-//        if(sellerService.checkSellerGst(seller.getGst())){
-//            return new ResponseEntity<>("Gst already exists",HttpStatus.BAD_REQUEST);
-//        }
-//
-////      check pass and cpass
-////        if(!seller.getPassword().equals(seller.getConfirmPassword()))
-////            return new ResponseEntity<>("Password and confirm password doesn't match",HttpStatus.BAD_REQUEST);
-//
-////        1)save user
-//        userService.register(seller);
-//
-//        //send acknowledgment
-//        userService.sendSellerAcknowledgement(seller.getEmail());
-//
-//        return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
-//
-//    }
-
-
     @PostMapping(value = "/register",params = "role=seller")
     public ResponseEntity<String> registerSeller(@RequestBody SellerDTO sellerDTO){
+
+
         //unique email
         if(userService.checkUserEmail(sellerDTO.getEmail())){
             return new ResponseEntity<>("User email already registered", HttpStatus.BAD_REQUEST);

@@ -10,6 +10,12 @@ public class ResponseDTO {
     public ResponseDTO() {
     }
 
+    public ResponseDTO(Date timestamp, String message, int responseStatusCode) {
+        this.timestamp = timestamp;
+        this.message = message;
+        this.responseStatusCode = responseStatusCode;
+    }
+
     public Date getTimestamp() {
         return timestamp;
     }

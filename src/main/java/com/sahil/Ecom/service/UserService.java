@@ -24,7 +24,7 @@ public interface UserService {
 
     void  activationHelper(String email);
 
-    String findEmailFromAccessToken(String uuid);
+    String validateAccessToken(String uuid);
 
     void forgotPasswordHelper(String email);
 

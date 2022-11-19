@@ -55,17 +55,17 @@ public class UserController {
         logger.info("token : " + token);
 
         return ResponseEntity.ok(new JwtResponse(token));
-
     }
 
     @GetMapping(value = "/users/activate")
     public ResponseEntity<String> activateAccount(@RequestParam(name="token") String uuid){
 
 //        1 check token in db
-//        2 get email
-//        3 update account is active
+//        2 check time limit
+//        3 get email
+//        4 update account is active
 
-        String email = userService.findEmailFromAccessToken(uuid);
+        String email = userService.validateAccessToken(uuid);
 
         userService.activate(email);
 
@@ -101,8 +101,6 @@ public class UserController {
 //        1 check token in db
 //        2 get email
 //        3 update account pass
-
-
 
         logger.info("------------------------------------------------------------------");
         logger.info(resetPassDTO.getNewPassword() +"  "+resetPassDTO.getConfirmNewPassword());

@@ -1,37 +1,39 @@
 package com.sahil.Ecom.dto;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class SellerDTO {
 
-    @NotNull
+    @NotBlank
     @Email
     private String email;
 
-    @NotNull
+    @NotBlank
     private  String firstName;
 
     private  String middleName;
 
-    @NotNull
+    @NotBlank
     private  String lastName;
 
-    @NotNull
+    @NotBlank
     private String password;
 
-    @NotNull
+    @NotBlank
     private String confirmPassword;
 
-    @NotNull
+    @NotBlank
     private String gst;
 
-    @NotNull
+    @NotBlank
     private String companyContact;
 
-    @NotNull
+    @NotBlank
     private String companyName;
 
+    @NotBlank
     AddressDTO address;
 
     public String getEmail() {

@@ -1,6 +1,7 @@
 package com.sahil.Ecom.service;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.enums.EcomRoles;
+import com.sahil.Ecom.exception.TokenExpiredException;
 import com.sahil.Ecom.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -98,10 +101,17 @@ public class UserServiceImpl implements UserService{
 //        generate token
         String token = accessTokenService.getAccessToken();
 
+
+
 //        save in db
         UserAccessToken userAccessToken =  new UserAccessToken();
         userAccessToken.setAccessToken(token);
         userAccessToken.setEmail(email);
+
+        // setting time limits to the token
+        LocalDateTime currentDateTime =  LocalDateTime.now();
+        userAccessToken.setTokenTimeLimit(currentDateTime.plusMinutes(1));
+
         accessTokenRepository.save(userAccessToken);
 
         logger.info("UUID as String: " + token);
@@ -114,16 +124,42 @@ public class UserServiceImpl implements UserService{
             logger.info("URL Error" + e);
             e.printStackTrace();
         }
-//send email
-        emailSenderService.sendEmail(email,"Account activation",emailBody);
+
+
+        logger.info("ACTIVATION URL" + emailBody);
+
+        //send email
+       // emailSenderService.sendEmail(email,"Account activation",emailBody);
     }
 
     @Override
-    public String findEmailFromAccessToken(String uuid) {
+    public String validateAccessToken(String uuid) {
+
+        //find token in table
         UserAccessToken userAccessToken = accessTokenRepository.findByAccessToken(uuid);
+
+        //check expiration
+        //return email id if all good
         if(userAccessToken != null){
+            if(userAccessToken.getTokenTimeLimit().isBefore(LocalDateTime.now())){
+
+                logger.info("-------------------TIME LIMIT EXCEEDED---------------");
+
+                //remove token from table
+                //send new url if time limit exceeds and throw exception
+
+                accessTokenRepository.deleteById(uuid);
+
+                activationHelper(userAccessToken.getEmail());
+
+                throw new TokenExpiredException("TOKEN TIME LIMIT EXCEEDED");
+
+            }
+
+            logger.info("-------------------UNDER TIME LIMIT---------------");
             return userAccessToken.getEmail();
         }
+
         else throw new UsernameNotFoundException("NO mail Found for token");
     }
 

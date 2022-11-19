@@ -1,8 +1,11 @@
 package com.sahil.Ecom.dto;
 
 import com.sahil.Ecom.entity.Address;
+import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
@@ -10,20 +13,25 @@ import java.util.Set;
 public class CustomerDTO {
 
     @Email
+    @NotBlank
     private String email;
 
-
+    @NotBlank
     private String firstName;
+
 
     private String middleName;
 
+    @NotBlank
     private String lastName;
 
-
+    @NotBlank
     private String password;
 
+    @NotBlank
     private String confirmPassword;
 
+    @NotBlank
     private String contact;
 
     private List<AddressDTO> addressList;
