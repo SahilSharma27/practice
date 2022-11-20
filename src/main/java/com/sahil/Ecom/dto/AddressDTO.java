@@ -1,13 +1,26 @@
 package com.sahil.Ecom.dto;
 
 import javax.persistence.Column;
+import javax.validation.constraints.NotBlank;
 
 public class AddressDTO {
+
+    @NotBlank
     private String city;
+
+    @NotBlank
     private String state;
+
+    @NotBlank
     private String country;
+
+    @NotBlank
     private String addressLine;
+
+    @NotBlank
     private String zipCode;
+
+    @NotBlank
     private String label;
 
     public AddressDTO() {

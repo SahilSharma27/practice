@@ -6,6 +6,8 @@ import com.sahil.Ecom.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -45,6 +48,9 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private ResetUserPassRepository resetUserPassRepository;
+
+    @Autowired
+    MessageSource messageSource;
 
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -135,6 +141,8 @@ public class UserServiceImpl implements UserService{
     @Override
     public String validateAccessToken(String uuid) {
 
+        Locale locale = LocaleContextHolder.getLocale();
+
         //find token in table
         UserAccessToken userAccessToken = accessTokenRepository.findByAccessToken(uuid);
 
@@ -152,7 +160,7 @@ public class UserServiceImpl implements UserService{
 
                 activationHelper(userAccessToken.getEmail());
 
-                throw new TokenExpiredException("TOKEN TIME LIMIT EXCEEDED");
+                throw new TokenExpiredException(messageSource.getMessage("token.expired", null, "message", locale));
 
             }
 

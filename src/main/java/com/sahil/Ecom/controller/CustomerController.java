@@ -7,6 +7,7 @@ import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
+import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.service.CustomerService;
 import com.sahil.Ecom.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,16 +49,15 @@ public class CustomerController {
         }
 
 //      check pass and cpass
-
         if(!customerDTO.getPassword().equals(customerDTO.getConfirmPassword()))
-            return new ResponseEntity<>("Password and confirm password doesn't match",HttpStatus.BAD_REQUEST);
+            throw new PassConfirmPassNotMatchingException(messageSource.getMessage("password.confirmPassword", null, "message", locale));
+            //return new ResponseEntity<>("Password and confirm password doesn't match",HttpStatus.BAD_REQUEST);
 
 //        1)save user
         customerService.register(customerDTO);
 
 //        2)send activation link
            userService.activationHelper(customerDTO.getEmail());
-
 
         ResponseDTO responseDTO =  new ResponseDTO();
         responseDTO.setTimestamp(new Date());
