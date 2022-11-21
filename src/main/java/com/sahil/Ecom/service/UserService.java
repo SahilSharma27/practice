@@ -24,11 +24,11 @@ public interface UserService {
 
     void  activationHelper(String email);
 
-    String validateAccessToken(String uuid);
+    String validateActivationToken(String uuid);
 
     void forgotPasswordHelper(String email);
 
-    String findEmailFromResetPassToken(String uuid);
+    String validateResetPasswordToken(String uuid);
 
 
     void resetPassword(String email,String newPassword);

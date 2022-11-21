@@ -1,8 +1,12 @@
 package com.sahil.Ecom.dto;
 
+import javax.validation.constraints.Email;
+
 public class ResetPassDTO {
 
+    @Email
     private String userEmail;
+
 
     private String newPassword;
 

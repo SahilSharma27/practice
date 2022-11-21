@@ -37,28 +37,28 @@ public class JwtController {
     public ResponseEntity<?> getToken(@RequestBody JwtRequest jwtRequest) throws Exception {
         logger.info(jwtRequest.toString());
 
-        try{
-            this.authenticationManager
-                    .authenticate(
-                            new UsernamePasswordAuthenticationToken(jwtRequest.getUsername(),jwtRequest.getPassword())
-                    );
+        try {
+            this.authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            jwtRequest.getUsername(), jwtRequest.getPassword()));
 
-
-        }catch(UsernameNotFoundException e){
+        } catch (UsernameNotFoundException e) {
             e.printStackTrace();
 
-        }catch(BadCredentialsException e){
+        } catch (BadCredentialsException e) {
             e.printStackTrace();
             throw new Exception("Bad Credentials");
         }
 
-        UserDetails userDetails =  customUserDetailsService
+        UserDetails userDetails = customUserDetailsService
                 .loadUserByUsername(jwtRequest.getUsername());
 
-        String token = this.jwtUtil.generateToken(userDetails);
+        String accessToken = this.jwtUtil.generateToken(userDetails);
 
-        logger.info("TOKEN generated :" + token);
+        String refreshToken = accessToken;
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        logger.info("TOKEN generated :" + accessToken);
+
+        return ResponseEntity.ok(new JwtResponse(accessToken,refreshToken));
     }
 }

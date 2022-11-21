@@ -1,6 +1,5 @@
 package com.sahil.Ecom.service;
 import com.sahil.Ecom.entity.*;
-import com.sahil.Ecom.enums.EcomRoles;
 import com.sahil.Ecom.exception.TokenExpiredException;
 import com.sahil.Ecom.repository.*;
 import org.slf4j.Logger;
@@ -14,9 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Locale;
 
 @Service
@@ -35,7 +31,7 @@ public class UserServiceImpl implements UserService{
     private SellerRepository sellerRepository;
 
     @Autowired
-    private UserAccessTokenRepository accessTokenRepository;
+    private ActivationTokenRepository activationTokenRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -47,7 +43,7 @@ public class UserServiceImpl implements UserService{
     private AccessTokenService accessTokenService;
 
     @Autowired
-    private ResetUserPassRepository resetUserPassRepository;
+    private ResetPassTokenRepository resetPassTokenRepository;
 
     @Autowired
     MessageSource messageSource;
@@ -101,24 +97,21 @@ public class UserServiceImpl implements UserService{
         return userRepository.existsByEmail(email);
     }
 
-
     @Override
     public void activationHelper(String email) {
 //        generate token
         String token = accessTokenService.getAccessToken();
 
-
-
 //        save in db
-        UserAccessToken userAccessToken =  new UserAccessToken();
-        userAccessToken.setAccessToken(token);
-        userAccessToken.setEmail(email);
+        ActivationToken activationToken =  new ActivationToken();
+        activationToken.setActivationToken(token);
+        activationToken.setUserEmail(email);
 
         // setting time limits to the token
         LocalDateTime currentDateTime =  LocalDateTime.now();
-        userAccessToken.setTokenTimeLimit(currentDateTime.plusMinutes(1));
+        activationToken.setTokenTimeLimit(currentDateTime.plusMinutes(1));
 
-        accessTokenRepository.save(userAccessToken);
+        activationTokenRepository.save(activationToken);
 
         logger.info("UUID as String: " + token);
 
@@ -131,7 +124,6 @@ public class UserServiceImpl implements UserService{
             e.printStackTrace();
         }
 
-
         logger.info("ACTIVATION URL" + emailBody);
 
         //send email
@@ -139,33 +131,33 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public String validateAccessToken(String uuid) {
+    public String validateActivationToken(String uuid) {
 
         Locale locale = LocaleContextHolder.getLocale();
 
         //find token in table
-        UserAccessToken userAccessToken = accessTokenRepository.findByAccessToken(uuid);
+        ActivationToken activationToken = activationTokenRepository.findByActivationToken(uuid);
 
         //check expiration
         //return email id if all good
-        if(userAccessToken != null){
-            if(userAccessToken.getTokenTimeLimit().isBefore(LocalDateTime.now())){
+        if(activationToken != null){
+            if(activationToken.getTokenTimeLimit().isBefore(LocalDateTime.now())){
 
                 logger.info("-------------------TIME LIMIT EXCEEDED---------------");
 
                 //remove token from table
                 //send new url if time limit exceeds and throw exception
 
-                accessTokenRepository.deleteById(uuid);
+                activationTokenRepository.deleteById(uuid);
 
-                activationHelper(userAccessToken.getEmail());
+                activationHelper(activationToken.getUserEmail());
 
                 throw new TokenExpiredException(messageSource.getMessage("token.expired", null, "message", locale));
 
             }
 
             logger.info("-------------------UNDER TIME LIMIT---------------");
-            return userAccessToken.getEmail();
+            return activationToken.getUserEmail();
         }
 
         else throw new UsernameNotFoundException("NO mail Found for token");
@@ -186,13 +178,39 @@ public class UserServiceImpl implements UserService{
 
     }
 
-    @Override
-    public String findEmailFromResetPassToken(String uuid) {
-        ResetPassToken resetPassToken = resetUserPassRepository.findByResetPassToken(uuid);
-        if(resetPassToken != null){
-            return resetPassToken.getEmail();
+    public String validateResetPasswordToken(String uuid) {
+
+        Locale locale = LocaleContextHolder.getLocale();
+
+        //find token in table
+        ResetPasswordToken resetPasswordToken = resetPassTokenRepository.findByResetPassToken(uuid);
+
+        //check expiration
+        //return email id if all good
+        if(resetPasswordToken != null){
+
+            if(resetPasswordToken.getTokenTimeLimit().isBefore(LocalDateTime.now())){
+
+                logger.info("-------------------TIME LIMIT EXCEEDED---------------");
+
+                //remove token from table
+                //send new url if time limit exceeds and throw exception
+
+                resetPassTokenRepository.deleteById(uuid);
+
+//                activationHelper(userAccessToken.getEmail());
+
+                throw new TokenExpiredException(messageSource.getMessage("token.expired", null, "message", locale));
+
+            }
+
+            logger.info("-------------------UNDER TIME LIMIT---------------");
+            return resetPasswordToken.getUserEmail();
         }
-        else throw new UsernameNotFoundException("NO mail Found for token");
+
+
+        logger.info("-------------------UNDER TIME LIMIT STILL HERE--------------");
+        throw new UsernameNotFoundException("NO mail Found for token");
 
     }
 
@@ -202,10 +220,11 @@ public class UserServiceImpl implements UserService{
         String token = accessTokenService.getAccessToken();
 
 //        save in db
-        ResetPassToken resetPassToken =  new ResetPassToken();
-        resetPassToken.setResetPassToken(token);
-        resetPassToken.setEmail(email);
-        resetUserPassRepository.save(resetPassToken);
+        ResetPasswordToken resetPasswordToken =  new ResetPasswordToken();
+        resetPasswordToken.setResetPassToken(token);
+        resetPasswordToken.setUserEmail(email);
+        resetPasswordToken.setTokenTimeLimit(LocalDateTime.now().plusMinutes(1));
+        resetPassTokenRepository.save(resetPasswordToken);
 
         logger.info("UUID as String: " + token);
 
@@ -218,7 +237,8 @@ public class UserServiceImpl implements UserService{
             e.printStackTrace();
         }
 //send email
-        emailSenderService.sendEmail(email,"Reset Password",emailBody);
+       // emailSenderService.sendEmail(email,"Reset Password",emailBody);
+        logger.info(emailBody);
     }
 
     @Override

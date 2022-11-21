@@ -1,8 +1,12 @@
 package com.sahil.Ecom.entity;
 
+import javax.validation.constraints.Email;
+
 public class JwtRequest {
 
+    @Email
     private String username;
+
     private String password;
 
     public JwtRequest() {

@@ -1,7 +1,6 @@
 package com.sahil.Ecom.service;
 
 
-import com.sahil.Ecom.repository.UserAccessTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +8,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.UUID;
 
 @Service
 public class EmailSenderService {

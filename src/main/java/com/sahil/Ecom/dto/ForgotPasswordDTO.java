@@ -1,14 +1,17 @@
 package com.sahil.Ecom.dto;
 
+import javax.validation.constraints.Email;
+
 public class ForgotPasswordDTO {
 
-    private String email;
+    @Email
+    private String userEmail;
 
-    public String getEmail() {
-        return email;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 }

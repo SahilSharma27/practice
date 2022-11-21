@@ -5,6 +5,8 @@ import com.sahil.Ecom.entity.JwtResponse;
 import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.helper.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Locale;
 
 
 @Service
@@ -26,9 +30,12 @@ public class TokenGeneratorHelper {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    MessageSource messageSource;
 
-    public String generateTokenHelper(JwtRequest jwtRequest) throws Exception{
+    public JwtResponse generateTokenHelper(JwtRequest jwtRequest) throws Exception{
 
+        Locale locale = LocaleContextHolder.getLocale();
         try{
             this.authenticationManager
                     .authenticate(
@@ -37,18 +44,17 @@ public class TokenGeneratorHelper {
                                     ,jwtRequest.getPassword()
                             )
                     );
-        }catch(UsernameNotFoundException e){
-            e.printStackTrace();
+        }catch(UsernameNotFoundException | BadCredentialsException e){
+//            e.printStackTrace();
+            throw new BadCredentialsException(messageSource.getMessage("user.login.bad.credentials", null, "message", locale));
 
-        }catch(BadCredentialsException e){
-            e.printStackTrace();
-            throw new Exception("Bad Credentials");
         }
 
         UserDetails userDetails =  customUserDetailsService
                 .loadUserByUsername(jwtRequest.getUsername());
 
-        return this.jwtUtil.generateToken(userDetails);
+
+        return new JwtResponse(this.jwtUtil.generateToken(userDetails),this.jwtUtil.generateRefreshToken(userDetails));
 
 //        logger.info("TOKEN generated :" + token);
 

@@ -35,6 +35,7 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/register").permitAll()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/token/refresh").permitAll()
                 .antMatchers("/welcome").permitAll()
                 .antMatchers("/users/activate/**").permitAll()
                 .antMatchers("/users/forgotPassword").permitAll()
@@ -42,8 +43,7 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/users/customers").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/users/sellers").hasRole(EcomRoles.ADMIN.label)
-
-                .antMatchers("users/seller/activate").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers("/users/seller/activate").hasRole(EcomRoles.ADMIN.label)
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
