@@ -1,13 +1,12 @@
-package com.sahil.Ecom.configuration;
+package com.sahil.Ecom.security;
 
 
-import com.sahil.Ecom.exception.ApiError;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sahil.Ecom.exception.TokenExpiredException;
-import com.sahil.Ecom.helper.JwtUtil;
-import com.sahil.Ecom.service.MyCustomUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Component
@@ -33,6 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     MyCustomUserDetailsService userDetailsService;
+
+//    private Gson gson = new Gson();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -45,6 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwtToken = null;
 
 
+
         //check format
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")) {
             jwtToken = requestTokenHeader.substring("Bearer".length());
@@ -53,7 +56,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 username = this.jwtUtil.extractUsername(jwtToken);
 
             }catch (ExpiredJwtException e) {
-               // e.printStackTrace();
+
+//                ApiError apiError = new ApiError();
+//                String apiErrorJsonString = this.gson.toJson(apiError);
+//
+//                PrintWriter out = response.getWriter();
+//                response.setContentType("application/json");
+//                response.setCharacterEncoding("UTF-8");
+//                out.print(apiErrorJsonString);
+//                out.flush();
+
+
+                Map<String, Object> errorDetails = new HashMap<>();
+
+                errorDetails.put("message", "Invalid token");
+
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.writeValue(response.getWriter(),errorDetails);
+
+
                 throw new TokenExpiredException("FILTER:TOKEN EXPIRED");
             }
             catch (UsernameNotFoundException e){

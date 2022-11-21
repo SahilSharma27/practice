@@ -14,6 +14,9 @@ public class ApiError {
     private String message;
     private List<String> errors;
 
+    public ApiError() {
+    }
+
     public ApiError(LocalDateTime timestamp, HttpStatus status, String message, List<String> errors) {
         super();
         this.status = status;

@@ -3,7 +3,6 @@ package com.sahil.Ecom.entity;
 public class JwtResponse {
 
     private String accessToken;
-
     private String refreshToken;
 
     public JwtResponse() {

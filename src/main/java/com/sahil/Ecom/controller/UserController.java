@@ -6,8 +6,9 @@ import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
-import com.sahil.Ecom.helper.JwtUtil;
-import com.sahil.Ecom.service.TokenGeneratorHelper;
+import com.sahil.Ecom.security.JwtUtil;
+import com.sahil.Ecom.security.TokenGeneratorHelper;
+import com.sahil.Ecom.service.LoginService;
 import com.sahil.Ecom.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,12 @@ public class UserController {
     @Autowired
     JwtUtil jwtUtil;
 
+
+    @Autowired
+    LoginService loginService;
+
+
+
     Locale locale = LocaleContextHolder.getLocale();
 
     @GetMapping("/token/refresh")
@@ -85,13 +92,15 @@ public class UserController {
     @PostMapping(value = "/login",params = "role=admin")
     public ResponseEntity<?> loginAdmin(@Valid @RequestBody JwtRequest jwtRequest) throws Exception {
 
-       // String accessToken  = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
-
-
+        //remove all tokens in db for this user
+        //generate new tokens
+        //save new tokens in db
 
         JwtResponse jwtResponse = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
 
-        logger.info("token : " + jwtResponse);
+        loginService.saveJwtResponse(jwtResponse,jwtRequest.getUsername());
+
+//        logger.info("token : " + jwtResponse);
 
         return ResponseEntity.ok(jwtResponse);
     }
@@ -127,7 +136,7 @@ public class UserController {
 
         String email = userService.validateActivationToken(uuid);
 
-        userService.activate(email);
+        userService.activateByEmail(email);
 
         return new ResponseEntity<>("USER ACCOUNT ACTIVATED",HttpStatus.OK);
 

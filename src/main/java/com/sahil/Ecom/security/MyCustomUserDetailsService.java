@@ -1,4 +1,4 @@
-package com.sahil.Ecom.service;
+package com.sahil.Ecom.security;
 
 import com.sahil.Ecom.entity.Role;
 import com.sahil.Ecom.repository.UserRepository;
@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

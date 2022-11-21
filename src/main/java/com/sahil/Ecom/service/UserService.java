@@ -12,7 +12,11 @@ public interface UserService {
 
     public Seller login(Seller seller);
 
-    public User activate(String email);
+    User activateByEmail(String email);
+
+    public boolean activateAccount(Long id);
+
+    public boolean deActivateAccount(Long id);
 
     public Iterable<User> getAllUsers();
 
@@ -34,5 +38,7 @@ public interface UserService {
     void resetPassword(String email,String newPassword);
 
     void sendSellerAcknowledgement(String email);
+
+
 
 }

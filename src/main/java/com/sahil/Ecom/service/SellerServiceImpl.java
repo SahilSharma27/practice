@@ -6,6 +6,7 @@ import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.SellerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,14 @@ public class SellerServiceImpl implements SellerService{
     @Override
     public boolean checkSellerGst(String gst) {
         return sellerRepository.existsByGst(gst);
+    }
+
+    @Override
+    public Seller getSellerById(Long id){
+        if(sellerRepository.existsById(id)){
+            return sellerRepository.findById(id).orElseThrow(()-> new UsernameNotFoundException("NOT FOUND"));
+        }
+        throw new UsernameNotFoundException("SELLER SERVICE:USER ID NOT FOUND");
     }
 
 

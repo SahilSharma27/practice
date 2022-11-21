@@ -11,7 +11,6 @@ import java.util.Set;
 @Table(name = "USER")
 @Inheritance(strategy = InheritanceType.JOINED)
 public  class User {
-
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,6 +61,14 @@ public  class User {
             joinColumns = @JoinColumn(name = "USER_ID",referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "ROLE_ID",referencedColumnName = "ID"))
     List<Role> roles;
+
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    JwtAccessToken jwtAccessToken;
+
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    JwtRefreshToken jwtRefreshToken;
 
     public Long getId() {
         return id;

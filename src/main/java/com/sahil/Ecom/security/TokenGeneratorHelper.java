@@ -1,13 +1,12 @@
-package com.sahil.Ecom.service;
+package com.sahil.Ecom.security;
 
 import com.sahil.Ecom.entity.JwtRequest;
 import com.sahil.Ecom.entity.JwtResponse;
-import com.sahil.Ecom.entity.User;
-import com.sahil.Ecom.helper.JwtUtil;
+import com.sahil.Ecom.security.JwtUtil;
+import com.sahil.Ecom.security.MyCustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

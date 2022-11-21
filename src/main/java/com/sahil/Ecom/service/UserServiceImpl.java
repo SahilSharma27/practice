@@ -40,15 +40,21 @@ public class UserServiceImpl implements UserService{
     EmailSenderService emailSenderService;
 
     @Autowired
-    private AccessTokenService accessTokenService;
+    private UUIDTokenService UUIDTokenService;
 
     @Autowired
     private ResetPassTokenRepository resetPassTokenRepository;
+
+
+    @Autowired
+    SellerService sellerService;
 
     @Autowired
     MessageSource messageSource;
 
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+
 
 
     @Override
@@ -61,9 +67,9 @@ public class UserServiceImpl implements UserService{
         return null;
     }
 
-
     @Override
-    public User activate(String email) {
+    public User activateByEmail(String email) {
+
         User foundUser = userRepository.findByEmail(email).orElse(null);
 
         if(foundUser !=null && !foundUser.isActive()){
@@ -74,7 +80,46 @@ public class UserServiceImpl implements UserService{
         }else {
             throw  new UsernameNotFoundException("Not found");
         }
+    }
 
+    @Override
+    public boolean activateAccount(Long id) {
+
+        if(userRepository.existsById(id)){
+            User foundUser = userRepository.findById(id).orElse(null);
+
+            if(foundUser !=null && !foundUser.isActive()){
+
+                foundUser.setActive(true);
+                userRepository.save(foundUser);
+                return true;
+
+            }
+
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deActivateAccount(Long id) {
+
+        if(userRepository.existsById(id)){
+            User foundUser = userRepository.findById(id).orElse(null);
+
+            if(foundUser !=null && foundUser.isActive()){
+
+                foundUser.setActive(false);
+
+                logger.info("---------------ACCOUNT DEACTIVATED-------------------");
+
+                userRepository.save(foundUser);
+                return true;
+
+            }
+
+        }
+
+        return false;
     }
 
     @Override
@@ -100,7 +145,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public void activationHelper(String email) {
 //        generate token
-        String token = accessTokenService.getAccessToken();
+        String token = UUIDTokenService.getUUIDToken();
 
 //        save in db
         ActivationToken activationToken =  new ActivationToken();
@@ -118,7 +163,7 @@ public class UserServiceImpl implements UserService{
         //generate url
         String emailBody = "";
         try {
-        emailBody= "Activation Link: " + accessTokenService.generateActivationURL(token);
+        emailBody= "Activation Link: " + UUIDTokenService.generateActivationURL(token);
         }catch (MalformedURLException e){
             logger.info("URL Error" + e);
             e.printStackTrace();
@@ -217,7 +262,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public void forgotPasswordHelper(String email) {
 //        generate token
-        String token = accessTokenService.getAccessToken();
+        String token = UUIDTokenService.getUUIDToken();
 
 //        save in db
         ResetPasswordToken resetPasswordToken =  new ResetPasswordToken();
@@ -231,7 +276,7 @@ public class UserServiceImpl implements UserService{
         //generate url
         String emailBody = "";
         try {
-            emailBody= "Reset Password Link: " + accessTokenService.generateResetPassURL(token);
+            emailBody= "Reset Password Link: " + UUIDTokenService.generateResetPassURL(token);
         }catch (MalformedURLException e){
             logger.info("URL Error" + e);
             e.printStackTrace();

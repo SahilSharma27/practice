@@ -5,6 +5,8 @@ import com.sahil.Ecom.entity.Seller;
 
 public interface SellerService {
 
+    Seller getSellerById(Long id);
+
     Seller register(SellerDTO sellerDTO);
 
     boolean checkSellerCompanyName(String companyName);

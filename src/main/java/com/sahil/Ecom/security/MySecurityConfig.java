@@ -1,8 +1,7 @@
-package com.sahil.Ecom.configuration;
+package com.sahil.Ecom.security;
 
 
 import com.sahil.Ecom.enums.EcomRoles;
-import com.sahil.Ecom.service.MyCustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +42,7 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/users/customers").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/users/sellers").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers("users/seller/**").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/users/seller/activate").hasRole(EcomRoles.ADMIN.label)
                 .anyRequest().authenticated()
                 .and()

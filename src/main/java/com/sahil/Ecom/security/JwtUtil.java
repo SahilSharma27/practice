@@ -1,4 +1,4 @@
-package com.sahil.Ecom.helper;
+package com.sahil.Ecom.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

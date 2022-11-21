@@ -3,8 +3,8 @@ package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.entity.JwtRequest;
 import com.sahil.Ecom.entity.JwtResponse;
-import com.sahil.Ecom.helper.JwtUtil;
-import com.sahil.Ecom.service.MyCustomUserDetailsService;
+import com.sahil.Ecom.security.JwtUtil;
+import com.sahil.Ecom.security.MyCustomUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
