@@ -58,6 +58,10 @@ public class UserServiceImpl implements UserService {
     @Autowired
     MessageSource messageSource;
 
+
+    @Autowired
+    AddressRepository addressRepository;
+
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 
@@ -147,18 +151,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<FetchCustomerDTO> getAllCustomers() {
 
-        List<FetchCustomerDTO> fetchCustomerDTOList= new ArrayList<>();
+        List<FetchCustomerDTO> fetchCustomerDTOList = new ArrayList<>();
 
 //        return customerRepository.findAll();
         Iterable<Customer> customers = customerRepository.findAll();
 
-        for (Customer customer:customers) {
+        for (Customer customer : customers) {
 
             FetchCustomerDTO fetchCustomerDTO = new FetchCustomerDTO();
             fetchCustomerDTO.setId(customer.getId());
             fetchCustomerDTO.setEmail(customer.getEmail());
             fetchCustomerDTO.setActive(customer.isActive());
-            fetchCustomerDTO.setFullName(customer.getFirstName()+ " " + customer.getMiddleName() + " "+customer.getLastName());
+            fetchCustomerDTO.setFullName(customer.getFirstName() + " " + customer.getMiddleName() + " " + customer.getLastName());
 
             fetchCustomerDTOList.add(fetchCustomerDTO);
         }
@@ -169,31 +173,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<FetchSellerDTO> getAllSellers() {
 
-        List<FetchSellerDTO> fetchSellerDTOList= new ArrayList<>();
+        List<FetchSellerDTO> fetchSellerDTOList = new ArrayList<>();
 
 
         Iterable<Seller> sellers = sellerRepository.findAll();
 
-        for (Seller seller:sellers) {
+        for (Seller seller : sellers) {
 
             FetchSellerDTO fetchSellerDTO = new FetchSellerDTO();
             fetchSellerDTO.setId(seller.getId());
             fetchSellerDTO.setEmail(seller.getEmail());
             fetchSellerDTO.setActive(seller.isActive());
-            fetchSellerDTO.setFullName(seller.getFirstName()+ " " + seller.getMiddleName() + " "+seller.getLastName());
+            fetchSellerDTO.setFullName(seller.getFirstName() + " " + seller.getMiddleName() + " " + seller.getLastName());
             fetchSellerDTO.setCompanyName(seller.getCompanyName());
             fetchSellerDTO.setCompanyContact(seller.getCompanyContact());
 
 
             //only one address of seller is there
-            Address address =seller.getAddresses().get(0);
+            Address address = seller.getAddresses().get(0);
 
             AddressDTO addressDTO = new AddressDTO();
+
             addressDTO.setAddressLine(address.getAddressLine());
             addressDTO.setCity(address.getCity());
             addressDTO.setLabel(address.getLabel());
             addressDTO.setZipCode(address.getZipCode());
             addressDTO.setCountry(address.getCountry());
+            addressDTO.setState(address.getState());
 
             fetchSellerDTO.setCompanyAddress(addressDTO);
 
@@ -358,5 +364,46 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO) {
 
+        if (userRepository.existsByEmail(userEmail)) {
+            User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("NOT FOUND"));
+
+            Address newAddress = new Address();
+
+            newAddress.setAddressLine(addressDTO.getAddressLine());
+            newAddress.setCity(addressDTO.getCity());
+            newAddress.setLabel(addressDTO.getLabel());
+            newAddress.setZipCode(addressDTO.getZipCode());
+            newAddress.setState(addressDTO.getState());
+            newAddress.setCountry(addressDTO.getCountry());
+
+            user.getAddresses().add(newAddress);
+
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<Address> getAllCustomerAddresses(String userEmail) {
+        if(userRepository.existsByEmail(userEmail)){
+
+            User user =  userRepository.findByEmail(userEmail).get();
+            return user.getAddresses();
+
+        }
+        throw new UsernameNotFoundException("NOT FOUND");
+    }
+
+    @Override
+    public boolean removeAddress(Long id) {
+        if(addressRepository.existsById(id)){
+            addressRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 }

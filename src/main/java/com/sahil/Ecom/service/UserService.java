@@ -1,8 +1,10 @@
 package com.sahil.Ecom.service;
 
 
+import com.sahil.Ecom.dto.AddressDTO;
 import com.sahil.Ecom.dto.FetchCustomerDTO;
 import com.sahil.Ecom.dto.FetchSellerDTO;
+import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.entity.User;
@@ -43,5 +45,9 @@ public interface UserService {
     void sendSellerAcknowledgement(String email);
 
 
+    boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO);
 
+    List<Address> getAllCustomerAddresses(String userEmail);
+
+    boolean removeAddress(Long id);
 }

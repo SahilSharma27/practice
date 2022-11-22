@@ -108,15 +108,15 @@ public class UserController {
     }
 
 
-//    @PostMapping(value = "/login",params = "role=customer")
-//    public ResponseEntity<?> loginCustomer(@RequestBody JwtRequest jwtRequest) throws Exception {
-//
-//        String accessToken  = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
-//
+    @PostMapping(value = "/login",params = "role=customer")
+    public ResponseEntity<?> loginCustomer(@RequestBody JwtRequest jwtRequest) throws Exception {
+
+        JwtResponse jwtResponse  = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
+
 //        logger.info("accessToken : " + accessToken);
-//
-//        return ResponseEntity.ok(new JwtResponse(accessToken,accessToken));
-//    }
+
+        return ResponseEntity.ok(jwtResponse);
+    }
 //
 //    @PostMapping(value = "/login",params = "role=seller")
 //    public ResponseEntity<?> loginSeller(@RequestBody JwtRequest jwtRequest) throws Exception {
