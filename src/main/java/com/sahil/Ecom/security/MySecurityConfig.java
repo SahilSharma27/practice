@@ -1,10 +1,10 @@
 package com.sahil.Ecom.security;
 
-
 import com.sahil.Ecom.enums.EcomRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 
 @Configuration
 @EnableWebSecurity
@@ -36,14 +35,15 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/login").permitAll()
                 .antMatchers("/token/refresh").permitAll()
                 .antMatchers("/welcome").permitAll()
-                .antMatchers("/users/activate/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/users/activate").permitAll()
                 .antMatchers("/users/forgotPassword").permitAll()
                 .antMatchers("/users/resetPassword/**").permitAll()
                 .antMatchers("/users").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/users/customers").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/users/sellers").hasRole(EcomRoles.ADMIN.label)
-                .antMatchers("users/seller/**").hasRole(EcomRoles.ADMIN.label)
-                .antMatchers("/users/seller/activate").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers("/users/seller/**").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers(HttpMethod.PUT,"/users/activate").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers(HttpMethod.PUT,"/users/deactivate").hasRole(EcomRoles.ADMIN.label)
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()

@@ -1,12 +1,15 @@
 package com.sahil.Ecom.service;
 
 
+import com.sahil.Ecom.dto.FetchCustomerDTO;
+import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.entity.User;
 
-public interface UserService {
+import java.util.List;
 
+public interface UserService {
 
     public Customer login(Customer customer);
 
@@ -20,9 +23,9 @@ public interface UserService {
 
     public Iterable<User> getAllUsers();
 
-    public Iterable<Customer> getAllCustomers();
+    public List<FetchCustomerDTO> getAllCustomers();
 
-    public Iterable<Seller> getAllSellers();
+    public List<FetchSellerDTO> getAllSellers();
 
     public boolean checkUserEmail(String email);
 

@@ -96,9 +96,11 @@ public class UserController {
         //generate new tokens
         //save new tokens in db
 
+//        loginService.removeAlreadyGeneratedTokens(jwtRequest);
+
         JwtResponse jwtResponse = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
 
-        loginService.saveJwtResponse(jwtResponse,jwtRequest.getUsername());
+//        loginService.saveJwtResponse(jwtResponse,jwtRequest.getUsername());
 
 //        logger.info("token : " + jwtResponse);
 

@@ -66,7 +66,6 @@ public class Bootstrap implements CommandLineRunner {
         admin.setLocked(false);
         admin.setPasswordUpdateDate(new Date());
 
-
 //        Address a2 = new Address();
 //        a2.setCity("a");
 //        a2.setCountry("test");

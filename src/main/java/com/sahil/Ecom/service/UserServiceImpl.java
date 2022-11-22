@@ -1,4 +1,8 @@
 package com.sahil.Ecom.service;
+
+import com.sahil.Ecom.dto.AddressDTO;
+import com.sahil.Ecom.dto.FetchCustomerDTO;
+import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.TokenExpiredException;
 import com.sahil.Ecom.repository.*;
@@ -13,10 +17,12 @@ import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private RoleRepository roleRepository;
@@ -55,8 +61,6 @@ public class UserServiceImpl implements UserService{
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 
-
-
     @Override
     public Customer login(Customer customer) {
         return null;
@@ -72,29 +76,38 @@ public class UserServiceImpl implements UserService{
 
         User foundUser = userRepository.findByEmail(email).orElse(null);
 
-        if(foundUser !=null && !foundUser.isActive()){
+        if (foundUser != null && !foundUser.isActive()) {
 
             foundUser.setActive(true);
             return userRepository.save(foundUser);
 
-        }else {
-            throw  new UsernameNotFoundException("Not found");
+        } else {
+            throw new UsernameNotFoundException("Not found");
         }
     }
 
     @Override
     public boolean activateAccount(Long id) {
 
-        if(userRepository.existsById(id)){
-            User foundUser = userRepository.findById(id).orElse(null);
+        //check if id exist
+        //check if already true then no action return true
+        //else change to true
 
-            if(foundUser !=null && !foundUser.isActive()){
+        if (userRepository.existsById(id)) {
 
-                foundUser.setActive(true);
-                userRepository.save(foundUser);
+            User foundUser = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("NOT FOUND"));
+
+            if (foundUser.isActive()) {
+                logger.info("------------Already Activated------------");
                 return true;
-
             }
+
+            foundUser.setActive(true);
+            userRepository.save(foundUser);
+            logger.info("---------------ACCOUNT ACTIVATED-------------------");
+            //send acknowledgement email
+
+            return true;
 
         }
         return false;
@@ -103,22 +116,26 @@ public class UserServiceImpl implements UserService{
     @Override
     public boolean deActivateAccount(Long id) {
 
-        if(userRepository.existsById(id)){
-            User foundUser = userRepository.findById(id).orElse(null);
+        //check if id exist
+        //check if already false then no action return true
+        //else change to false
 
-            if(foundUser !=null && foundUser.isActive()){
+        if (userRepository.existsById(id)) {
 
-                foundUser.setActive(false);
+            User foundUser = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("NOT FOUND"));
 
-                logger.info("---------------ACCOUNT DEACTIVATED-------------------");
-
-                userRepository.save(foundUser);
+            if (!foundUser.isActive()) {
+                logger.info("------------Already Deactivated------------");
                 return true;
-
             }
 
-        }
+            foundUser.setActive(false);
+            userRepository.save(foundUser);
 
+            logger.info("---------------ACCOUNT DEACTIVATED-------------------");
+            //send acknowledgement email
+            return true;
+        }
         return false;
     }
 
@@ -128,13 +145,62 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Iterable<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+    public List<FetchCustomerDTO> getAllCustomers() {
+
+        List<FetchCustomerDTO> fetchCustomerDTOList= new ArrayList<>();
+
+//        return customerRepository.findAll();
+        Iterable<Customer> customers = customerRepository.findAll();
+
+        for (Customer customer:customers) {
+
+            FetchCustomerDTO fetchCustomerDTO = new FetchCustomerDTO();
+            fetchCustomerDTO.setId(customer.getId());
+            fetchCustomerDTO.setEmail(customer.getEmail());
+            fetchCustomerDTO.setActive(customer.isActive());
+            fetchCustomerDTO.setFullName(customer.getFirstName()+ " " + customer.getMiddleName() + " "+customer.getLastName());
+
+            fetchCustomerDTOList.add(fetchCustomerDTO);
+        }
+        return fetchCustomerDTOList;
+
     }
 
     @Override
-    public Iterable<Seller> getAllSellers() {
-        return sellerRepository.findAll();
+    public List<FetchSellerDTO> getAllSellers() {
+
+        List<FetchSellerDTO> fetchSellerDTOList= new ArrayList<>();
+
+
+        Iterable<Seller> sellers = sellerRepository.findAll();
+
+        for (Seller seller:sellers) {
+
+            FetchSellerDTO fetchSellerDTO = new FetchSellerDTO();
+            fetchSellerDTO.setId(seller.getId());
+            fetchSellerDTO.setEmail(seller.getEmail());
+            fetchSellerDTO.setActive(seller.isActive());
+            fetchSellerDTO.setFullName(seller.getFirstName()+ " " + seller.getMiddleName() + " "+seller.getLastName());
+            fetchSellerDTO.setCompanyName(seller.getCompanyName());
+            fetchSellerDTO.setCompanyContact(seller.getCompanyContact());
+
+
+            //only one address of seller is there
+            Address address =seller.getAddresses().get(0);
+
+            AddressDTO addressDTO = new AddressDTO();
+            addressDTO.setAddressLine(address.getAddressLine());
+            addressDTO.setCity(address.getCity());
+            addressDTO.setLabel(address.getLabel());
+            addressDTO.setZipCode(address.getZipCode());
+            addressDTO.setCountry(address.getCountry());
+
+            fetchSellerDTO.setCompanyAddress(addressDTO);
+
+            fetchSellerDTOList.add(fetchSellerDTO);
+        }
+        return fetchSellerDTOList;
+
     }
 
     @Override
@@ -148,12 +214,12 @@ public class UserServiceImpl implements UserService{
         String token = UUIDTokenService.getUUIDToken();
 
 //        save in db
-        ActivationToken activationToken =  new ActivationToken();
+        ActivationToken activationToken = new ActivationToken();
         activationToken.setActivationToken(token);
         activationToken.setUserEmail(email);
 
         // setting time limits to the token
-        LocalDateTime currentDateTime =  LocalDateTime.now();
+        LocalDateTime currentDateTime = LocalDateTime.now();
         activationToken.setTokenTimeLimit(currentDateTime.plusMinutes(1));
 
         activationTokenRepository.save(activationToken);
@@ -163,8 +229,8 @@ public class UserServiceImpl implements UserService{
         //generate url
         String emailBody = "";
         try {
-        emailBody= "Activation Link: " + UUIDTokenService.generateActivationURL(token);
-        }catch (MalformedURLException e){
+            emailBody = "Activation Link: " + UUIDTokenService.generateActivationURL(token);
+        } catch (MalformedURLException e) {
             logger.info("URL Error" + e);
             e.printStackTrace();
         }
@@ -172,7 +238,7 @@ public class UserServiceImpl implements UserService{
         logger.info("ACTIVATION URL" + emailBody);
 
         //send email
-       // emailSenderService.sendEmail(email,"Account activation",emailBody);
+        // emailSenderService.sendEmail(email,"Account activation",emailBody);
     }
 
     @Override
@@ -185,8 +251,8 @@ public class UserServiceImpl implements UserService{
 
         //check expiration
         //return email id if all good
-        if(activationToken != null){
-            if(activationToken.getTokenTimeLimit().isBefore(LocalDateTime.now())){
+        if (activationToken != null) {
+            if (activationToken.getTokenTimeLimit().isBefore(LocalDateTime.now())) {
 
                 logger.info("-------------------TIME LIMIT EXCEEDED---------------");
 
@@ -203,22 +269,20 @@ public class UserServiceImpl implements UserService{
 
             logger.info("-------------------UNDER TIME LIMIT---------------");
             return activationToken.getUserEmail();
-        }
-
-        else throw new UsernameNotFoundException("NO mail Found for token");
+        } else throw new UsernameNotFoundException("NO mail Found for token");
     }
 
     @Override
     public void resetPassword(String email, String newPassword) {
         User foundUser = userRepository.findByEmail(email).orElse(null);
 
-        if(foundUser !=null && foundUser.isActive()){
+        if (foundUser != null && foundUser.isActive()) {
 
             foundUser.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(foundUser);
 
-        }else {
-            throw  new UsernameNotFoundException("Not found");
+        } else {
+            throw new UsernameNotFoundException("Not found");
         }
 
     }
@@ -232,9 +296,9 @@ public class UserServiceImpl implements UserService{
 
         //check expiration
         //return email id if all good
-        if(resetPasswordToken != null){
+        if (resetPasswordToken != null) {
 
-            if(resetPasswordToken.getTokenTimeLimit().isBefore(LocalDateTime.now())){
+            if (resetPasswordToken.getTokenTimeLimit().isBefore(LocalDateTime.now())) {
 
                 logger.info("-------------------TIME LIMIT EXCEEDED---------------");
 
@@ -265,7 +329,7 @@ public class UserServiceImpl implements UserService{
         String token = UUIDTokenService.getUUIDToken();
 
 //        save in db
-        ResetPasswordToken resetPasswordToken =  new ResetPasswordToken();
+        ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
         resetPasswordToken.setResetPassToken(token);
         resetPasswordToken.setUserEmail(email);
         resetPasswordToken.setTokenTimeLimit(LocalDateTime.now().plusMinutes(1));
@@ -276,21 +340,21 @@ public class UserServiceImpl implements UserService{
         //generate url
         String emailBody = "";
         try {
-            emailBody= "Reset Password Link: " + UUIDTokenService.generateResetPassURL(token);
-        }catch (MalformedURLException e){
+            emailBody = "Reset Password Link: " + UUIDTokenService.generateResetPassURL(token);
+        } catch (MalformedURLException e) {
             logger.info("URL Error" + e);
             e.printStackTrace();
         }
 //send email
-       // emailSenderService.sendEmail(email,"Reset Password",emailBody);
+        // emailSenderService.sendEmail(email,"Reset Password",emailBody);
         logger.info(emailBody);
     }
 
     @Override
     public void sendSellerAcknowledgement(String email) {
 
-        String emailBody = "ACCOUNT CREATED WAITING FOR APPROVAL" ;
-        emailSenderService.sendEmail(email,"Registration Successfully",emailBody);
+        String emailBody = "ACCOUNT CREATED WAITING FOR APPROVAL";
+        emailSenderService.sendEmail(email, "Registration Successfully", emailBody);
 
     }
 

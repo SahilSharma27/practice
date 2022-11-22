@@ -71,9 +71,12 @@ public class CustomerController {
 
 
 
-
 //    @PostMapping(value = "/users/address",params = "role=customer")
 //    public ResponseEntity<String> addAddress(@RequestBody AddressDTO addressDTO){
+//
+//        userService.
+//
+//
 //        if(userService.checkUserEmail(addressDTO.getUserEmail())){
 //            //add address to the table
 //
