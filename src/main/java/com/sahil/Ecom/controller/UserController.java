@@ -6,14 +6,17 @@ import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
+import com.sahil.Ecom.repository.BlacklistTokenRepository;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
+import com.sahil.Ecom.service.FileService;
 import com.sahil.Ecom.service.LoginService;
 import com.sahil.Ecom.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -21,12 +24,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -43,6 +48,9 @@ public class UserController {
     @Autowired
     MessageSource messageSource;
 
+    @Value("${project.image}")
+    private String path;
+
 
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -53,6 +61,11 @@ public class UserController {
     @Autowired
     LoginService loginService;
 
+    @Autowired
+    BlacklistTokenRepository blacklistTokenRepository;
+
+    @Autowired
+    FileService fileService;
 
 
     Locale locale = LocaleContextHolder.getLocale();
@@ -118,15 +131,16 @@ public class UserController {
         return ResponseEntity.ok(jwtResponse);
     }
 //
-//    @PostMapping(value = "/login",params = "role=seller")
-//    public ResponseEntity<?> loginSeller(@RequestBody JwtRequest jwtRequest) throws Exception {
-//
-//        String accessToken  = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
-//
+    @PostMapping(value = "/login",params = "role=seller")
+    public ResponseEntity<?> loginSeller(@RequestBody JwtRequest jwtRequest) throws Exception {
+
+        JwtResponse jwtResponse= tokenGeneratorHelper.generateTokenHelper(jwtRequest);
+
 //        logger.info("token : " + accessToken);
-//
+
 //        return ResponseEntity.ok(new JwtResponse(accessToken,accessToken));
-//    }
+        return ResponseEntity.ok(jwtResponse);
+    }
 
     @GetMapping(value = "/users/activate")
     public ResponseEntity<String> activateAccount(@RequestParam(name="token") String uuid){
@@ -192,12 +206,72 @@ public class UserController {
     }
 
     @GetMapping(value = "/users/logout")
-    public ResponseEntity<?> logoutUSer(@RequestParam String token) {
+    public ResponseEntity<?> logoutUser(HttpServletRequest request) {
+
+        String requestHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+
+            accessToken = requestHeader.substring("Bearer".length());
+
+            userService.logout(accessToken);
+
+        }
 
         return new ResponseEntity<>("HELLO",HttpStatus.OK);
     }
 
+
+    @PatchMapping(value = "users/address/{address_id}")
+    public ResponseEntity<?> updateAddress(@RequestBody Address address, @PathVariable(name = "address_id")Long id){
+
+        //find address by id
+        //update given fields
+
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setTimestamp(new Date());
+        String message;
+
+        if(userService.updateAddress(id,address)){
+            message = messageSource.getMessage("user.address.updated",null,"message",locale);
+            responseDTO.setResponseStatusCode(200);
+            responseDTO.setMessage(message);
+            return ResponseEntity.ok(responseDTO);
+        }
+
+        message = messageSource.getMessage("user.not.found",null,"message",locale);
+        responseDTO.setResponseStatusCode(404);
+        responseDTO.setMessage(message);
+
+        return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+
+    }
+
+    @PostMapping("users/image/{user_id}")
+    public ResponseEntity<?> upload(@PathVariable(name ="user_id")Long id,@RequestParam("image") MultipartFile image){
+
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setTimestamp(new Date());
+
+        if(userService.saveUserImage(id,image)){
+
+            responseDTO.setResponseStatusCode(200);
+            responseDTO.setMessage("Image uploaded Successfully");
+
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }
+
+            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 //
+
+    }
 
 
 

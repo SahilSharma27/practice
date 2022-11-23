@@ -9,17 +9,21 @@ import com.sahil.Ecom.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -61,6 +65,15 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     AddressRepository addressRepository;
+
+    @Autowired
+    BlacklistTokenRepository blacklistTokenRepository;
+
+    @Autowired
+    FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
 
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -365,45 +378,59 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO) {
+    public boolean logout(String accessToken) {
 
-        if (userRepository.existsByEmail(userEmail)) {
-            User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("NOT FOUND"));
+        //add token to blacklist table
+        blacklistTokenRepository.save(new BlacklistToken(accessToken));
+        return true;
 
-            Address newAddress = new Address();
-
-            newAddress.setAddressLine(addressDTO.getAddressLine());
-            newAddress.setCity(addressDTO.getCity());
-            newAddress.setLabel(addressDTO.getLabel());
-            newAddress.setZipCode(addressDTO.getZipCode());
-            newAddress.setState(addressDTO.getState());
-            newAddress.setCountry(addressDTO.getCountry());
-
-            user.getAddresses().add(newAddress);
-
-            userRepository.save(user);
-            return true;
-        }
-        return false;
     }
 
     @Override
-    public List<Address> getAllCustomerAddresses(String userEmail) {
-        if(userRepository.existsByEmail(userEmail)){
+    public boolean updateAddress(Long id,Address newAddress) {
 
-            User user =  userRepository.findByEmail(userEmail).get();
-            return user.getAddresses();
-
-        }
-        throw new UsernameNotFoundException("NOT FOUND");
-    }
-
-    @Override
-    public boolean removeAddress(Long id) {
         if(addressRepository.existsById(id)){
-            addressRepository.deleteById(id);
+            Address addressToBeUpdated =  addressRepository.findById(id).get();
+
+            if(newAddress.getAddressLine() != null)
+                addressToBeUpdated.setAddressLine(newAddress.getAddressLine());
+
+            if(newAddress.getCity() != null)
+                addressToBeUpdated.setCity(newAddress.getCity());
+
+            if(newAddress.getLabel() != null)
+                addressToBeUpdated.setLabel(newAddress.getLabel());
+
+            if(newAddress.getZipCode() != null)
+                addressToBeUpdated.setZipCode(newAddress.getZipCode());
+
+            if(newAddress.getCountry() != null)
+                addressToBeUpdated.setCountry(newAddress.getCountry());
+
+            if(newAddress.getState() != null)
+                addressToBeUpdated.setState(newAddress.getState());
+
+
+            addressRepository.save(addressToBeUpdated);
+
             return true;
         }
+
         return false;
+
+    }
+
+    @Override
+    public boolean saveUserImage(Long id, MultipartFile image) {
+        try{
+
+            String fileName = fileService.uploadImage(id,path,image);
+            return true;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
     }
 }

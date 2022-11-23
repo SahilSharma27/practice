@@ -10,6 +10,10 @@ public class FetchSellerDTO {
     private AddressDTO companyAddress;
     private String companyContact;
 
+    private String imageUrl;
+
+    private String gst;
+
     public FetchSellerDTO() {
     }
 
@@ -67,5 +71,21 @@ public class FetchSellerDTO {
 
     public void setCompanyContact(String companyContact) {
         this.companyContact = companyContact;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getGst() {
+        return gst;
+    }
+
+    public void setGst(String gst) {
+        this.gst = gst;
     }
 }

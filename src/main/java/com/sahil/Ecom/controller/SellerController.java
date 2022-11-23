@@ -1,24 +1,31 @@
 package com.sahil.Ecom.controller;
 
+import com.sahil.Ecom.dto.FetchCustomerDTO;
+import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.dto.SellerDTO;
 import com.sahil.Ecom.exception.CompanyNameAlreadyRegisteredException;
 import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
 import com.sahil.Ecom.exception.GstAlreadyRegisteredException;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
+import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.service.SellerService;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.UserService;
+import io.jsonwebtoken.Jwt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.Locale;
@@ -35,6 +42,9 @@ public class SellerController {
 
     @Autowired
     private SellerService sellerService;
+
+    @Autowired
+    JwtUtil jwtUtil;
 
     @Autowired
     private MessageSource messageSource;
@@ -86,6 +96,34 @@ public class SellerController {
         responseDTO.setResponseStatusCode(200);
         return ResponseEntity.ok(responseDTO);
         //return new ResponseEntity<>("User registered Successfully", HttpStatus.OK);
+
+    }
+
+
+    @GetMapping(value = "users/profile", params = "role=seller")
+    public ResponseEntity<?> getCustomerProfile(HttpServletRequest request) {
+        //get token
+        //get username
+        //get profile
+
+        String requestHeader = request.getHeader("Authorization");
+
+        String userEmail = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+            String accessToken = requestHeader.substring("Bearer".length());
+
+            try {
+                userEmail = this.jwtUtil.extractUsername(accessToken);
+                FetchSellerDTO fetchSellerDTO =  sellerService.fetchSellerProfileDetails(userEmail);
+                return ResponseEntity.ok(fetchSellerDTO);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
 
     }
 

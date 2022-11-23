@@ -7,6 +7,9 @@ public class FetchCustomerDTO {
     private String email;
     private boolean isActive;
 
+    private String contact;
+    private String imageUrl;
+
     public FetchCustomerDTO() {
     }
 
@@ -41,5 +44,21 @@ public class FetchCustomerDTO {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 }

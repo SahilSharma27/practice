@@ -8,8 +8,10 @@ import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
@@ -44,10 +46,9 @@ public interface UserService {
 
     void sendSellerAcknowledgement(String email);
 
+    boolean logout(String accessToken);
 
-    boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO);
+    boolean updateAddress(Long id,Address address);
 
-    List<Address> getAllCustomerAddresses(String userEmail);
-
-    boolean removeAddress(Long id);
+    boolean saveUserImage(Long id, MultipartFile image);
 }

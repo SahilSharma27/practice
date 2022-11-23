@@ -3,6 +3,7 @@ package com.sahil.Ecom.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sahil.Ecom.exception.TokenExpiredException;
+import com.sahil.Ecom.repository.BlacklistTokenRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     MyCustomUserDetailsService userDetailsService;
 
+    @Autowired
+    BlacklistTokenRepository blacklistTokenRepository;
+
 //    private Gson gson = new Gson();
 
     @Override
@@ -46,13 +50,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = null;
         String jwtToken = null;
 
-
-
         //check format
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")) {
             jwtToken = requestTokenHeader.substring("Bearer".length());
 
             try{
+                //check if token is blacklisted
+                if(isBlackListed(jwtToken)){
+                    logger.info("-----------------------------------");
+                    logger.info("BLACK LISTED TOKEN");
+                    throw new ExpiredJwtException(null,null,"in BL");
+                }
+                logger.info("-----------------------------------");
+                logger.info("NOT BLACK LISTED TOKEN");
                 username = this.jwtUtil.extractUsername(jwtToken);
 
             }catch (ExpiredJwtException e) {
@@ -65,7 +75,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //                response.setCharacterEncoding("UTF-8");
 //                out.print(apiErrorJsonString);
 //                out.flush();
-
 
                 Map<String, Object> errorDetails = new HashMap<>();
 
@@ -105,6 +114,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
 
+    }
+
+    private boolean isBlackListed(String jwtToken) {
+        return blacklistTokenRepository.existsById(jwtToken);
     }
 
 

@@ -1,10 +1,14 @@
 package com.sahil.Ecom.service;
 
+import com.sahil.Ecom.dto.AddressDTO;
+import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.dto.SellerDTO;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Seller;
+import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.SellerRepository;
+import com.sahil.Ecom.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +27,9 @@ public class SellerServiceImpl implements SellerService{
 
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     RoleRepository roleRepository;
@@ -87,6 +94,47 @@ public class SellerServiceImpl implements SellerService{
         newSeller.setInvalidAttemptCount(0);
 
         return sellerRepository.save(newSeller);
+    }
+
+    @Override
+    public FetchSellerDTO fetchSellerProfileDetails(String userEmail) {
+        if(userRepository.existsByEmail(userEmail)){
+
+            Seller seller = sellerRepository.findByEmail(userEmail).get();
+
+            FetchSellerDTO fetchSellerDTO = new FetchSellerDTO();
+            fetchSellerDTO.setId(seller.getId());
+            fetchSellerDTO.setFullName(seller.getFirstName() + seller.getMiddleName() + seller.getLastName());
+            fetchSellerDTO.setActive(seller.isActive());
+            fetchSellerDTO.setEmail(userEmail);
+
+
+            Address address = seller.getAddresses().get(0);
+
+            AddressDTO addressDTO= new AddressDTO();
+
+            addressDTO.setAddressLine(address.getAddressLine());
+            addressDTO.setCity(address.getCity());
+            addressDTO.setCountry(address.getCountry());
+            addressDTO.setLabel(address.getLabel());
+            addressDTO.setZipCode(address.getZipCode());
+            addressDTO.setState(addressDTO.getState());
+
+
+            fetchSellerDTO.setCompanyAddress(addressDTO);
+
+            fetchSellerDTO.setCompanyName(seller.getCompanyName());
+            fetchSellerDTO.setCompanyContact(seller.getCompanyContact());
+            fetchSellerDTO.setGst(seller.getGst());
+
+            String url = "file:///home/sahil/IdeaProjects/Ecom/images/users/";
+            fetchSellerDTO.setImageUrl(url + seller.getId()+ ".jpg");
+
+            return fetchSellerDTO;
+
+        }
+
+        throw new UserEmailNotFoundException("NOT FOUND");
     }
 
 }

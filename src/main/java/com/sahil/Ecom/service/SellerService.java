@@ -1,5 +1,6 @@
 package com.sahil.Ecom.service;
 
+import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.dto.SellerDTO;
 import com.sahil.Ecom.entity.Seller;
 
@@ -14,5 +15,5 @@ public interface SellerService {
     boolean checkSellerGst(String gst);
 
 
-
+    FetchSellerDTO fetchSellerProfileDetails(String userEmail);
 }

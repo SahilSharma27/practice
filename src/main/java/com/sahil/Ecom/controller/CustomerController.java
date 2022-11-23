@@ -3,6 +3,7 @@ package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.AddressDTO;
 import com.sahil.Ecom.dto.CustomerDTO;
+import com.sahil.Ecom.dto.FetchCustomerDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
@@ -25,6 +26,7 @@ import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @RestController
 public class CustomerController {
@@ -70,6 +72,8 @@ public class CustomerController {
         responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));
         responseDTO.setResponseStatusCode(200);
         return ResponseEntity.ok(responseDTO);
+
+
     }
 
 
@@ -94,12 +98,16 @@ public class CustomerController {
             String accessToken = requestHeader.substring("Bearer".length());
 
             try {
+
                 userEmail = this.jwtUtil.extractUsername(accessToken);
+
             } catch (Exception e) {
+
                 e.printStackTrace();
+
             }
 
-            if (userService.addAddressToCustomer(userEmail, addressDTO)) {
+            if (customerService.addAddressToCustomer(userEmail, addressDTO)) {
                 responseDTO.setMessage(messageSource.getMessage("customer.address.added", null, "message", locale));
                 responseDTO.setResponseStatusCode(200);
                 return ResponseEntity.ok(responseDTO);
@@ -142,7 +150,7 @@ public class CustomerController {
                 e.printStackTrace();
             }
 
-            List<Address> addresses = userService.getAllCustomerAddresses(userEmail);
+            List<Address> addresses = customerService.getAllCustomerAddresses(userEmail);
 
             return ResponseEntity.ok(addresses);
 
@@ -161,7 +169,7 @@ public class CustomerController {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(new Date());
 
-        if(userService.removeAddress(id)){
+        if(customerService.removeAddress(id)){
 
             responseDTO.setMessage(messageSource.getMessage("address.deleted",null,"message",locale));
             responseDTO.setResponseStatusCode(200);
@@ -177,12 +185,33 @@ public class CustomerController {
 
 
     @GetMapping(value = "users/profile", params = "role=customer")
-    public ResponseEntity<?> getCustomerProfile(HttpServletRequest request){
+    public ResponseEntity<?> getCustomerProfile(HttpServletRequest request) {
         //get token
         //get username
         //get profile
-        return new ResponseEntity<>("helllo",HttpStatus.OK);
+
+        String requestHeader = request.getHeader("Authorization");
+
+        String userEmail = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+            String accessToken = requestHeader.substring("Bearer".length());
+
+            try {
+                userEmail = this.jwtUtil.extractUsername(accessToken);
+                FetchCustomerDTO fetchCustomerDTO =  customerService.fetchCustomerProfileDetails(userEmail);
+                return ResponseEntity.ok(fetchCustomerDTO);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return new ResponseEntity<>("",HttpStatus.NOT_FOUND);
+
     }
+
+
 
 
 }
