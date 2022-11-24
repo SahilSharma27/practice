@@ -41,6 +41,8 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/forgotPassword").permitAll()
                 .antMatchers("/users/resetPassword/**").permitAll()
                 .antMatchers("/users/image/**").permitAll()
+                .antMatchers("/users/customersPaged").permitAll()
+                .antMatchers("/users/sellersPaged").permitAll()
                 .antMatchers("/users/update/profile").hasAnyRole(EcomRoles.ADMIN.label,EcomRoles.CUSTOMER.label,EcomRoles.SELLER.label)
                 .antMatchers("/users/update/password").hasAnyRole(EcomRoles.ADMIN.label,EcomRoles.CUSTOMER.label,EcomRoles.SELLER.label)
                 .antMatchers("/users/profile").hasAnyRole(EcomRoles.ADMIN.label,EcomRoles.CUSTOMER.label,EcomRoles.SELLER.label)

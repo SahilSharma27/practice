@@ -13,6 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -442,6 +447,71 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
             return false;
         }
+
+    }
+
+
+    @Override
+    public List<FetchCustomerDTO> getAllCustomersPaged(int page,int size,String sort) {
+
+        Pageable pageable = PageRequest.of(page,size,Sort.by(sort).ascending());
+
+        Page<Customer> customerPage= customerRepository.findAll(pageable);
+
+        List<Customer> customerList = customerPage.getContent();
+
+        return customerList.stream().map(customer -> {
+
+                    FetchCustomerDTO fetchCustomerDTO = new FetchCustomerDTO();
+                    fetchCustomerDTO.setEmail(customer.getEmail());
+                    fetchCustomerDTO.setId(customer.getId());
+                    fetchCustomerDTO.setFullName(customer.getFirstName() + " " + customer.getMiddleName() + " " + customer.getLastName());
+                    fetchCustomerDTO.setContact(customer.getContact());
+                    fetchCustomerDTO.setActive(customer.isActive());
+
+                    return fetchCustomerDTO;
+
+                }
+        ).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<FetchSellerDTO> getAllSellersPaged(int page, int size, String sort) {
+        Pageable pageable = PageRequest.of(page,size,Sort.by(sort).ascending());
+
+        Page<Seller> sellersPage= sellerRepository.findAll(pageable);
+
+        List<Seller> sellerList = sellersPage.getContent();
+
+        return sellerList.stream().map(seller -> {
+
+                    FetchSellerDTO fetchSellerDTO = new FetchSellerDTO();
+                    fetchSellerDTO.setEmail(seller.getEmail());
+                    fetchSellerDTO.setId(seller.getId());
+                    fetchSellerDTO.setFullName(seller.getFirstName() + " " + seller.getMiddleName() + " " + seller.getLastName());
+                    fetchSellerDTO.setCompanyContact(seller.getCompanyContact());
+                    fetchSellerDTO.setGst(seller.getCompanyContact());
+
+                    fetchSellerDTO.setCompanyAddress(seller.getAddresses().stream().map(address -> {
+
+                        AddressDTO addressDTO = new AddressDTO();
+                        addressDTO.setState(address.getState());
+                        addressDTO.setCountry(address.getCountry());
+                        addressDTO.setCity(address.getCity());
+                        addressDTO.setZipCode(address.getZipCode());
+                        addressDTO.setLabel(address.getLabel());
+
+                        return addressDTO;
+                    }).toList().get(0));
+
+                    fetchSellerDTO.setActive(seller.isActive());
+
+                    return fetchSellerDTO;
+
+                }
+
+        ).collect(Collectors.toList());
 
     }
 }

@@ -6,6 +6,7 @@ import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.security.JwtUtil;
+import com.sahil.Ecom.service.CustomerService;
 import com.sahil.Ecom.service.EmailSenderService;
 import com.sahil.Ecom.service.SellerService;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Locale;
@@ -40,13 +42,14 @@ public class AdminController {
     private SellerService sellerService;
 
     @Autowired
+    private CustomerService customerService;
+
+    @Autowired
     private MessageSource messageSource;
 
     Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     Locale locale = LocaleContextHolder.getLocale();
-
-
 
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
@@ -63,6 +66,45 @@ public class AdminController {
     public ResponseEntity<?> getAllSellers() {
         return new ResponseEntity<>(userService.getAllSellers(), HttpStatus.OK);
     }
+
+
+    @GetMapping(value = "/users/customersPaged")
+    public ResponseEntity<?> getAllCustomersPaged(HttpServletRequest request) {
+
+        String email = request.getParameter("email");
+        if(email == null) {
+
+            int page = (request.getParameter("page") == null) ? 0 : Integer.parseInt(request.getParameter("page"));
+            int size = (request.getParameter("size") == null) ? 10 : Integer.parseInt(request.getParameter("size"));
+            String sort = (request.getParameter("sort") == null) ? "id" : request.getParameter("sort");
+
+
+            return new ResponseEntity<>(userService.getAllCustomersPaged(page, size, sort), HttpStatus.OK);
+        }else{
+            return ResponseEntity.ok(customerService.fetchCustomerProfileDetails(email));
+        }
+
+    }
+
+    @GetMapping(value = "/users/sellersPaged")
+    public ResponseEntity<?> getAllSellersPaged(HttpServletRequest request) {
+
+        String email = request.getParameter("email");
+        if(email == null) {
+
+            int page = (request.getParameter("page") == null) ? 0 : Integer.parseInt(request.getParameter("page"));
+            int size = (request.getParameter("size") == null) ? 10 : Integer.parseInt(request.getParameter("size"));
+            String sort = (request.getParameter("sort") == null) ? "id" : request.getParameter("sort");
+
+
+            return new ResponseEntity<>(userService.getAllSellersPaged(page, size, sort), HttpStatus.OK);
+        }else{
+            return ResponseEntity.ok(sellerService.fetchSellerProfileDetails(email));
+        }
+
+    }
+
+
 
     @PutMapping(value = "users/activate/{id}")
     public ResponseEntity<?> activateSeller(@PathVariable(name = "id") Long sellerId) {

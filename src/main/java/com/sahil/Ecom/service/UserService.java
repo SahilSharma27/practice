@@ -8,6 +8,7 @@ import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.entity.User;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public interface UserService {
     public Iterable<User> getAllUsers();
 
     public List<FetchCustomerDTO> getAllCustomers();
+
+    public List<FetchCustomerDTO> getAllCustomersPaged(int page, int size,String sort);
+    public List<FetchSellerDTO> getAllSellersPaged(int page, int size,String sort);
 
     public List<FetchSellerDTO> getAllSellers();
 
