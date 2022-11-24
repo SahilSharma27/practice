@@ -1,5 +1,7 @@
 package com.sahil.Ecom.dto;
 
+import org.springframework.data.annotation.ReadOnlyProperty;
+
 public class FetchSellerDTO {
 
     private Long id;

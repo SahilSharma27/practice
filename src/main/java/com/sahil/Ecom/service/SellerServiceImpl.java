@@ -1,8 +1,6 @@
 package com.sahil.Ecom.service;
 
-import com.sahil.Ecom.dto.AddressDTO;
-import com.sahil.Ecom.dto.FetchSellerDTO;
-import com.sahil.Ecom.dto.SellerDTO;
+import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
@@ -135,6 +133,41 @@ public class SellerServiceImpl implements SellerService{
         }
 
         throw new UserEmailNotFoundException("NOT FOUND");
+    }
+
+
+    @Override
+    public boolean updateSellerProfile(String username, SellerProfileDTO sellerProfileDTO) {
+
+        if(userRepository.existsByEmail(username)){
+            Seller seller = sellerRepository.findByEmail(username).get();
+
+            if(sellerProfileDTO.getFirstName()!=null)
+                seller.setFirstName(sellerProfileDTO.getFirstName());
+
+            if(sellerProfileDTO.getMiddleName()!=null)
+                seller.setMiddleName(sellerProfileDTO.getMiddleName());
+
+            if(sellerProfileDTO.getLastName()!=null)
+                seller.setLastName(sellerProfileDTO.getLastName());
+
+            if(sellerProfileDTO.getContact()!=null && !sellerProfileDTO.getContact().isEmpty())
+                seller.setCompanyName(sellerProfileDTO.getContact());
+
+            if(sellerProfileDTO.getCompanyName()!= null)
+                seller.setCompanyName(sellerProfileDTO.getCompanyName());
+
+            if(sellerProfileDTO.getGst()!=null){
+                seller.setGst(sellerProfileDTO.getGst());
+            }
+
+            sellerRepository.save(seller);
+
+            return true;
+        }
+
+
+        return false;
     }
 
 }

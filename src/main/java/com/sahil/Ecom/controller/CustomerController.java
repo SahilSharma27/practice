@@ -1,10 +1,7 @@
 package com.sahil.Ecom.controller;
 
 
-import com.sahil.Ecom.dto.AddressDTO;
-import com.sahil.Ecom.dto.CustomerDTO;
-import com.sahil.Ecom.dto.FetchCustomerDTO;
-import com.sahil.Ecom.dto.ResponseDTO;
+import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
@@ -210,6 +207,29 @@ public class CustomerController {
         return new ResponseEntity<>("",HttpStatus.NOT_FOUND);
 
     }
+
+    @PatchMapping(value = "/users/update/profile")
+    public ResponseEntity<?> updateCustomerProfile(@RequestBody CustomerProfileDTO customerProfileDTO,HttpServletRequest request) {
+
+        String requestHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer".length());
+            username = jwtUtil.extractUsername(accessToken);
+
+            customerService.updateProfile(username,customerProfileDTO);
+
+        }
+
+        return new ResponseEntity<>("HELLO",HttpStatus.OK);
+    }
+
+
 
 
 

@@ -4,6 +4,7 @@ import com.sahil.Ecom.dto.AddressDTO;
 import com.sahil.Ecom.dto.FetchCustomerDTO;
 import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.entity.*;
+import com.sahil.Ecom.exception.AccountNotActiveException;
 import com.sahil.Ecom.exception.TokenExpiredException;
 import com.sahil.Ecom.repository.*;
 import org.slf4j.Logger;
@@ -292,17 +293,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void resetPassword(String email, String newPassword) {
-        User foundUser = userRepository.findByEmail(email).orElse(null);
+    @Transactional
+    public boolean resetPassword(String email, String newPassword) {
 
-        if (foundUser != null && foundUser.isActive()) {
+        if (userRepository.existsByEmail(email)) {
 
-            foundUser.setPassword(passwordEncoder.encode(newPassword));
-            userRepository.save(foundUser);
+            User foundUser = userRepository.findByEmail(email).get();
+
+            if (foundUser.isActive()) {
+
+                return userRepository.updatePassword(passwordEncoder.encode(newPassword),email) > 0;
+//                foundUser.setPassword(passwordEncoder.encode(newPassword));
+//                userRepository.save(foundUser);
+//                return true;
+            } else {
+                throw new AccountNotActiveException("Account Not Active");
+            }
 
         } else {
             throw new UsernameNotFoundException("Not found");
         }
+
 
     }
 

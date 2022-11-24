@@ -6,7 +6,6 @@ public class FetchCustomerDTO {
     private String fullName;
     private String email;
     private boolean isActive;
-
     private String contact;
     private String imageUrl;
 

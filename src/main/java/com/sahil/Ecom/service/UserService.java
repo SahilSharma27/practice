@@ -42,7 +42,7 @@ public interface UserService {
     String validateResetPasswordToken(String uuid);
 
 
-    void resetPassword(String email,String newPassword);
+    boolean resetPassword(String email,String newPassword);
 
     void sendSellerAcknowledgement(String email);
 

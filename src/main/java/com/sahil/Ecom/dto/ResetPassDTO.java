@@ -7,7 +7,6 @@ public class ResetPassDTO {
     @Email
     private String userEmail;
 
-
     private String newPassword;
 
     private String confirmNewPassword;

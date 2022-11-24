@@ -1,9 +1,7 @@
 package com.sahil.Ecom.service;
 
 
-import com.sahil.Ecom.dto.AddressDTO;
-import com.sahil.Ecom.dto.CustomerDTO;
-import com.sahil.Ecom.dto.FetchCustomerDTO;
+import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
 import com.sahil.Ecom.entity.Seller;
@@ -148,8 +146,7 @@ public class CustomerServiceImpl implements CustomerService{
             fetchCustomerDTO.setContact(customer.getContact());
             fetchCustomerDTO.setEmail(userEmail);
 
-//            String url = "localhost:8080/use"
-            String url = "file:///home/sahil/IdeaProjects/Ecom/images/users/";
+            String url = "localhost:8080/images/users/";
             fetchCustomerDTO.setImageUrl(url + customer.getId()+ ".jpg");
 
             return fetchCustomerDTO;
@@ -157,5 +154,32 @@ public class CustomerServiceImpl implements CustomerService{
         }
 
         throw new UserEmailNotFoundException("NOT FOUND");
+    }
+
+    @Override
+    public boolean updateProfile(String username, CustomerProfileDTO customerProfileDTO) {
+
+        if(userRepository.existsByEmail(username)){
+            Customer customer = customerRepository.findByEmail(username).get();
+
+            if(customerProfileDTO.getFirstName()!=null)
+                customer.setFirstName(customerProfileDTO.getFirstName());
+
+            if(customerProfileDTO.getMiddleName()!=null)
+                customer.setMiddleName(customerProfileDTO.getMiddleName());
+
+            if(customerProfileDTO.getLastName()!=null)
+                customer.setLastName(customerProfileDTO.getLastName());
+
+            if(customerProfileDTO.getContact()!=null)
+                customer.setContact(customerProfileDTO.getContact());
+
+            customerRepository.save(customer);
+
+            return true;
+        }
+
+
+        return false;
     }
 }

@@ -2,6 +2,7 @@ package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.AddressDTO;
 import com.sahil.Ecom.dto.CustomerDTO;
+import com.sahil.Ecom.dto.CustomerProfileDTO;
 import com.sahil.Ecom.dto.FetchCustomerDTO;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.Customer;
@@ -20,4 +21,6 @@ public interface CustomerService {
     boolean removeAddress(Long id);
 
     FetchCustomerDTO fetchCustomerProfileDetails(String userEmail);
+
+    boolean updateProfile(String username, CustomerProfileDTO customerProfileDTO);
 }

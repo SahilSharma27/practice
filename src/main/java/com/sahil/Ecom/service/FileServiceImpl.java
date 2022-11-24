@@ -4,8 +4,7 @@ package com.sahil.Ecom.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -47,5 +46,19 @@ public class FileServiceImpl implements FileService {
         return fileName;
 
         //file copy
+    }
+
+    @Override
+    public InputStream getProfileImage(String path, String filename) {
+        //file separator is used in place of " / " as depending on the OS it may require " \ "
+
+        String fullPath = path+File.separator+filename;
+        InputStream inputStream;
+        try {
+             inputStream =  new FileInputStream(fullPath);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return inputStream;
     }
 }
