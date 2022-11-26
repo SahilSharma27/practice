@@ -16,10 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CustomerServiceImpl implements CustomerService{
@@ -49,13 +46,13 @@ public class CustomerServiceImpl implements CustomerService{
         newCustomer.setMiddleName(customerDTO.getMiddleName());
         newCustomer.setLastName(customerDTO.getLastName());
 
-        List<Address > addressList = mapAddressDTOtoAddressEntity(customerDTO.getAddressList());
+//        List<Address > addressList = mapAddressDTOtoAddressEntity(customerDTO.getAddressList());
 
-        newCustomer.setAddresses(addressList);
+//        newCustomer.setAddresses(addressList);
         newCustomer.setPassword(passwordEncoder.encode(customerDTO.getPassword()));
         newCustomer.setContact(customerDTO.getContact());
 
-        newCustomer.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_CUSTOMER")));
+        newCustomer.setRoles(Collections.singletonList(roleRepository.findByAuthority("ROLE_CUSTOMER")));
 
         newCustomer.setActive(false);
         newCustomer.setDeleted(false);
@@ -68,28 +65,28 @@ public class CustomerServiceImpl implements CustomerService{
 
     }
 
-    private List<Address> mapAddressDTOtoAddressEntity(List<AddressDTO> addressDTOList) {
-
-        List<Address> addresses = new ArrayList<>();
-
-        for (AddressDTO addressDTO:addressDTOList) {
-
-            //map values
-            Address customerAddress = new Address();
-            customerAddress.setAddressLine(addressDTO.getAddressLine());
-            customerAddress.setCity(addressDTO.getCity());
-            customerAddress.setCountry(addressDTO.getCountry());
-            customerAddress.setLabel(addressDTO.getLabel());
-            customerAddress.setZipCode(addressDTO.getZipCode());
-            customerAddress.setState(addressDTO.getState());
-
-            //add to list
-            addresses.add(customerAddress);
-
-        }
-
-        return addresses;
-    }
+//    private List<Address> mapAddressDTOtoAddressEntity(List<AddressDTO> addressDTOList) {
+//
+//        List<Address> addresses = new ArrayList<>();
+//
+//        for (AddressDTO addressDTO:addressDTOList) {
+//
+//            //map values
+//            Address customerAddress = new Address();
+//            customerAddress.setAddressLine(addressDTO.getAddressLine());
+//            customerAddress.setCity(addressDTO.getCity());
+//            customerAddress.setCountry(addressDTO.getCountry());
+//            customerAddress.setLabel(addressDTO.getLabel());
+//            customerAddress.setZipCode(addressDTO.getZipCode());
+//            customerAddress.setState(addressDTO.getState());
+//
+//            //add to list
+//            addresses.add(customerAddress);
+//
+//        }
+//
+//        return addresses;
+//    }
 
     @Override
     public boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO) {

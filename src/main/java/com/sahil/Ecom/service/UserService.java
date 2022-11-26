@@ -31,6 +31,7 @@ public interface UserService {
     public List<FetchCustomerDTO> getAllCustomers();
 
     public List<FetchCustomerDTO> getAllCustomersPaged(int page, int size,String sort);
+
     public List<FetchSellerDTO> getAllSellersPaged(int page, int size,String sort);
 
     public List<FetchSellerDTO> getAllSellers();

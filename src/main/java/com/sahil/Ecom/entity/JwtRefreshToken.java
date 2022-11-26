@@ -1,6 +1,9 @@
 package com.sahil.Ecom.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "JWT_REFRESH_TOKEN")
@@ -12,10 +15,14 @@ public class JwtRefreshToken {
 
     @Column(name = "REFRESH_TOKEN")
     private String refreshToken;
+//
+//    @OneToMany(mappedBy = "jwtRefreshToken",cascade = CascadeType.ALL)
+//    private List<JwtAccessToken> jwtAccessToken;
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "USER_ID")
+    @JsonIgnore
     private User user;
 
     public JwtRefreshToken() {
@@ -44,4 +51,12 @@ public class JwtRefreshToken {
     public void setUser(User user) {
         this.user = user;
     }
+
+//    public List<JwtAccessToken> getJwtAccessToken() {
+//        return jwtAccessToken;
+//    }
+//
+//    public void setJwtAccessToken(List<JwtAccessToken> jwtAccessToken) {
+//        this.jwtAccessToken = jwtAccessToken;
+//    }
 }

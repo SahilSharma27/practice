@@ -1,8 +1,10 @@
 package com.sahil.Ecom.dto;
 
 import com.sahil.Ecom.entity.Address;
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.UniqueElements;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Set;
@@ -22,15 +24,15 @@ public class CustomerDTO {
     private String lastName;
 
     @NotBlank
+    @Size(min = 8,max = 15,message = "{password.validation}")
     private String password;
 
     @NotBlank
     private String confirmPassword;
 
     @NotBlank
+    @Size(max = 10,min = 10,message = "{contact.validation}")
     private String contact;
-
-    private List<AddressDTO> addressList;
 
     public CustomerDTO() {
     }
@@ -91,11 +93,4 @@ public class CustomerDTO {
         this.contact = contact;
     }
 
-    public List<AddressDTO> getAddressList() {
-        return addressList;
-    }
-
-    public void setAddressList(List<AddressDTO> addressList) {
-        this.addressList = addressList;
-    }
 }

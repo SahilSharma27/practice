@@ -182,4 +182,19 @@ public  class User {
         this.roles = roles;
     }
 
+    public JwtAccessToken getJwtAccessToken() {
+        return jwtAccessToken;
+    }
+
+    public void setJwtAccessToken(JwtAccessToken jwtAccessToken) {
+        this.jwtAccessToken = jwtAccessToken;
+    }
+
+    public JwtRefreshToken getJwtRefreshToken() {
+        return jwtRefreshToken;
+    }
+
+    public void setJwtRefreshToken(JwtRefreshToken jwtRefreshToken) {
+        this.jwtRefreshToken = jwtRefreshToken;
+    }
 }

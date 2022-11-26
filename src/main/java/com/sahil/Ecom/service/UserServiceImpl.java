@@ -94,6 +94,7 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Transactional
     @Override
     public User activateByEmail(String email) {
 
@@ -102,6 +103,7 @@ public class UserServiceImpl implements UserService {
         if (foundUser != null && !foundUser.isActive()) {
 
             foundUser.setActive(true);
+            activationTokenRepository.deleteByUserEmail(email);
             return userRepository.save(foundUser);
 
         } else {

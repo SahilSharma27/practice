@@ -33,9 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Locale;
-import java.util.Map;
 
 @RestController
 public class UserController {
@@ -113,11 +112,11 @@ public class UserController {
         //generate new tokens
         //save new tokens in db
 
-//        loginService.removeAlreadyGeneratedTokens(jwtRequest);
+        loginService.removeAlreadyGeneratedTokens(jwtRequest);
 
         JwtResponse jwtResponse = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
 
-//        loginService.saveJwtResponse(jwtResponse,jwtRequest.getUsername());
+        loginService.saveJwtResponse(jwtResponse,jwtRequest.getUsername());
 
 //        logger.info("token : " + jwtResponse);
 
@@ -148,7 +147,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/users/activate")
-    public ResponseEntity<String> activateAccount(@RequestParam(name = "token") String uuid) {
+    public ResponseEntity<?> activateAccount(@RequestParam(name = "token") String uuid) {
 
 //        1 check token in db
 //        2 check time limit
@@ -159,7 +158,8 @@ public class UserController {
 
         userService.activateByEmail(email);
 
-        return new ResponseEntity<>("USER ACCOUNT ACTIVATED", HttpStatus.OK);
+        String message = messageSource.getMessage("user.account.activated",null,"message",locale);
+        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
 
     }
 
@@ -202,10 +202,10 @@ public class UserController {
             if (email.equals(resetPassDTO.getUserEmail())) {
                 userService.resetPassword(email, resetPassDTO.getNewPassword());
             }
-            return ResponseEntity.ok(new ResponseDTO(new Date(), "User Password Updated", 200));
+            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,"User Password Updated", HttpStatus.OK));
         }
 
-        throw new PassConfirmPassNotMatchingException(messageSource.getMessage("password.confirmPassword", null, "message", locale));
+        throw new PassConfirmPassNotMatchingException(messageSource.getMessage("password.confirm.password", null, "message", locale));
 //        return new ResponseEntity<>("Password doesn't match with confirm password",HttpStatus.BAD_REQUEST);
 
     }
@@ -235,14 +235,14 @@ public class UserController {
                 }
 
                 if (userService.resetPassword(username, resetPassDTO.getNewPassword()))
-                    return ResponseEntity.ok(new ResponseDTO(new Date(), "User Password Updated", 200));
+                    return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,"User Password Updated", HttpStatus.OK));
 
                 else throw new Exception("PTA NAHI");
 
             }
         }
 
-        throw new PassConfirmPassNotMatchingException(messageSource.getMessage("password.confirmPassword", null, "message", locale));
+        throw new PassConfirmPassNotMatchingException(messageSource.getMessage("password.confirm.password", null, "message", locale));
 //
 
 
@@ -279,18 +279,18 @@ public class UserController {
         //update given fields
 
         ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setTimestamp(new Date());
+        responseDTO.setTimestamp(LocalDateTime.now());
         String message;
 
         if (userService.updateAddress(id, address)) {
             message = messageSource.getMessage("user.address.updated", null, "message", locale);
-            responseDTO.setResponseStatusCode(200);
+            responseDTO.setResponseStatusCode(HttpStatus.OK);
             responseDTO.setMessage(message);
             return ResponseEntity.ok(responseDTO);
         }
 
         message = messageSource.getMessage("user.not.found", null, "message", locale);
-        responseDTO.setResponseStatusCode(404);
+        responseDTO.setResponseStatusCode(HttpStatus.NOT_FOUND);
         responseDTO.setMessage(message);
 
         return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
@@ -301,17 +301,19 @@ public class UserController {
     public ResponseEntity<?> upload(@PathVariable(name = "user_id") Long id, @RequestParam("image") MultipartFile image) {
 
         ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setTimestamp(new Date());
+        responseDTO.setTimestamp(LocalDateTime.now());
 
         if (userService.saveUserImage(id, image)) {
 
-            responseDTO.setResponseStatusCode(200);
+            responseDTO.setResponseStatusCode(HttpStatus.OK);
             responseDTO.setMessage("Image uploaded Successfully");
+            responseDTO.setSuccess(true);
 
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         }
 
+        responseDTO.setSuccess(false);
         return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 //
 

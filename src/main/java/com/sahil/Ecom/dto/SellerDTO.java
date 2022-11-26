@@ -1,5 +1,7 @@
 package com.sahil.Ecom.dto;
 
+import com.sahil.Ecom.entity.Address;
+
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -18,17 +20,18 @@ public class SellerDTO {
     private  String lastName;
 
     @NotBlank
-    @Size(min = 8,max = 15,message = "Password should be 8-15 characters with atleast 1 Lower case, 1 Upper case, 1 Special Character, 1 Number")
+    @Size(min = 8,max = 15,message ="{password.validation}")
     private String password;
 
     @NotBlank
     private String confirmPassword;
 
     @NotBlank
+    @Size(min = 15,max = 15,message = "{gst.validation}")
     private String gst;
 
     @NotBlank
-    @Size(min = 10,max = 10,message = "Contact number must be of 10 digits")
+    @Size(min = 10,max = 10,message = "{contact.validation}")
     private String companyContact;
 
     @NotBlank
@@ -118,4 +121,7 @@ public class SellerDTO {
     public void setAddress(AddressDTO address) {
         this.address = address;
     }
+
+
+
 }

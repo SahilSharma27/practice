@@ -30,38 +30,38 @@ public class testcontroller {
     @Value("${project.image}")
     private String path;
 
-    @GetMapping("/welcome")
-    public String  welcome(){
-        emailSenderService.sendEmail("sharma.sahil1560@gmail.com","TEST","TEST");
-
-        return "Lets go";
-    }
-
-    @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("image")MultipartFile image){
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setTimestamp(new Date());
-
-        try{
-            String fileName = fileService.uploadImage(1L,path,image);
-            responseDTO.setResponseStatusCode(200);
-            responseDTO.setMessage("File Path : "+fileName);
-
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-        }catch (Exception e){
-            responseDTO.setResponseStatusCode(400);
-            responseDTO.setMessage(null);
-
-            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-        }
-
-
-
-
-
-
-    }
+//    @GetMapping("/welcome")
+//    public String  welcome(){
+//        emailSenderService.sendEmail("sharma.sahil1560@gmail.com","TEST","TEST");
+//
+//        return "Lets go";
+//    }
+//
+//    @PostMapping("/upload")
+//    public ResponseEntity<?> upload(@RequestParam("image")MultipartFile image){
+//        ResponseDTO responseDTO = new ResponseDTO();
+//        responseDTO.setTimestamp(new Date());
+//
+//        try{
+//            String fileName = fileService.uploadImage(1L,path,image);
+//            responseDTO.setResponseStatusCode(200);
+//            responseDTO.setMessage("File Path : "+fileName);
+//
+//            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+//
+//        }catch (Exception e){
+//            responseDTO.setResponseStatusCode(400);
+//            responseDTO.setMessage(null);
+//
+//            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+//        }
+//
+//
+//
+//
+//
+//
+//    }
 
 
 

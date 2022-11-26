@@ -2,6 +2,9 @@ package com.sahil.Ecom.exception;
 
 
 import io.jsonwebtoken.ExpiredJwtException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,32 +13,57 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @Autowired
+    MessageSource messageSource;
+
+    Locale locale = LocaleContextHolder.getLocale();
+
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
     public ResponseEntity<ApiError> handleEmailAlreadyExistsException(EmailAlreadyRegisteredException ex) {
-        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(),"email taken");
+
+        String message = messageSource.getMessage("already.registered",null,"message",locale);
+        String error =  messageSource.getMessage("email.already.registered",null,"message",locale);
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(PassConfirmPassNotMatchingException.class)
     public ResponseEntity<ApiError> handlePassConfirmPassNotMatchingException(PassConfirmPassNotMatchingException exception){
-        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST, exception.getLocalizedMessage(),"Password Does not match with confirm password");
+
+        String message = messageSource.getMessage("password.confirm.password",null,"message",locale);
+        String error =  messageSource.getMessage("password.confirm.password",null,"message",locale);
+
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CompanyNameAlreadyRegisteredException.class)
     public ResponseEntity<ApiError> handleCompanyNameAlreadyRegisteredException(CompanyNameAlreadyRegisteredException exception){
-        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST, exception.getLocalizedMessage(),"Company Name Already Registered");
+
+        String message = messageSource.getMessage("already.registered",null,"message",locale);
+        String error =  messageSource.getMessage("company.name.already.registered",null,"message",locale);
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
+
     }
 
     @ExceptionHandler(GstAlreadyRegisteredException.class)
     public ResponseEntity<ApiError> handleGstAlreadyRegisteredException(GstAlreadyRegisteredException exception){
-        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST, exception.getLocalizedMessage(),"GST Number Already Registered");
+
+        String message = messageSource.getMessage("already.registered",null,"message",locale);
+        String error =  messageSource.getMessage("gst.already.registered",null,"message",locale);
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
+
     }
 
     @ExceptionHandler(TokenExpiredException.class)

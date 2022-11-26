@@ -1,11 +1,14 @@
 package com.sahil.Ecom.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "JWT_ACCESS_TOKEN")
 public class JwtAccessToken {
-
+//
     @Id
     @Column(name = "USER_ID")
     private Long id;
@@ -13,9 +16,14 @@ public class JwtAccessToken {
     @Column(name = "ACCESS_TOKEN")
     private String accessToken;
 
+//    @ManyToOne
+//    @JoinColumn(name = "REFRESH_TOKEN_ID", referencedColumnName = "REFRESH_TOKEN")
+//    JwtRefreshToken jwtRefreshToken;
+
     @OneToOne
     @MapsId
     @JoinColumn(name = "USER_ID")
+    @JsonIgnore
     private User user;
 
     public JwtAccessToken() {
@@ -44,4 +52,7 @@ public class JwtAccessToken {
     public void setUser(User user) {
         this.user = user;
     }
+
+
+
 }

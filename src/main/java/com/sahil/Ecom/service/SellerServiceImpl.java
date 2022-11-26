@@ -44,10 +44,11 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public Seller getSellerById(Long id){
-        if(sellerRepository.existsById(id)){
+//       if(sellerRepository.existsById(id)){
             return sellerRepository.findById(id).orElseThrow(()-> new UsernameNotFoundException("NOT FOUND"));
-        }
-        throw new UsernameNotFoundException("SELLER SERVICE:USER ID NOT FOUND");
+//        }
+//        throw new UsernameNotFoundException("SELLER SERVICE:USER ID NOT FOUND");
+//        return null;
     }
 
 
@@ -61,27 +62,18 @@ public class SellerServiceImpl implements SellerService{
         newSeller.setMiddleName(sellerDTO.getMiddleName());
         newSeller.setLastName(sellerDTO.getLastName());
         newSeller.setCompanyName(sellerDTO.getCompanyName());
-
-        //Only one can be added
-        List<Address> sellerAddressList = new ArrayList<>();
-
-        Address sellerAddress = new Address();
-        sellerAddress.setAddressLine(sellerDTO.getAddress().getAddressLine());
-        sellerAddress.setCity(sellerDTO.getAddress().getCity());
-        sellerAddress.setCountry(sellerDTO.getAddress().getCountry());
-        sellerAddress.setLabel(sellerDTO.getAddress().getLabel());
-        sellerAddress.setZipCode(sellerDTO.getAddress().getZipCode());
-        sellerAddress.setState(sellerDTO.getAddress().getState());
-
-        sellerAddressList.add(sellerAddress);
-
-        newSeller.setAddresses(sellerAddressList);
-
         newSeller.setPassword(passwordEncoder.encode(sellerDTO.getPassword()));
         newSeller.setCompanyContact(sellerDTO.getCompanyContact());
         newSeller.setGst(sellerDTO.getGst());
 
-        newSeller.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_SELLER")));
+
+        //Only one can be added
+        List<Address> sellerAddressList = new ArrayList<>();
+        sellerAddressList.add(sellerDTO.getAddress().mapAddressDTOtoAddress());
+        newSeller.setAddresses(sellerAddressList);
+
+
+        newSeller.setRoles(List.of(roleRepository.findByAuthority("ROLE_SELLER")));
 
         newSeller.setActive(false);
         newSeller.setDeleted(false);
@@ -98,7 +90,7 @@ public class SellerServiceImpl implements SellerService{
     public FetchSellerDTO fetchSellerProfileDetails(String userEmail) {
         if(userRepository.existsByEmail(userEmail)){
 
-            Seller seller = sellerRepository.findByEmail(userEmail).get();
+            Seller seller = sellerRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
 
             FetchSellerDTO fetchSellerDTO = new FetchSellerDTO();
             fetchSellerDTO.setId(seller.getId());

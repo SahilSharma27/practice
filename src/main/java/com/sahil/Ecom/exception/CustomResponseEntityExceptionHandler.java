@@ -1,5 +1,8 @@
 package com.sahil.Ecom.exception;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +19,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @ControllerAdvice
 public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @Autowired
+    MessageSource messageSource;
+
+    Locale locale = LocaleContextHolder.getLocale();
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -31,16 +40,13 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
             errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
         }
 
+        String message = messageSource.getMessage("arguments.not.valid",null,"message",locale);
+
         ApiError apiError =
-                new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+                new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message, errors);
         return handleExceptionInternal(
                 ex, apiError, headers,apiError.getStatus(), request);
     }
-
-
-
-
-
 
 }
 

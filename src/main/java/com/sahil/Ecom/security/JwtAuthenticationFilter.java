@@ -2,6 +2,7 @@ package com.sahil.Ecom.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sahil.Ecom.exception.ApiError;
 import com.sahil.Ecom.exception.TokenExpiredException;
 import com.sahil.Ecom.repository.BlacklistTokenRepository;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -21,7 +22,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,7 +70,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             }catch (ExpiredJwtException e) {
 
-//                ApiError apiError = new ApiError();
+
+
+
 //                String apiErrorJsonString = this.gson.toJson(apiError);
 //
 //                PrintWriter out = response.getWriter();
@@ -75,6 +80,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //                response.setCharacterEncoding("UTF-8");
 //                out.print(apiErrorJsonString);
 //                out.flush();
+
+//                ErrorResponse errorResponse = new ErrorResponse();
+//                errorResponse.setCode(401);
+//                errorResponse.setMessage("Unauthorized Access");
+//                ApiError apiError = new ApiError();
+//                apiError.setStatus(HttpStatus.FORBIDDEN);
+//                apiError.setTimestamp(LocalDateTime.now());
+//                apiError.setMessage("TOKEN EXP");
+//
+//
+//                byte[] responseToSend = restResponseBytes(apiError);
+//                ((HttpServletResponse) response).setHeader("Content-Type", "application/json");
+//                ((HttpServletResponse) response).setStatus(403);
+//                response.getOutputStream().write(responseToSend);
+//                return;
+
 
                 Map<String, Object> errorDetails = new HashMap<>();
 
@@ -96,6 +117,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
+
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
@@ -115,6 +137,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
 
     }
+
+//    private byte[] restResponseBytes(ApiError eErrorResponse) throws IOException {
+//        String serialized = new ObjectMapper().writeValueAsString(eErrorResponse);
+//        return serialized.getBytes();
+//    }
 
     private boolean isBlackListed(String jwtToken) {
         return blacklistTokenRepository.existsById(jwtToken);
