@@ -3,6 +3,7 @@ package com.sahil.Ecom.security;
 import com.sahil.Ecom.entity.Role;
 import com.sahil.Ecom.exception.AccountNotActiveException;
 import com.sahil.Ecom.repository.UserRepository;
+import com.sahil.Ecom.service.LockAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class MyCustomUserDetailsService implements UserDetailsService {
 
     Locale locale = LocaleContextHolder.getLocale();
 
+    @Autowired
+    LockAccountService lockAccountService;
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
@@ -42,19 +46,31 @@ public class MyCustomUserDetailsService implements UserDetailsService {
             com.sahil.Ecom.entity.User user  =  userRepository.findByEmail(email).orElseThrow(
                     ()-> new UsernameNotFoundException(messageSource.getMessage("username.not.found",null,"message",locale)));
 
-//        if(user.isActive()) {
+
+
+
+            //check isActive
             boolean enabled = !user.isActive();
+
+
+
+
+            //check is  Locked
             boolean locked = user.isLocked();
+
+            if(locked){
+                if(lockAccountService.unlockWhenTimeExpired(user)){
+                    logger.info("----------------ACCOUNT UNLOCKED-----------------");
+                    locked = user.isLocked();
+                }
+            }
 
             return User.withUsername(user.getEmail())
                     .password(user.getPassword())
                     .disabled(enabled)
                     .accountLocked(locked)
                     .authorities(mapRolesToAuthority(user.getRoles())).build();
-//        }
 
-
-//        return new User(user.getEmail(),user.getPassword(),mapRolesToAuthority(user.getRoles()));
 
     }
 

@@ -159,11 +159,15 @@ public class UserController {
 
         String email = userService.validateActivationToken(uuid);
 
-        userService.activateByEmail(email);
+        if(userService.activateByEmail(email)) {
+            String message = messageSource.getMessage("user.account.activated", null, "message", locale);
+            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
+        }
 
-        String message = messageSource.getMessage("user.account.activated",null,"message",locale);
-        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
+        ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseDTO.setMessage(messageSource.getMessage("user.not.activated", null, "message", locale));
 
+        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 

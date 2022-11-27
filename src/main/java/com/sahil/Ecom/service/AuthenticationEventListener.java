@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationEventListener {
     @Autowired
-    InvalidPasswordCountService invalidPasswordCountService;
+    LockAccountService lockAccountService;
 
     @Autowired
     UserRepository userRepository;
 
-    Logger logger = LoggerFactory.getLogger(InvalidPasswordCountService.class);
+    Logger logger = LoggerFactory.getLogger(LockAccountService.class);
 
     @EventListener
     public void authenticationFailed(AuthenticationFailureBadCredentialsEvent event) {
@@ -28,7 +28,7 @@ public class AuthenticationEventListener {
 
         if(userRepository.existsByEmail(username)){
             logger.info("---------------------USER NAME EXIST PASSWORD WRONG---------------");
-                invalidPasswordCountService.increaseCount(username);
+                lockAccountService.increaseCount(username);
                 return;
         }
 

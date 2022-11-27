@@ -96,19 +96,27 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User activateByEmail(String email) {
+    public boolean activateByEmail(String email) {
 
-        User foundUser = userRepository.findByEmail(email).orElse(null);
-
-        if (foundUser != null && !foundUser.isActive()) {
-
-            foundUser.setActive(true);
+        if(userRepository.existsByEmail(email)){
             activationTokenRepository.deleteByUserEmail(email);
-            return userRepository.save(foundUser);
-
-        } else {
-            throw new UsernameNotFoundException("Not found");
+            return userRepository.updateIsActive(true, email) > 0;
         }
+        throw new UserEmailNotFoundException();
+
+
+//        User foundUser = userRepository.findByEmail(email).orElse(null);
+//
+//        if (foundUser != null && !foundUser.isActive()) {
+//
+//            foundUser.setActive(true);
+//            activationTokenRepository.deleteByUserEmail(email);
+////            return userRepository.save(foundUser);
+//
+//
+//        } else {
+//            throw new UsernameNotFoundException("Not found");
+//        }
     }
 
     @Override

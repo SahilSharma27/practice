@@ -20,7 +20,7 @@ public interface UserService {
 //
 //    Seller login(Seller seller);
 
-    User activateByEmail(String email);
+    boolean activateByEmail(String email);
 
     boolean activateAccount(Long id);
 

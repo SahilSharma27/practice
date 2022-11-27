@@ -84,19 +84,21 @@ public class CustomerController {
     @PostMapping(value = "/login", params = "role=customer")
     public ResponseEntity<?> loginCustomer(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
 
-
 //        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
 //
 //        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
 //
 //        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
+
         LoginResponseDTO loginResponseDTO = customerService.loginCustomer(loginRequestDTO);
         if(loginResponseDTO!=null){
                     return ResponseEntity.ok(loginResponseDTO);
         }
 
-        return new ResponseEntity<>("PROBLEM",HttpStatus.BAD_REQUEST);
-//        return ResponseEntity.ok(loginResponseDTO);
+        ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(),false,HttpStatus.INTERNAL_SERVER_ERROR);
+        responseDTO.setMessage(messageSource.getMessage("login.failed",null,"message",locale));
+        return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
 

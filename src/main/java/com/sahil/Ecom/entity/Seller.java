@@ -9,7 +9,6 @@ import java.util.List;
 public class Seller extends User{
 
     @Column(name = "GST")
-
     private String gst;
 
     @Column(name = "COMPANY_CONTACT")

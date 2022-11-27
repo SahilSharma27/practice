@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name = "USER")
 @Inheritance(strategy = InheritanceType.JOINED)
-public  class User {
+public class User {
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,6 +69,12 @@ public  class User {
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     JwtRefreshToken jwtRefreshToken;
+
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    LockedAccount lockedAccount;
+
+
 
     public Long getId() {
         return id;
@@ -196,5 +202,13 @@ public  class User {
 
     public void setJwtRefreshToken(JwtRefreshToken jwtRefreshToken) {
         this.jwtRefreshToken = jwtRefreshToken;
+    }
+
+    public LockedAccount getLockedAccount() {
+        return lockedAccount;
+    }
+
+    public void setLockedAccount(LockedAccount lockedAccount) {
+        this.lockedAccount = lockedAccount;
     }
 }

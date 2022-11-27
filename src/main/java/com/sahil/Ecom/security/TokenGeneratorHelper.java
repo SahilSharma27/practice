@@ -5,18 +5,14 @@ import com.sahil.Ecom.entity.LoginResponseDTO;
 import com.sahil.Ecom.exception.AccountLockedException;
 import com.sahil.Ecom.exception.AccountNotActiveException;
 import com.sahil.Ecom.repository.UserRepository;
-import com.sahil.Ecom.service.InvalidPasswordCountService;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.sahil.Ecom.service.LockAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -35,6 +31,8 @@ public class TokenGeneratorHelper {
 
     @Autowired
     UserRepository userRepository;
+
+
 
 
 
@@ -60,8 +58,12 @@ public class TokenGeneratorHelper {
             throw new BadCredentialsException(messageSource.getMessage("user.login.bad.credentials", null, "message", locale));
 
         }catch (DisabledException e){
+
             throw new AccountNotActiveException();
+
         }catch (LockedException e){
+
+
             throw new AccountLockedException();
         }
 

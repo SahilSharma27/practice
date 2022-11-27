@@ -2,6 +2,7 @@ package com.sahil.Ecom;
 
 
 import com.sahil.Ecom.entity.Address;
+import com.sahil.Ecom.entity.Admin;
 import com.sahil.Ecom.entity.Role;
 import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.repository.RoleRepository;
@@ -52,7 +53,7 @@ public class Bootstrap implements CommandLineRunner {
         roleRepository.save(role3);
 
 
-        User admin =  new User();
+        Admin admin = new Admin();
         admin.setEmail("admin@gmail.com");
         admin.setFirstName("admin");
         admin.setMiddleName("admin");
@@ -66,13 +67,6 @@ public class Bootstrap implements CommandLineRunner {
         admin.setLocked(false);
         admin.setPasswordUpdateDate(new Date());
 
-//        Address a2 = new Address();
-//        a2.setCity("a");
-//        a2.setCountry("test");
-//        a2.setAddressLine("test");
-//        a2.setLabel("test");
-//        a2.setZipCode("test");
-//        a2.setState("test");
         admin.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_ADMIN")));
         userRepository.save(admin);
 

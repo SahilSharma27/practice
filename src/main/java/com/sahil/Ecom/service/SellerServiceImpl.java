@@ -2,11 +2,14 @@ package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Address;
+import com.sahil.Ecom.entity.LoginRequestDTO;
+import com.sahil.Ecom.entity.LoginResponseDTO;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.SellerRepository;
 import com.sahil.Ecom.repository.UserRepository;
+import com.sahil.Ecom.security.TokenGeneratorHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,6 +34,12 @@ public class SellerServiceImpl implements SellerService{
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    LoginService loginService;
+
+    @Autowired
+    TokenGeneratorHelper tokenGeneratorHelper;
 
     @Override
     public boolean checkSellerCompanyName(String companyName) {
@@ -87,8 +96,21 @@ public class SellerServiceImpl implements SellerService{
 
         return true;
 
-
     }
+
+
+    @Override
+    public LoginResponseDTO loginSeller(LoginRequestDTO loginRequestDTO) throws Exception {
+        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
+
+        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
+
+        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
+
+        return loginResponseDTO;
+    }
+
+
 
     @Override
     public FetchSellerDTO fetchSellerProfileDetails(String userEmail) {

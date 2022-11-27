@@ -40,6 +40,9 @@ public class CustomerServiceImpl implements CustomerService{
     @Autowired
     TokenGeneratorHelper tokenGeneratorHelper;
 
+    @Autowired
+    LockAccountService lockAccountService;
+
     @Override
     public boolean register(CustomerDTO customerDTO) {
 
@@ -83,28 +86,6 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
 
-    //    private List<Address> mapAddressDTOtoAddressEntity(List<AddressDTO> addressDTOList) {
-//
-//        List<Address> addresses = new ArrayList<>();
-//
-//        for (AddressDTO addressDTO:addressDTOList) {
-//
-//            //map values
-//            Address customerAddress = new Address();
-//            customerAddress.setAddressLine(addressDTO.getAddressLine());
-//            customerAddress.setCity(addressDTO.getCity());
-//            customerAddress.setCountry(addressDTO.getCountry());
-//            customerAddress.setLabel(addressDTO.getLabel());
-//            customerAddress.setZipCode(addressDTO.getZipCode());
-//            customerAddress.setState(addressDTO.getState());
-//
-//            //add to list
-//            addresses.add(customerAddress);
-//
-//        }
-//
-//        return addresses;
-//    }
 
     @Override
     public boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO) {
