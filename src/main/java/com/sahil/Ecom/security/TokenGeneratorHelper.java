@@ -1,15 +1,20 @@
 package com.sahil.Ecom.security;
 
-import com.sahil.Ecom.entity.JwtRequest;
-import com.sahil.Ecom.entity.JwtResponse;
-import com.sahil.Ecom.security.JwtUtil;
-import com.sahil.Ecom.security.MyCustomUserDetailsService;
+import com.sahil.Ecom.entity.LoginRequestDTO;
+import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.exception.AccountLockedException;
+import com.sahil.Ecom.exception.AccountNotActiveException;
+import com.sahil.Ecom.repository.UserRepository;
+import com.sahil.Ecom.service.InvalidPasswordCountService;
+import io.jsonwebtoken.ExpiredJwtException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -29,34 +34,45 @@ public class TokenGeneratorHelper {
     private AuthenticationManager authenticationManager;
 
     @Autowired
+    UserRepository userRepository;
+
+
+
+    Logger logger = LoggerFactory.getLogger(TokenGeneratorHelper.class);
+
+    @Autowired
     MessageSource messageSource;
 
-    public JwtResponse generateTokenHelper(JwtRequest jwtRequest) throws Exception{
+    public LoginResponseDTO generateTokenHelper(LoginRequestDTO loginRequestDTO) throws Exception{
 
         Locale locale = LocaleContextHolder.getLocale();
-        try{
+        try {
             this.authenticationManager
                     .authenticate(
                             new UsernamePasswordAuthenticationToken(
-                                    jwtRequest.getUsername()
-                                    ,jwtRequest.getPassword()
+                                    loginRequestDTO.getUsername()
+                                    , loginRequestDTO.getPassword()
                             )
                     );
-        }catch(UsernameNotFoundException | BadCredentialsException e){
-//            e.printStackTrace();
+        }catch( BadCredentialsException e){
+
+            logger.info("------------------------BAD CREDENTIAL EXCEPTION THROWN --------------------");
             throw new BadCredentialsException(messageSource.getMessage("user.login.bad.credentials", null, "message", locale));
 
+        }catch (DisabledException e){
+            throw new AccountNotActiveException();
+        }catch (LockedException e){
+            throw new AccountLockedException();
         }
 
+
         UserDetails userDetails =  customUserDetailsService
-                .loadUserByUsername(jwtRequest.getUsername());
+                .loadUserByUsername(loginRequestDTO.getUsername());
 
 
-        return new JwtResponse(this.jwtUtil.generateToken(userDetails),this.jwtUtil.generateRefreshToken(userDetails));
+        return new LoginResponseDTO(this.jwtUtil.generateToken(userDetails),this.jwtUtil.generateRefreshToken(userDetails));
 
-//        logger.info("TOKEN generated :" + token);
 
-//        return ResponseEntity.ok(new JwtResponse(token));
 
     }
 }

@@ -2,17 +2,17 @@ package com.sahil.Ecom.entity;
 
 import javax.validation.constraints.Email;
 
-public class JwtRequest {
+public class LoginRequestDTO {
 
     @Email
     private String username;
 
     private String password;
 
-    public JwtRequest() {
+    public LoginRequestDTO() {
     }
 
-    public JwtRequest(String username, String password) {
+    public LoginRequestDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }

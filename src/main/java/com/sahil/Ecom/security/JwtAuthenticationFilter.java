@@ -66,11 +66,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
                 logger.info("-----------------------------------");
                 logger.info("NOT BLACK LISTED TOKEN");
+
                 username = this.jwtUtil.extractUsername(jwtToken);
 
             }catch (ExpiredJwtException e) {
-
-
 
 
 //                String apiErrorJsonString = this.gson.toJson(apiError);

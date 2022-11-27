@@ -16,27 +16,27 @@ import java.util.Map;
 
 public interface UserService {
 
-    public Customer login(Customer customer);
-
-    public Seller login(Seller seller);
+//    Customer login(Customer customer);
+//
+//    Seller login(Seller seller);
 
     User activateByEmail(String email);
 
-    public boolean activateAccount(Long id);
+    boolean activateAccount(Long id);
 
-    public boolean deActivateAccount(Long id);
+    boolean deActivateAccount(Long id);
 
-    public Iterable<User> getAllUsers();
+    Iterable<User> getAllUsers();
 
-    public List<FetchCustomerDTO> getAllCustomers();
+    List<FetchCustomerDTO> getAllCustomers();
 
-    public List<FetchCustomerDTO> getAllCustomersPaged(int page, int size,String sort);
+    List<FetchCustomerDTO> getAllCustomersPaged(int page, int size,String sort);
 
-    public List<FetchSellerDTO> getAllSellersPaged(int page, int size,String sort);
+    List<FetchSellerDTO> getAllSellersPaged(int page, int size,String sort);
 
-    public List<FetchSellerDTO> getAllSellers();
+    List<FetchSellerDTO> getAllSellers();
 
-    public boolean checkUserEmail(String email);
+    boolean checkUserEmail(String email);
 
     void  activationHelper(String email);
 

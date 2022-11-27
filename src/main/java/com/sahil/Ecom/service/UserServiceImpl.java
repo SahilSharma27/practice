@@ -6,6 +6,7 @@ import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.AccountNotActiveException;
 import com.sahil.Ecom.exception.TokenExpiredException;
+import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,16 +84,15 @@ public class UserServiceImpl implements UserService {
 
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-
-    @Override
-    public Customer login(Customer customer) {
-        return null;
-    }
-
-    @Override
-    public Seller login(Seller seller) {
-        return null;
-    }
+//    @Override
+//    public Customer login(Customer customer) {
+//        return null;
+//    }
+//
+//    @Override
+//    public Seller login(Seller seller) {
+//        return null;
+//    }
 
     @Transactional
     @Override
@@ -196,7 +196,6 @@ public class UserServiceImpl implements UserService {
 
         List<FetchSellerDTO> fetchSellerDTOList = new ArrayList<>();
 
-
         Iterable<Seller> sellers = sellerRepository.findAll();
 
         for (Seller seller : sellers) {
@@ -265,7 +264,7 @@ public class UserServiceImpl implements UserService {
         logger.info("ACTIVATION URL" + emailBody);
 
         //send email
-        // emailSenderService.sendEmail(email,"Account activation",emailBody);
+//         emailSenderService.sendEmail(email,"Account activation",emailBody);
     }
 
     @Override
@@ -290,13 +289,14 @@ public class UserServiceImpl implements UserService {
 
                 activationHelper(activationToken.getUserEmail());
 
-                throw new TokenExpiredException(messageSource.getMessage("token.expired", null, "message", locale));
+                throw new TokenExpiredException();
 
             }
 
             logger.info("-------------------UNDER TIME LIMIT---------------");
             return activationToken.getUserEmail();
-        } else throw new UsernameNotFoundException("NO mail Found for token");
+
+        } else throw new UserEmailNotFoundException();
     }
 
     @Override

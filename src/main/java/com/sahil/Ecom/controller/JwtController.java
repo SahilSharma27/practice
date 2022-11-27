@@ -1,8 +1,8 @@
 package com.sahil.Ecom.controller;
 
 
-import com.sahil.Ecom.entity.JwtRequest;
-import com.sahil.Ecom.entity.JwtResponse;
+import com.sahil.Ecom.entity.LoginRequestDTO;
+import com.sahil.Ecom.entity.LoginResponseDTO;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.MyCustomUserDetailsService;
 import org.slf4j.Logger;
@@ -34,13 +34,13 @@ public class JwtController {
     Logger logger = LoggerFactory.getLogger(JwtController.class);
 
     @PostMapping("/token")
-    public ResponseEntity<?> getToken(@RequestBody JwtRequest jwtRequest) throws Exception {
-        logger.info(jwtRequest.toString());
+    public ResponseEntity<?> getToken(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
+        logger.info(loginRequestDTO.toString());
 
         try {
             this.authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            jwtRequest.getUsername(), jwtRequest.getPassword()));
+                            loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
 
         } catch (UsernameNotFoundException e) {
             e.printStackTrace();
@@ -51,7 +51,7 @@ public class JwtController {
         }
 
         UserDetails userDetails = customUserDetailsService
-                .loadUserByUsername(jwtRequest.getUsername());
+                .loadUserByUsername(loginRequestDTO.getUsername());
 
         String accessToken = this.jwtUtil.generateToken(userDetails);
 
@@ -59,6 +59,6 @@ public class JwtController {
 
         logger.info("TOKEN generated :" + accessToken);
 
-        return ResponseEntity.ok(new JwtResponse(accessToken,refreshToken));
+        return ResponseEntity.ok(new LoginResponseDTO(accessToken,refreshToken));
     }
 }

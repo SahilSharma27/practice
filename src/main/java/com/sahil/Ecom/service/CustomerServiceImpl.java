@@ -2,15 +2,13 @@ package com.sahil.Ecom.service;
 
 
 import com.sahil.Ecom.dto.*;
-import com.sahil.Ecom.entity.Address;
-import com.sahil.Ecom.entity.Customer;
-import com.sahil.Ecom.entity.Seller;
-import com.sahil.Ecom.entity.User;
+import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.AddressRepository;
 import com.sahil.Ecom.repository.CustomerRepository;
 import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.UserRepository;
+import com.sahil.Ecom.security.TokenGeneratorHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,8 +34,14 @@ public class CustomerServiceImpl implements CustomerService{
     @Autowired
     AddressRepository addressRepository;
 
+    @Autowired
+    LoginService loginService;
+
+    @Autowired
+    TokenGeneratorHelper tokenGeneratorHelper;
+
     @Override
-    public Customer register(CustomerDTO customerDTO) {
+    public boolean register(CustomerDTO customerDTO) {
 
         Customer newCustomer = new Customer();
 
@@ -46,9 +50,6 @@ public class CustomerServiceImpl implements CustomerService{
         newCustomer.setMiddleName(customerDTO.getMiddleName());
         newCustomer.setLastName(customerDTO.getLastName());
 
-//        List<Address > addressList = mapAddressDTOtoAddressEntity(customerDTO.getAddressList());
-
-//        newCustomer.setAddresses(addressList);
         newCustomer.setPassword(passwordEncoder.encode(customerDTO.getPassword()));
         newCustomer.setContact(customerDTO.getContact());
 
@@ -61,11 +62,28 @@ public class CustomerServiceImpl implements CustomerService{
         newCustomer.setPasswordUpdateDate(new Date());
         newCustomer.setInvalidAttemptCount(0);
 
-        return customerRepository.save(newCustomer);
+        customerRepository.save(newCustomer);
+
+        return true;
 
     }
 
-//    private List<Address> mapAddressDTOtoAddressEntity(List<AddressDTO> addressDTOList) {
+    @Override
+    public LoginResponseDTO loginCustomer(LoginRequestDTO loginRequestDTO) throws Exception {
+
+        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
+
+        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
+
+        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
+
+        return loginResponseDTO;
+
+
+    }
+
+
+    //    private List<Address> mapAddressDTOtoAddressEntity(List<AddressDTO> addressDTOList) {
 //
 //        List<Address> addresses = new ArrayList<>();
 //

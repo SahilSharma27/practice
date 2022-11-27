@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class LoginServiceImpl implements LoginService{
@@ -29,47 +27,47 @@ public class LoginServiceImpl implements LoginService{
 
     @Override
     @Transactional
-    public void removeAlreadyGeneratedTokens(JwtRequest jwtRequest) {
+    public void removeAlreadyGeneratedTokens(LoginRequestDTO loginRequestDTO) {
 
-        if(userRepository.existsByEmail(jwtRequest.getUsername())){
+        if(userRepository.existsByEmail(loginRequestDTO.getUsername())){
 
-            User user = userRepository.findByEmail(jwtRequest.getUsername()).orElse(null);
+            User user = userRepository.findByEmail(loginRequestDTO.getUsername()).orElse(null);
 
             if(jwtAccessTokenRepository.existsById(user.getId())) {
 
                 user.setJwtAccessToken(null);
                 jwtAccessTokenRepository.deleteById(user.getId());
 
-                logger.info("--------------access tokens deleted for" + jwtRequest.getUsername());
+                logger.info("--------------access tokens deleted for" + loginRequestDTO.getUsername());
 
 
                 if (jwtRefreshTokenRepository.existsById(user.getId())) {
                     user.setJwtRefreshToken(null);
                     jwtRefreshTokenRepository.deleteById(user.getId());
-                    logger.info("--------------refresh tokens deleted for" + jwtRequest.getUsername());
+                    logger.info("--------------refresh tokens deleted for" + loginRequestDTO.getUsername());
                 }
             }
 
 
-            logger.info("--------------LOGGED IN FOR FIRST TIME" + jwtRequest.getUsername());
+            logger.info("--------------LOGGED IN FOR FIRST TIME" + loginRequestDTO.getUsername());
         }
 
     }
 
     @Override
-    public void saveJwtResponse(JwtResponse jwtResponse, String username) {
+    public void saveJwtResponse(LoginResponseDTO loginResponseDTO, String username) {
 
         User user = userRepository.findByEmail(username).get();
 
         //save refresh token
         JwtRefreshToken jwtRefreshToken = new JwtRefreshToken();
-        jwtRefreshToken.setRefreshToken(jwtResponse.getRefreshToken());
+        jwtRefreshToken.setRefreshToken(loginResponseDTO.getRefreshToken());
         jwtRefreshToken.setUser(user);
 
 
         //save access token
         JwtAccessToken jwtAccessToken = new JwtAccessToken();
-        jwtAccessToken.setAccessToken(jwtResponse.getAccessToken());
+        jwtAccessToken.setAccessToken(loginResponseDTO.getAccessToken());
         jwtAccessToken.setUser(user);
 
 //        jwtRefreshToken.setJwtAccessToken(List.of(jwtAccessToken));

@@ -1,11 +1,11 @@
 package com.sahil.Ecom.service;
 
-import com.sahil.Ecom.entity.JwtRequest;
-import com.sahil.Ecom.entity.JwtResponse;
+import com.sahil.Ecom.entity.LoginRequestDTO;
+import com.sahil.Ecom.entity.LoginResponseDTO;
 
 public interface LoginService {
 
-    void saveJwtResponse(JwtResponse jwtResponse, String username);
+    void saveJwtResponse(LoginResponseDTO loginResponseDTO, String username);
 
-    void removeAlreadyGeneratedTokens(JwtRequest jwtRequest);
+    void removeAlreadyGeneratedTokens(LoginRequestDTO loginRequestDTO);
 }

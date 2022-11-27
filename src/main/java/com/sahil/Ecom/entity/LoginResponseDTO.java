@@ -1,18 +1,18 @@
 package com.sahil.Ecom.entity;
 
-public class JwtResponse {
+public class LoginResponseDTO {
 
     private String accessToken;
     private String refreshToken;
 
-    public JwtResponse() {
+    public LoginResponseDTO() {
     }
 
 //    public JwtResponse(String accessToken) {
 //        this.accessToken = accessToken;
 //    }
 
-    public JwtResponse(String accessToken, String refreshToken) {
+    public LoginResponseDTO(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }

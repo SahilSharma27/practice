@@ -101,49 +101,52 @@ public class UserController {
 
         }
 
-        return new ResponseEntity<>(new JwtResponse(newAccessToken, jwtRefreshToken), HttpStatus.OK);
+        return new ResponseEntity<>(new LoginResponseDTO(newAccessToken, jwtRefreshToken), HttpStatus.OK);
     }
 
 
     @PostMapping(value = "/login", params = "role=admin")
-    public ResponseEntity<?> loginAdmin(@Valid @RequestBody JwtRequest jwtRequest) throws Exception {
+    public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
 
         //remove all tokens in db for this user
         //generate new tokens
         //save new tokens in db
 
-        loginService.removeAlreadyGeneratedTokens(jwtRequest);
+        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
 
-        JwtResponse jwtResponse = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
+        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
 
-        loginService.saveJwtResponse(jwtResponse,jwtRequest.getUsername());
+        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
 
 //        logger.info("token : " + jwtResponse);
 
-        return ResponseEntity.ok(jwtResponse);
+        return ResponseEntity.ok(loginResponseDTO);
     }
 
 
-    @PostMapping(value = "/login", params = "role=customer")
-    public ResponseEntity<?> loginCustomer(@RequestBody JwtRequest jwtRequest) throws Exception {
+//    @PostMapping(value = "/login", params = "role=customer")
+//    public ResponseEntity<?> loginCustomer(@RequestBody JwtRequest jwtRequest) throws Exception {
+//
+//        loginService.removeAlreadyGeneratedTokens(jwtRequest);
+//
+//        JwtResponse jwtResponse = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
+//
+//        loginService.saveJwtResponse(jwtResponse,jwtRequest.getUsername());
+//
+//        return ResponseEntity.ok(jwtResponse);
+//    }
 
-        JwtResponse jwtResponse = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
 
-//        logger.info("accessToken : " + accessToken);
-
-        return ResponseEntity.ok(jwtResponse);
-    }
-
-    //
     @PostMapping(value = "/login", params = "role=seller")
-    public ResponseEntity<?> loginSeller(@RequestBody JwtRequest jwtRequest) throws Exception {
+    public ResponseEntity<?> loginSeller(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
 
-        JwtResponse jwtResponse = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
+        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
 
-//        logger.info("token : " + accessToken);
+        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
 
-//        return ResponseEntity.ok(new JwtResponse(accessToken,accessToken));
-        return ResponseEntity.ok(jwtResponse);
+        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
+
+        return ResponseEntity.ok(loginResponseDTO);
     }
 
     @GetMapping(value = "/users/activate")
@@ -205,8 +208,7 @@ public class UserController {
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,"User Password Updated", HttpStatus.OK));
         }
 
-        throw new PassConfirmPassNotMatchingException(messageSource.getMessage("password.confirm.password", null, "message", locale));
-//        return new ResponseEntity<>("Password doesn't match with confirm password",HttpStatus.BAD_REQUEST);
+        throw new PassConfirmPassNotMatchingException();
 
     }
 

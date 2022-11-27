@@ -3,10 +3,14 @@ package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Address;
+import com.sahil.Ecom.entity.LoginRequestDTO;
+import com.sahil.Ecom.entity.LoginResponseDTO;
 import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.security.JwtUtil;
+import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.CustomerService;
+import com.sahil.Ecom.service.LoginService;
 import com.sahil.Ecom.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -31,38 +35,70 @@ public class CustomerController {
     CustomerService customerService;
 
     @Autowired
+    LoginService loginService;
+
+    @Autowired
     private MessageSource messageSource;
 
     @Autowired
     JwtUtil jwtUtil;
 
+    @Autowired
+    TokenGeneratorHelper tokenGeneratorHelper;
+
     Locale locale = LocaleContextHolder.getLocale();
 
     @PostMapping(value = "/register", params = "role=customer")
-    public ResponseEntity<?> registerCustomer(@Valid @RequestBody CustomerDTO customerDTO){
+    public ResponseEntity<?> registerCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
 
-        //      check pass and cpass
+        //check pass and cpass
         if (!customerDTO.getPassword().equals(customerDTO.getConfirmPassword()))
             throw new PassConfirmPassNotMatchingException();
 
 
-//      Check if email taken
+        //Check if email taken
         if (userService.checkUserEmail(customerDTO.getEmail())) {
             throw new EmailAlreadyRegisteredException();
         }
 
-//        1)save user
-        customerService.register(customerDTO);
+        //1)save user
+        if (customerService.register(customerDTO)) {
 
-//        2)send activation link
-        userService.activationHelper(customerDTO.getEmail());
+            //2)send activation link
+            userService.activationHelper(customerDTO.getEmail());
 
-        ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(),true,HttpStatus.OK);
-        responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));
+            ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
+            responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));
 
-        return ResponseEntity.ok(responseDTO);
+            return ResponseEntity.ok(responseDTO);
+        }
+
+        ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseDTO.setMessage(messageSource.getMessage("user.registered.unsuccessful", null, "message", locale));
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
+
+
+    @PostMapping(value = "/login", params = "role=customer")
+    public ResponseEntity<?> loginCustomer(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
+
+
+//        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
+//
+//        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
+//
+//        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
+        LoginResponseDTO loginResponseDTO = customerService.loginCustomer(loginRequestDTO);
+        if(loginResponseDTO!=null){
+                    return ResponseEntity.ok(loginResponseDTO);
+        }
+
+        return new ResponseEntity<>("PROBLEM",HttpStatus.BAD_REQUEST);
+//        return ResponseEntity.ok(loginResponseDTO);
+    }
+
 
 
     @PostMapping(value = "/users/address", params = "role=customer")

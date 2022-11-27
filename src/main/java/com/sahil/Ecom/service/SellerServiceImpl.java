@@ -53,7 +53,7 @@ public class SellerServiceImpl implements SellerService{
 
 
     @Override
-    public Seller register(SellerDTO sellerDTO) {
+    public boolean register(SellerDTO sellerDTO) {
 
         Seller newSeller = new Seller();
 
@@ -83,7 +83,11 @@ public class SellerServiceImpl implements SellerService{
         newSeller.setPasswordUpdateDate(new Date());
         newSeller.setInvalidAttemptCount(0);
 
-        return sellerRepository.save(newSeller);
+        sellerRepository.save(newSeller);
+
+        return true;
+
+
     }
 
     @Override

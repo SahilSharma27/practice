@@ -49,42 +49,47 @@ public class SellerController {
 
     Logger logger = LoggerFactory.getLogger(SellerController.class);
 
-    @PostMapping(value = "/register",params = "role=seller")
-    public ResponseEntity<?> registerSeller(@Valid @RequestBody SellerDTO sellerDTO){
+    @PostMapping(value = "/register", params = "role=seller")
+    public ResponseEntity<?> registerSeller(@Valid @RequestBody SellerDTO sellerDTO) {
 
         Locale locale = LocaleContextHolder.getLocale();
 
         //check pass and cpass
-        if(!sellerDTO.getPassword().equals(sellerDTO.getConfirmPassword()))
+        if (!sellerDTO.getPassword().equals(sellerDTO.getConfirmPassword()))
             throw new PassConfirmPassNotMatchingException();
 
         //unique email
-        if(userService.checkUserEmail(sellerDTO.getEmail())){
+        if (userService.checkUserEmail(sellerDTO.getEmail())) {
             throw new EmailAlreadyRegisteredException();
         }
 
         //unique company name
-        if(sellerService.checkSellerCompanyName(sellerDTO.getCompanyName())){
+        if (sellerService.checkSellerCompanyName(sellerDTO.getCompanyName())) {
             throw new CompanyNameAlreadyRegisteredException();
         }
 
         //unique gst
-        if(sellerService.checkSellerGst(sellerDTO.getGst())){
-        throw new GstAlreadyRegisteredException();
+        if (sellerService.checkSellerGst(sellerDTO.getGst())) {
+            throw new GstAlreadyRegisteredException();
         }
 
 //        1)save user
-        sellerService.register(sellerDTO);
+        if (sellerService.register(sellerDTO)) {
 
-        //send acknowledgment
-       // userService.sendSellerAcknowledgement(sellerDTO.getEmail());
+            //send acknowledgment
+            // userService.sendSellerAcknowledgement(sellerDTO.getEmail());
 
+            ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
+            responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));
 
-        ResponseDTO responseDTO =  new ResponseDTO(LocalDateTime.now(),true,HttpStatus.OK);
-        responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));
+            return ResponseEntity.ok(responseDTO);
 
-        return ResponseEntity.ok(responseDTO);
+        }
 
+        ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseDTO.setMessage(messageSource.getMessage("user.registered.unsuccessful", null, "message", locale));
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
@@ -104,11 +109,15 @@ public class SellerController {
             String accessToken = requestHeader.substring("Bearer".length());
 
             try {
+
                 userEmail = this.jwtUtil.extractUsername(accessToken);
                 FetchSellerDTO fetchSellerDTO =  sellerService.fetchSellerProfileDetails(userEmail);
                 return ResponseEntity.ok(fetchSellerDTO);
+
             } catch (Exception e) {
+
                 e.printStackTrace();
+
             }
         }
 

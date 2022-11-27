@@ -68,14 +68,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<ApiError> handleTokenExpiredException(TokenExpiredException exception){
-        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST, exception.getLocalizedMessage(),"TOKEN EXPIRED");
+
+        String message = messageSource.getMessage("time.limit.message",null,"message",locale);
+        String error =  messageSource.getMessage("token.expired",null,"message",locale);
+
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentialsException(BadCredentialsException exception){
-        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.NOT_FOUND,exception.getMessage(),"BAD CRED");
-        return new ResponseEntity<ApiError>(apiError,HttpStatus.NOT_FOUND);
+
+//        String message = messageSource.getMessage("time.limit.message",null,"message",locale);
+        String error =  messageSource.getMessage("user.login.bad.credentials",null,"message",locale);
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,exception.getMessage(),error);
+        return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
@@ -89,5 +98,26 @@ public class GlobalExceptionHandler {
 //        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.NOT_FOUND, exception.getLocalizedMessage(),"USER NAME NOT FOUNDD");
 //        return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
 //    }
+
+    @ExceptionHandler(AccountNotActiveException.class)
+    public ResponseEntity<ApiError> handleAccountNotActiveException(AccountNotActiveException exception){
+
+        String message = messageSource.getMessage("account.not.active",null,"message",locale);
+        String error =messageSource.getMessage("account.not.active",null,"message",locale);
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.FORBIDDEN,message,error);
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AccountLockedException.class)
+    public ResponseEntity<ApiError> handleAccountLockedException(AccountLockedException exception){
+
+        String message = messageSource.getMessage("account.locked",null,"message",locale);
+        String error =messageSource.getMessage("account.locked",null,"message",locale);
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.FORBIDDEN,message,error);
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.FORBIDDEN);
+
+    }
+
+
 
 }

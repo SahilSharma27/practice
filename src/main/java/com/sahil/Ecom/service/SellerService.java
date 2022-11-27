@@ -9,7 +9,7 @@ public interface SellerService {
 
     Seller getSellerById(Long id);
 
-    Seller register(SellerDTO sellerDTO);
+    boolean register(SellerDTO sellerDTO);
 
     boolean checkSellerCompanyName(String companyName);
 
