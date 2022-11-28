@@ -74,7 +74,7 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public LoginResponseDTO loginCustomer(LoginRequestDTO loginRequestDTO) throws Exception {
 
-        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
+        loginService.removeAlreadyGeneratedTokens(loginRequestDTO.getUsername());
 
         LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
 
@@ -93,18 +93,19 @@ public class CustomerServiceImpl implements CustomerService{
         if (userRepository.existsByEmail(userEmail)) {
             User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("NOT FOUND"));
 
-            Address newAddress = new Address();
+            Address newAddress = addressDTO.mapAddressDTOtoAddress();
 
-            newAddress.setAddressLine(addressDTO.getAddressLine());
-            newAddress.setCity(addressDTO.getCity());
-            newAddress.setLabel(addressDTO.getLabel());
-            newAddress.setZipCode(addressDTO.getZipCode());
-            newAddress.setState(addressDTO.getState());
-            newAddress.setCountry(addressDTO.getCountry());
+//            newAddress.setAddressLine(addressDTO.getAddressLine());
+//            newAddress.setCity(addressDTO.getCity());
+//            newAddress.setLabel(addressDTO.getLabel());
+//            newAddress.setZipCode(addressDTO.getZipCode());
+//            newAddress.setState(addressDTO.getState());
+//            newAddress.setCountry(addressDTO.getCountry());
 
             user.getAddresses().add(newAddress);
 
             userRepository.save(user);
+
             return true;
         }
         return false;
@@ -118,7 +119,7 @@ public class CustomerServiceImpl implements CustomerService{
             return user.getAddresses();
 
         }
-        throw new UsernameNotFoundException("NOT FOUND");
+        throw new UserEmailNotFoundException();
     }
 
     @Override
@@ -149,7 +150,7 @@ public class CustomerServiceImpl implements CustomerService{
 
         }
 
-        throw new UserEmailNotFoundException("NOT FOUND");
+        throw new UserEmailNotFoundException();
     }
 
     @Override

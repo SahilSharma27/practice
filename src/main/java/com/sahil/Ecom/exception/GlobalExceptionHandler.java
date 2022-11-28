@@ -118,6 +118,16 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiError> handleInvalidTokenException(InvalidTokenException exception){
+
+        String message = messageSource.getMessage("token.not.valid",null,"message",locale);
+        String error =messageSource.getMessage("token.not.valid",null,"message",locale);
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.FORBIDDEN,message,error);
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.FORBIDDEN);
+
+    }
+
 
 
 }

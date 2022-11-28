@@ -1,6 +1,7 @@
 package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.entity.*;
+import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.JwtAccessTokenRepository;
 import com.sahil.Ecom.repository.JwtRefreshTokenRepository;
 import com.sahil.Ecom.repository.UserRepository;
@@ -27,29 +28,29 @@ public class LoginServiceImpl implements LoginService{
 
     @Override
     @Transactional
-    public void removeAlreadyGeneratedTokens(LoginRequestDTO loginRequestDTO) {
+    public void removeAlreadyGeneratedTokens(String username) {
 
-        if(userRepository.existsByEmail(loginRequestDTO.getUsername())){
+        if(userRepository.existsByEmail(username)){
 
-            User user = userRepository.findByEmail(loginRequestDTO.getUsername()).orElse(null);
+            User user = userRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
 
             if(jwtAccessTokenRepository.existsById(user.getId())) {
 
                 user.setJwtAccessToken(null);
                 jwtAccessTokenRepository.deleteById(user.getId());
 
-                logger.info("--------------access tokens deleted for" + loginRequestDTO.getUsername());
+                logger.info("--------------access tokens deleted for" + username);
 
 
                 if (jwtRefreshTokenRepository.existsById(user.getId())) {
                     user.setJwtRefreshToken(null);
                     jwtRefreshTokenRepository.deleteById(user.getId());
-                    logger.info("--------------refresh tokens deleted for" + loginRequestDTO.getUsername());
+                    logger.info("--------------refresh tokens deleted for" + username);
                 }
             }
 
 
-            logger.info("--------------LOGGED IN FOR FIRST TIME" + loginRequestDTO.getUsername());
+         //   logger.info("--------------LOGGED IN FOR FIRST TIME" + loginRequestDTO.getUsername());
         }
 
     }

@@ -4,6 +4,7 @@ import com.sahil.Ecom.dto.ForgotPasswordDTO;
 import com.sahil.Ecom.dto.ResetPassDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.entity.*;
+import com.sahil.Ecom.exception.InvalidTokenException;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.BlacklistTokenRepository;
@@ -105,50 +106,6 @@ public class UserController {
     }
 
 
-    @PostMapping(value = "/login", params = "role=admin")
-    public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
-
-        //remove all tokens in db for this user
-        //generate new tokens
-        //save new tokens in db
-
-        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
-
-        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
-
-        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
-
-//        logger.info("token : " + jwtResponse);
-
-        return ResponseEntity.ok(loginResponseDTO);
-    }
-
-
-//    @PostMapping(value = "/login", params = "role=customer")
-//    public ResponseEntity<?> loginCustomer(@RequestBody JwtRequest jwtRequest) throws Exception {
-//
-//        loginService.removeAlreadyGeneratedTokens(jwtRequest);
-//
-//        JwtResponse jwtResponse = tokenGeneratorHelper.generateTokenHelper(jwtRequest);
-//
-//        loginService.saveJwtResponse(jwtResponse,jwtRequest.getUsername());
-//
-//        return ResponseEntity.ok(jwtResponse);
-//    }
-
-
-    @PostMapping(value = "/login", params = "role=seller")
-    public ResponseEntity<?> loginSeller(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
-
-        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
-
-        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
-
-        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
-
-        return ResponseEntity.ok(loginResponseDTO);
-    }
-
     @GetMapping(value = "/users/activate")
     public ResponseEntity<?> activateAccount(@RequestParam(name = "token") String uuid) {
 
@@ -178,30 +135,30 @@ public class UserController {
 //        2 generate url
 //        3 send mail
 
-        if (userService.checkUserEmail(forgotPasswordDTO.getUserEmail())) {
+        ResponseDTO responseDTO;
+        String message;
 
-            userService.forgotPasswordHelper(forgotPasswordDTO.getUserEmail());
-            return new ResponseEntity<>("Reset Password link Sent", HttpStatus.OK);
+        if(userService.forgotPasswordHelper(forgotPasswordDTO.getUserEmail())){
+            message = messageSource.getMessage("reset.pass.email.sent",null,"message",locale);
+            responseDTO= new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK);
 
+            return ResponseEntity.ok(responseDTO);
         }
 
-//        2)send reset pass link link
+        message = messageSource.getMessage("email.not.sent",null,"message",locale);
+        responseDTO = new ResponseDTO(LocalDateTime.now(),false,message,HttpStatus.INTERNAL_SERVER_ERROR);
 
-        throw new UserEmailNotFoundException(messageSource.getMessage("user.not.found", null, "message", locale));
-        //return new ResponseEntity<>("USER ACCOUNT Not found",HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
+
 
     }
 
-    @PostMapping(value = "/users/resetPassword")
+    @PutMapping(value = "/users/resetPassword")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody ResetPassDTO resetPassDTO) {
 //        1 check token in db
 //        check time limit
 //        2 get email
 //        3 update account pass
-
-        logger.info("------------------------------------------------------------------");
-        logger.info(resetPassDTO.getNewPassword() + "  " + resetPassDTO.getConfirmNewPassword());
-        logger.info("------------------------------------------------------------------");
 
         if (resetPassDTO.getNewPassword().equals(resetPassDTO.getConfirmNewPassword())) {
             String email = userService.validateResetPasswordToken(token);
@@ -209,7 +166,8 @@ public class UserController {
             if (email.equals(resetPassDTO.getUserEmail())) {
                 userService.resetPassword(email, resetPassDTO.getNewPassword());
             }
-            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,"User Password Updated", HttpStatus.OK));
+            String message = messageSource.getMessage("user.password.updated",null,"message",locale);
+            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,message, HttpStatus.OK));
         }
 
         throw new PassConfirmPassNotMatchingException();
@@ -247,34 +205,42 @@ public class UserController {
 
             }
         }
-
-        throw new PassConfirmPassNotMatchingException(messageSource.getMessage("password.confirm.password", null, "message", locale));
+        throw new PassConfirmPassNotMatchingException();
 //
-
 
     }
 
-
     @GetMapping(value = "/users/logout")
-    public ResponseEntity<?> logoutUser(HttpServletRequest request) {
-
-        String requestHeader = request.getHeader("Authorization");
+    public ResponseEntity<?> logoutUser(@RequestHeader("Authorization")String requestHeader) {
 
         String username = null;
         String accessToken = null;
+
+        ResponseDTO responseDTO =  new ResponseDTO();
+        responseDTO.setTimestamp(LocalDateTime.now());
 
 
         //check format
         if (requestHeader != null && requestHeader.startsWith("Bearer")) {
 
-
             accessToken = requestHeader.substring("Bearer".length());
 
-            userService.logout(accessToken);
+            try {
+                username=jwtUtil.extractUsername(accessToken);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            if(userService.logoutHelper(username)){
+                responseDTO.setSuccess(true);
+                responseDTO.setResponseStatusCode(HttpStatus.OK);
+                responseDTO.setMessage(messageSource.getMessage("user.logged.out",null,"message",locale));
+                return ResponseEntity.ok(responseDTO);
+            }
 
         }
 
-        return new ResponseEntity<>("HELLO", HttpStatus.OK);
+        throw new InvalidTokenException();
     }
 
 

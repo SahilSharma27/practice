@@ -1,9 +1,7 @@
 package com.sahil.Ecom;
 
 import com.sahil.Ecom.entity.*;
-import com.sahil.Ecom.repository.RoleRepository;
-import com.sahil.Ecom.repository.SellerRepository;
-import com.sahil.Ecom.repository.UserRepository;
+import com.sahil.Ecom.repository.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +19,12 @@ class EcomApplicationTests {
 //
 //    @Autowired
 //    private SellerRepository sellerRepository;
+
+	@Autowired
+	private CategoryRepository categoryRepository;
+
+	@Autowired
+	private CategoryMetaDataFieldRepository categoryMetaDataFieldRepository;
 
 	@Test
 	void contextLoads() {
@@ -119,5 +123,38 @@ class EcomApplicationTests {
 //        userRepository.save(s1);
 //
 //    }
+
+	@Test
+	void testMetaDataField(){
+
+		CategoryMetaDataField colorField = new CategoryMetaDataField("COLOR");
+		CategoryMetaDataField sizeField = new CategoryMetaDataField("SIZE");
+		CategoryMetaDataField lengthField = new CategoryMetaDataField("LENGTH");
+
+		categoryMetaDataFieldRepository.saveAll(Arrays.asList(colorField,sizeField,lengthField));
+
+	}
+
+	@Test
+	void testCategory(){
+
+		Category electronics = new Category("ELECTRONICS");
+
+		Category mobiles = new Category("MOBILES",electronics);
+
+		Category iphone = new Category("IPHONE",mobiles);
+
+		Category washingMachine = new Category("WASHING MACHINE",electronics);
+
+		electronics.addChildren(mobiles);
+		electronics.addChildren(washingMachine);
+
+		mobiles.addChildren(iphone);
+
+		categoryRepository.save(electronics);
+
+
+
+	}
 
 }

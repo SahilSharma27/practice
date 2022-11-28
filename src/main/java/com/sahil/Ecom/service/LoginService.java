@@ -7,5 +7,5 @@ public interface LoginService {
 
     void saveJwtResponse(LoginResponseDTO loginResponseDTO, String username);
 
-    void removeAlreadyGeneratedTokens(LoginRequestDTO loginRequestDTO);
+    void removeAlreadyGeneratedTokens(String username);
 }

@@ -33,9 +33,6 @@ public class TokenGeneratorHelper {
     UserRepository userRepository;
 
 
-
-
-
     Logger logger = LoggerFactory.getLogger(TokenGeneratorHelper.class);
 
     @Autowired

@@ -101,13 +101,15 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public LoginResponseDTO loginSeller(LoginRequestDTO loginRequestDTO) throws Exception {
-        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
+
+        loginService.removeAlreadyGeneratedTokens(loginRequestDTO.getUsername());
 
         LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
 
         loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
 
         return loginResponseDTO;
+
     }
 
 
@@ -127,15 +129,15 @@ public class SellerServiceImpl implements SellerService{
 
             Address address = seller.getAddresses().get(0);
 
-            AddressDTO addressDTO= new AddressDTO();
 
-            addressDTO.setAddressLine(address.getAddressLine());
-            addressDTO.setCity(address.getCity());
-            addressDTO.setCountry(address.getCountry());
-            addressDTO.setLabel(address.getLabel());
-            addressDTO.setZipCode(address.getZipCode());
-            addressDTO.setState(addressDTO.getState());
+            AddressDTO addressDTO= new AddressDTO(address);
 
+//            addressDTO.setAddressLine(address.getAddressLine());
+//            addressDTO.setCity(address.getCity());
+//            addressDTO.setCountry(address.getCountry());
+//            addressDTO.setLabel(address.getLabel());
+//            addressDTO.setZipCode(address.getZipCode());
+//            addressDTO.setState(addressDTO.getState());
 
             fetchSellerDTO.setCompanyAddress(addressDTO);
 
@@ -143,14 +145,15 @@ public class SellerServiceImpl implements SellerService{
             fetchSellerDTO.setCompanyContact(seller.getCompanyContact());
             fetchSellerDTO.setGst(seller.getGst());
 
-            String url = "file:///home/sahil/IdeaProjects/Ecom/images/users/";
+//            String url = "file:///home/sahil/IdeaProjects/Ecom/images/users/";
+            String url = "localhost:8080/images/users/";
             fetchSellerDTO.setImageUrl(url + seller.getId()+ ".jpg");
 
             return fetchSellerDTO;
 
         }
 
-        throw new UserEmailNotFoundException("NOT FOUND");
+        throw new UserEmailNotFoundException();
     }
 
 

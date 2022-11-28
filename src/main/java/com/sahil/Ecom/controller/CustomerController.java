@@ -6,6 +6,7 @@ import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.entity.LoginRequestDTO;
 import com.sahil.Ecom.entity.LoginResponseDTO;
 import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
+import com.sahil.Ecom.exception.InvalidTokenException;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
@@ -84,11 +85,6 @@ public class CustomerController {
     @PostMapping(value = "/login", params = "role=customer")
     public ResponseEntity<?> loginCustomer(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
 
-//        loginService.removeAlreadyGeneratedTokens(loginRequestDTO);
-//
-//        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
-//
-//        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
 
         LoginResponseDTO loginResponseDTO = customerService.loginCustomer(loginRequestDTO);
         if(loginResponseDTO!=null){
@@ -145,11 +141,12 @@ public class CustomerController {
             return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
 
         }
+        throw new InvalidTokenException();
 
-        responseDTO.setMessage("INVALID TOKEN");
-        responseDTO.setResponseStatusCode(HttpStatus.FORBIDDEN);
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.FORBIDDEN);
+//        responseDTO.setMessage("INVALID TOKEN");
+//        responseDTO.setResponseStatusCode(HttpStatus.FORBIDDEN);
+//
+//        return new ResponseEntity<>(responseDTO, HttpStatus.FORBIDDEN);
 
     }
 

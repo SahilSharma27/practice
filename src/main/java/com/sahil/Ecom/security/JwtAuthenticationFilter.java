@@ -2,6 +2,7 @@ package com.sahil.Ecom.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sahil.Ecom.entity.BlacklistToken;
 import com.sahil.Ecom.exception.ApiError;
 import com.sahil.Ecom.exception.TokenExpiredException;
 import com.sahil.Ecom.repository.BlacklistTokenRepository;
@@ -55,46 +56,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         //check format
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")) {
-            jwtToken = requestTokenHeader.substring("Bearer".length());
+            jwtToken = requestTokenHeader.substring(7);
 
+            logger.info(jwtToken);
             try{
                 //check if token is blacklisted
-                if(isBlackListed(jwtToken)){
-                    logger.info("-----------------------------------");
+                if(blacklistTokenRepository.existsByAccessToken(jwtToken)){
+                    logger.info("------------------BL-----------------");
                     logger.info("BLACK LISTED TOKEN");
+
                     throw new ExpiredJwtException(null,null,"in BL");
                 }
-                logger.info("-----------------------------------");
+                logger.info("-------------NBL----------------------");
                 logger.info("NOT BLACK LISTED TOKEN");
 
                 username = this.jwtUtil.extractUsername(jwtToken);
 
             }catch (ExpiredJwtException e) {
-
-
-//                String apiErrorJsonString = this.gson.toJson(apiError);
-//
-//                PrintWriter out = response.getWriter();
-//                response.setContentType("application/json");
-//                response.setCharacterEncoding("UTF-8");
-//                out.print(apiErrorJsonString);
-//                out.flush();
-
-//                ErrorResponse errorResponse = new ErrorResponse();
-//                errorResponse.setCode(401);
-//                errorResponse.setMessage("Unauthorized Access");
-//                ApiError apiError = new ApiError();
-//                apiError.setStatus(HttpStatus.FORBIDDEN);
-//                apiError.setTimestamp(LocalDateTime.now());
-//                apiError.setMessage("TOKEN EXP");
-//
-//
-//                byte[] responseToSend = restResponseBytes(apiError);
-//                ((HttpServletResponse) response).setHeader("Content-Type", "application/json");
-//                ((HttpServletResponse) response).setStatus(403);
-//                response.getOutputStream().write(responseToSend);
-//                return;
-
 
                 Map<String, Object> errorDetails = new HashMap<>();
 
@@ -137,13 +115,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
-//    private byte[] restResponseBytes(ApiError eErrorResponse) throws IOException {
-//        String serialized = new ObjectMapper().writeValueAsString(eErrorResponse);
-//        return serialized.getBytes();
-//    }
 
     private boolean isBlackListed(String jwtToken) {
-        return blacklistTokenRepository.existsById(jwtToken);
+        logger.info(jwtToken);
+        return blacklistTokenRepository.existsByAccessToken(jwtToken);
+
     }
 
 

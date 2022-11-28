@@ -1,13 +1,12 @@
 package com.sahil.Ecom.security;
 
+import com.sahil.Ecom.enums.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,11 +39,13 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("type",TokenType.ACCESS);
         return createToken(claims, userDetails.getUsername());
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("type",TokenType.REFRESH);
         return createRefreshToken(claims, userDetails.getUsername());
     }
 
@@ -64,7 +65,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1 * 60 * 1000))// valid for 2 min
+                .setExpiration(new Date(System.currentTimeMillis() + 2 * 60 * 1000))// valid for 2 min
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 

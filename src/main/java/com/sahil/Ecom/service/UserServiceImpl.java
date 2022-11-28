@@ -4,6 +4,7 @@ import com.sahil.Ecom.dto.AddressDTO;
 import com.sahil.Ecom.dto.FetchCustomerDTO;
 import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.entity.*;
+import com.sahil.Ecom.exception.AccountLockedException;
 import com.sahil.Ecom.exception.AccountNotActiveException;
 import com.sahil.Ecom.exception.TokenExpiredException;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
@@ -79,44 +80,30 @@ public class UserServiceImpl implements UserService {
     @Autowired
     FileService fileService;
 
+    @Autowired
+    LoginService loginService;
+
     @Value("${project.image}")
     private String path;
 
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-//    @Override
-//    public Customer login(Customer customer) {
-//        return null;
-//    }
-//
-//    @Override
-//    public Seller login(Seller seller) {
-//        return null;
-//    }
+    Locale locale = LocaleContextHolder.getLocale();
+
 
     @Transactional
     @Override
     public boolean activateByEmail(String email) {
 
-        if(userRepository.existsByEmail(email)){
+        //if email valid
+        //delete activation token
+        //update isActive
+        if (userRepository.existsByEmail(email)) {
             activationTokenRepository.deleteByUserEmail(email);
             return userRepository.updateIsActive(true, email) > 0;
         }
         throw new UserEmailNotFoundException();
 
-
-//        User foundUser = userRepository.findByEmail(email).orElse(null);
-//
-//        if (foundUser != null && !foundUser.isActive()) {
-//
-//            foundUser.setActive(true);
-//            activationTokenRepository.deleteByUserEmail(email);
-////            return userRepository.save(foundUser);
-//
-//
-//        } else {
-//            throw new UsernameNotFoundException("Not found");
-//        }
     }
 
     @Override
@@ -317,16 +304,16 @@ public class UserServiceImpl implements UserService {
 
             if (foundUser.isActive()) {
 
-                return userRepository.updatePassword(passwordEncoder.encode(newPassword),email) > 0;
+                return userRepository.updatePassword(passwordEncoder.encode(newPassword), email) > 0;
 //                foundUser.setPassword(passwordEncoder.encode(newPassword));
 //                userRepository.save(foundUser);
 //                return true;
             } else {
-                throw new AccountNotActiveException("Account Not Active");
+                throw new AccountNotActiveException();
             }
 
         } else {
-            throw new UsernameNotFoundException("Not found");
+            throw new UserEmailNotFoundException();
         }
 
 
@@ -364,35 +351,50 @@ public class UserServiceImpl implements UserService {
 
 
         logger.info("-------------------UNDER TIME LIMIT STILL HERE--------------");
-        throw new UsernameNotFoundException("NO mail Found for token");
+
+        throw new UserEmailNotFoundException();
 
     }
 
     @Override
-    public void forgotPasswordHelper(String email) {
+    public boolean forgotPasswordHelper(String email) {
+
+        if (userRepository.existsByEmail(email)) {
+
+            User user = userRepository.findByEmail(email).get();
+
+            if (!user.isActive()) {
+                throw new AccountNotActiveException();
+            }
+
 //        generate token
-        String token = UUIDTokenService.getUUIDToken();
+            String token = UUIDTokenService.getUUIDToken();
 
 //        save in db
-        ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
-        resetPasswordToken.setResetPassToken(token);
-        resetPasswordToken.setUserEmail(email);
-        resetPasswordToken.setTokenTimeLimit(LocalDateTime.now().plusMinutes(1));
-        resetPassTokenRepository.save(resetPasswordToken);
+            ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
+            resetPasswordToken.setResetPassToken(token);
+            resetPasswordToken.setUserEmail(email);
+            resetPasswordToken.setTokenTimeLimit(LocalDateTime.now().plusMinutes(1));
+            resetPassTokenRepository.save(resetPasswordToken);
 
-        logger.info("UUID as String: " + token);
 
-        //generate url
-        String emailBody = "";
-        try {
-            emailBody = "Reset Password Link: " + UUIDTokenService.generateResetPassURL(token);
-        } catch (MalformedURLException e) {
-            logger.info("URL Error" + e);
-            e.printStackTrace();
+            //generate url
+            String emailBody = "";
+            try {
+                emailBody = "Reset Password Link: " + UUIDTokenService.generateResetPassURL(token);
+            } catch (MalformedURLException e) {
+                logger.info("URL Error" + e);
+                e.printStackTrace();
+            }
+
+            //send email
+            // emailSenderService.sendEmail(email,"Reset Password",emailBody);
+            logger.info(emailBody);
+
+            return true;
         }
-//send email
-        // emailSenderService.sendEmail(email,"Reset Password",emailBody);
-        logger.info(emailBody);
+
+        throw new UserEmailNotFoundException();
     }
 
     @Override
@@ -403,37 +405,53 @@ public class UserServiceImpl implements UserService {
 
     }
 
+
     @Override
-    public boolean logout(String accessToken) {
+    public boolean logoutHelper(String username) {
+
+        User user = userRepository.findByEmail(username).orElseThrow(
+                ()->new UsernameNotFoundException(messageSource.getMessage("user.not.found",null,"message",locale)));
+
+        String accessToken = user.getJwtAccessToken().getAccessToken();
+        String refreshToken = user.getJwtRefreshToken().getRefreshToken();
+
 
         //add token to blacklist table
         blacklistTokenRepository.save(new BlacklistToken(accessToken));
+        blacklistTokenRepository.save(new BlacklistToken(refreshToken));
+
+        loginService.removeAlreadyGeneratedTokens(username);
+
+        user.setJwtAccessToken(null);
+        user.setJwtRefreshToken(null);
+
+
         return true;
 
     }
 
     @Override
-    public boolean updateAddress(Long id,Address newAddress) {
+    public boolean updateAddress(Long id, Address newAddress) {
 
-        if(addressRepository.existsById(id)){
-            Address addressToBeUpdated =  addressRepository.findById(id).get();
+        if (addressRepository.existsById(id)) {
+            Address addressToBeUpdated = addressRepository.findById(id).get();
 
-            if(newAddress.getAddressLine() != null)
+            if (newAddress.getAddressLine() != null)
                 addressToBeUpdated.setAddressLine(newAddress.getAddressLine());
 
-            if(newAddress.getCity() != null)
+            if (newAddress.getCity() != null)
                 addressToBeUpdated.setCity(newAddress.getCity());
 
-            if(newAddress.getLabel() != null)
+            if (newAddress.getLabel() != null)
                 addressToBeUpdated.setLabel(newAddress.getLabel());
 
-            if(newAddress.getZipCode() != null)
+            if (newAddress.getZipCode() != null)
                 addressToBeUpdated.setZipCode(newAddress.getZipCode());
 
-            if(newAddress.getCountry() != null)
+            if (newAddress.getCountry() != null)
                 addressToBeUpdated.setCountry(newAddress.getCountry());
 
-            if(newAddress.getState() != null)
+            if (newAddress.getState() != null)
                 addressToBeUpdated.setState(newAddress.getState());
 
 
@@ -448,12 +466,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean saveUserImage(Long id, MultipartFile image) {
-        try{
+        try {
 
-            String fileName = fileService.uploadImage(id,path,image);
+            String fileName = fileService.uploadImage(id, path, image);
             return true;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -462,11 +480,11 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public List<FetchCustomerDTO> getAllCustomersPaged(int page,int size,String sort) {
+    public List<FetchCustomerDTO> getAllCustomersPaged(int page, int size, String sort) {
 
-        Pageable pageable = PageRequest.of(page,size,Sort.by(sort).ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
 
-        Page<Customer> customerPage= customerRepository.findAll(pageable);
+        Page<Customer> customerPage = customerRepository.findAll(pageable);
 
         List<Customer> customerList = customerPage.getContent();
 
@@ -488,9 +506,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<FetchSellerDTO> getAllSellersPaged(int page, int size, String sort) {
-        Pageable pageable = PageRequest.of(page,size,Sort.by(sort).ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
 
-        Page<Seller> sellersPage= sellerRepository.findAll(pageable);
+        Page<Seller> sellersPage = sellerRepository.findAll(pageable);
 
         List<Seller> sellerList = sellersPage.getContent();
 

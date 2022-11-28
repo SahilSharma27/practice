@@ -1,12 +1,14 @@
 package com.sahil.Ecom.controller;
 
+import com.sahil.Ecom.dto.AddCategoryDTO;
+import com.sahil.Ecom.dto.AddMetaDataFieldDTO;
+import com.sahil.Ecom.dto.FetchMetaDataFieldDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
+import com.sahil.Ecom.entity.LoginRequestDTO;
+import com.sahil.Ecom.entity.LoginResponseDTO;
 import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
-import com.sahil.Ecom.service.CustomerService;
-import com.sahil.Ecom.service.EmailSenderService;
-import com.sahil.Ecom.service.SellerService;
-import com.sahil.Ecom.service.UserService;
+import com.sahil.Ecom.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Locale;
@@ -46,9 +46,31 @@ public class AdminController {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private LoginService loginService;
+
+    @Autowired
+    private CategoryService categoryService;
+
     Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     Locale locale = LocaleContextHolder.getLocale();
+
+    @PostMapping(value = "/login", params = "role=admin")
+    public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
+
+        //remove all tokens in db for this user
+        //generate new tokens
+        //save new tokens in db
+
+        loginService.removeAlreadyGeneratedTokens(loginRequestDTO.getUsername());
+
+        LoginResponseDTO loginResponseDTO = tokenGeneratorHelper.generateTokenHelper(loginRequestDTO);
+
+        loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
+
+        return ResponseEntity.ok(loginResponseDTO);
+    }
 
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
@@ -119,10 +141,8 @@ public class AdminController {
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
 
         }
-
         message = messageSource.getMessage("user.not.found", null, "message", locale);
         return new ResponseEntity<>(new ResponseDTO(LocalDateTime.now(),false,message,HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
-
 
     }
 
@@ -133,7 +153,6 @@ public class AdminController {
         String message;
 
         if (userService.deActivateAccount(sellerId)){
-
             message = messageSource.getMessage("user.account.deactivated", null, "message", locale);
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true, message, HttpStatus.OK));
 
@@ -143,5 +162,42 @@ public class AdminController {
         return new ResponseEntity<>(new ResponseDTO(LocalDateTime.now(),false,message,HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
 
     }
+
+    @PostMapping(value = "/category/metadata")
+    public ResponseEntity<?> addMetaDataField(@RequestBody AddMetaDataFieldDTO addMetaDataFieldDTO){
+
+        AddMetaDataFieldDTO savedMetaDatField = categoryService.addCategoryMetadataField(addMetaDataFieldDTO);
+        return ResponseEntity.ok(savedMetaDatField);
+
+    }
+
+    @GetMapping(value = "/category/metadata")
+    public ResponseEntity<?> fetchMetaDataField(){
+        return ResponseEntity.ok(categoryService.getAllMetaDataFields());
+    }
+
+    @PostMapping(value = "/category")
+    public ResponseEntity<?> addNewCategory(@RequestBody AddCategoryDTO addCategoryDTO){
+
+        AddCategoryDTO addedCategory = categoryService.addCategory(addCategoryDTO);
+        return ResponseEntity.ok(addedCategory);
+
+    }
+
+    @GetMapping(value = "/category")
+    public ResponseEntity<?>fetchAllCategories(){
+
+        return ResponseEntity.ok(categoryService.getAllCategories());
+
+    }
+
+
+    @GetMapping(value = "/categoryy")
+    public ResponseEntity<?>fetchCategoryById(@RequestParam("categoryId")Long categoryId){
+
+        return ResponseEntity.ok(categoryService.getCategoryById(categoryId));
+
+    }
+
 
 }

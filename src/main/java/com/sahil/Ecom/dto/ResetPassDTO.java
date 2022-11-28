@@ -1,12 +1,17 @@
 package com.sahil.Ecom.dto;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 public class ResetPassDTO {
 
     @Email
+    @NotBlank
     private String userEmail;
 
+    @NotBlank
+    @Size(min = 8,max = 15,message = "{password.validation}")
     private String newPassword;
 
     private String confirmNewPassword;

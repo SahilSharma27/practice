@@ -3,11 +3,14 @@ package com.sahil.Ecom.controller;
 import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.dto.SellerDTO;
+import com.sahil.Ecom.entity.LoginRequestDTO;
+import com.sahil.Ecom.entity.LoginResponseDTO;
 import com.sahil.Ecom.exception.CompanyNameAlreadyRegisteredException;
 import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
 import com.sahil.Ecom.exception.GstAlreadyRegisteredException;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.security.JwtUtil;
+import com.sahil.Ecom.service.LoginService;
 import com.sahil.Ecom.service.SellerService;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.UserService;
@@ -47,7 +50,12 @@ public class SellerController {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private LoginService loginService;
+
     Logger logger = LoggerFactory.getLogger(SellerController.class);
+
+    Locale locale = LocaleContextHolder.getLocale();
 
     @PostMapping(value = "/register", params = "role=seller")
     public ResponseEntity<?> registerSeller(@Valid @RequestBody SellerDTO sellerDTO) {
@@ -93,9 +101,24 @@ public class SellerController {
 
     }
 
+    @PostMapping(value = "/login", params = "role=seller")
+    public ResponseEntity<?> loginSeller(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
+
+
+        LoginResponseDTO loginResponseDTO = sellerService.loginSeller(loginRequestDTO);
+        if(loginResponseDTO!=null){
+            return ResponseEntity.ok(loginResponseDTO);
+        }
+
+        ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(),false,HttpStatus.INTERNAL_SERVER_ERROR);
+        responseDTO.setMessage(messageSource.getMessage("login.failed",null,"message",locale));
+        return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
 
     @GetMapping(value = "users/profile", params = "role=seller")
-    public ResponseEntity<?> getCustomerProfile(HttpServletRequest request) {
+    public ResponseEntity<?> getSellerProfile(HttpServletRequest request) {
         //get token
         //get username
         //get profile

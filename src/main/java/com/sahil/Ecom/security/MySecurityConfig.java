@@ -54,6 +54,8 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/seller/**").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers(HttpMethod.PUT,"/users/activate").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers(HttpMethod.PUT,"/users/deactivate").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers("/category/metadata").hasRole(EcomRoles.ADMIN.label)
+                .antMatchers("/category").hasRole(EcomRoles.ADMIN.label)
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()

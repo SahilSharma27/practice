@@ -16,10 +16,6 @@ import java.util.Map;
 
 public interface UserService {
 
-//    Customer login(Customer customer);
-//
-//    Seller login(Seller seller);
-
     boolean activateByEmail(String email);
 
     boolean activateAccount(Long id);
@@ -42,16 +38,15 @@ public interface UserService {
 
     String validateActivationToken(String uuid);
 
-    void forgotPasswordHelper(String email);
+    boolean forgotPasswordHelper(String email);
 
     String validateResetPasswordToken(String uuid);
-
 
     boolean resetPassword(String email,String newPassword);
 
     void sendSellerAcknowledgement(String email);
 
-    boolean logout(String accessToken);
+    boolean logoutHelper(String username);
 
     boolean updateAddress(Long id,Address address);
 
