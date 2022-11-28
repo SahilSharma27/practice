@@ -3,8 +3,8 @@ package com.sahil.Ecom.service;
 import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.dto.SellerDTO;
 import com.sahil.Ecom.dto.SellerProfileDTO;
-import com.sahil.Ecom.entity.LoginRequestDTO;
-import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.dto.LoginRequestDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.entity.Seller;
 
 public interface SellerService {

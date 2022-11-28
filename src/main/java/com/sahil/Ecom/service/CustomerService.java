@@ -5,8 +5,8 @@ import com.sahil.Ecom.dto.CustomerDTO;
 import com.sahil.Ecom.dto.CustomerProfileDTO;
 import com.sahil.Ecom.dto.FetchCustomerDTO;
 import com.sahil.Ecom.entity.Address;
-import com.sahil.Ecom.entity.LoginRequestDTO;
-import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.dto.LoginRequestDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 
 import java.util.List;
 

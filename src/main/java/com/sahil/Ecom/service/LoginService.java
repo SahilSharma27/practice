@@ -1,7 +1,6 @@
 package com.sahil.Ecom.service;
 
-import com.sahil.Ecom.entity.LoginRequestDTO;
-import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 
 public interface LoginService {
 

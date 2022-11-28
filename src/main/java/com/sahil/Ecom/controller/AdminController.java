@@ -2,10 +2,9 @@ package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.AddCategoryDTO;
 import com.sahil.Ecom.dto.AddMetaDataFieldDTO;
-import com.sahil.Ecom.dto.FetchMetaDataFieldDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
-import com.sahil.Ecom.entity.LoginRequestDTO;
-import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.dto.LoginRequestDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.*;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Locale;
 
 
@@ -52,9 +50,11 @@ public class AdminController {
     @Autowired
     private CategoryService categoryService;
 
+
     Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     Locale locale = LocaleContextHolder.getLocale();
+
 
     @PostMapping(value = "/login", params = "role=admin")
     public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
@@ -77,20 +77,9 @@ public class AdminController {
         return new ResponseEntity<Iterable<User>>(userService.getAllUsers(), HttpStatus.OK);
     }
 
+
     @GetMapping(value = "/users/customers")
-    public ResponseEntity<?> getAllCustomers() {
-        return new ResponseEntity<>(userService.getAllCustomers(), HttpStatus.OK);
-
-    }
-
-    @GetMapping(value = "/users/sellers")
-    public ResponseEntity<?> getAllSellers() {
-        return new ResponseEntity<>(userService.getAllSellers(), HttpStatus.OK);
-    }
-
-
-    @GetMapping(value = "/users/customersPaged")
-    public ResponseEntity<?> getAllCustomersPaged(HttpServletRequest request) {
+    public ResponseEntity<?> getAllCustomers(HttpServletRequest request) {
 
         String email = request.getParameter("email");
 
@@ -110,8 +99,8 @@ public class AdminController {
 
     }
 
-    @GetMapping(value = "/users/sellersPaged")
-    public ResponseEntity<?> getAllSellersPaged(HttpServletRequest request) {
+    @GetMapping(value = "/users/sellers")
+    public ResponseEntity<?> getAllSellers(HttpServletRequest request) {
 
         String email = request.getParameter("email");
         if(email == null) {
@@ -119,7 +108,6 @@ public class AdminController {
             int page = (request.getParameter("page") == null) ? 0 : Integer.parseInt(request.getParameter("page"));
             int size = (request.getParameter("size") == null) ? 10 : Integer.parseInt(request.getParameter("size"));
             String sort = (request.getParameter("sort") == null) ? "id" : request.getParameter("sort");
-
 
             return new ResponseEntity<>(userService.getAllSellersPaged(page, size, sort), HttpStatus.OK);
         }else{
@@ -129,13 +117,12 @@ public class AdminController {
     }
 
 
-
-    @PutMapping(value = "users/activate/{id}")
-    public ResponseEntity<?> activateSeller(@PathVariable(name = "id") Long sellerId) {
+    @PatchMapping(value = "users/activate/{id}")
+    public ResponseEntity<?> activateUserAccount(@PathVariable(name = "id") Long userId) {
 
         String message;
 
-        if (userService.activateAccount(sellerId)) {
+        if (userService.activateAccount(userId)) {
 
             message = messageSource.getMessage("user.account.activated", null, "message", locale);
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
@@ -147,12 +134,12 @@ public class AdminController {
     }
 
 
-    @PutMapping(value = "users/deactivate/{id}")
-    public ResponseEntity<?> deActivateSeller(@PathVariable(name = "id") Long sellerId) {
+    @PatchMapping(value = "users/deactivate/{id}")
+    public ResponseEntity<?> deActivateUserAccount(@PathVariable(name = "id") Long userId) {
 
         String message;
 
-        if (userService.deActivateAccount(sellerId)){
+        if (userService.deActivateAccount(userId)){
             message = messageSource.getMessage("user.account.deactivated", null, "message", locale);
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true, message, HttpStatus.OK));
 
@@ -175,6 +162,8 @@ public class AdminController {
     public ResponseEntity<?> fetchMetaDataField(){
         return ResponseEntity.ok(categoryService.getAllMetaDataFields());
     }
+
+
 
     @PostMapping(value = "/category")
     public ResponseEntity<?> addNewCategory(@RequestBody AddCategoryDTO addCategoryDTO){

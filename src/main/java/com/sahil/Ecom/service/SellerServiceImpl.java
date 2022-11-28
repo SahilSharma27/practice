@@ -2,8 +2,8 @@ package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Address;
-import com.sahil.Ecom.entity.LoginRequestDTO;
-import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.dto.LoginRequestDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.RoleRepository;
@@ -16,7 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 

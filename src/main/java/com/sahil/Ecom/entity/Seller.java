@@ -8,13 +8,13 @@ import java.util.List;
 @Table(name = "SELLER")
 public class Seller extends User{
 
-    @Column(name = "GST")
+    @Column(name = "GST",unique = true)
     private String gst;
 
-    @Column(name = "COMPANY_CONTACT")
+    @Column(name = "COMPANY_CONTACT", unique = true)
     private String companyContact;
 
-    @Column(name = "COMPANY_NAME")
+    @Column(name = "COMPANY_NAME",unique = true)
     private String companyName;
 
     public Seller() {

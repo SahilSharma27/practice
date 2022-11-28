@@ -1,8 +1,8 @@
 package com.sahil.Ecom.controller;
 
 
-import com.sahil.Ecom.entity.LoginRequestDTO;
-import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.dto.LoginRequestDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.MyCustomUserDetailsService;
 import org.slf4j.Logger;

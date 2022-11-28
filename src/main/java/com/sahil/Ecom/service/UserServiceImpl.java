@@ -4,10 +4,7 @@ import com.sahil.Ecom.dto.AddressDTO;
 import com.sahil.Ecom.dto.FetchCustomerDTO;
 import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.entity.*;
-import com.sahil.Ecom.exception.AccountLockedException;
-import com.sahil.Ecom.exception.AccountNotActiveException;
-import com.sahil.Ecom.exception.TokenExpiredException;
-import com.sahil.Ecom.exception.UserEmailNotFoundException;
+import com.sahil.Ecom.exception.*;
 import com.sahil.Ecom.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,6 +104,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public boolean activateAccount(Long id) {
 
         //check if id exist
@@ -115,15 +113,16 @@ public class UserServiceImpl implements UserService {
 
         if (userRepository.existsById(id)) {
 
-            User foundUser = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("NOT FOUND"));
+            User foundUser = userRepository.findById(id).orElseThrow(IdNotFoundException::new);
 
             if (foundUser.isActive()) {
                 logger.info("------------Already Activated------------");
                 return true;
             }
 
-            foundUser.setActive(true);
-            userRepository.save(foundUser);
+//            foundUser.setActive(true);
+//            userRepository.save(foundUser);
+            userRepository.updateIsActive(true,foundUser.getEmail());
             logger.info("---------------ACCOUNT ACTIVATED-------------------");
             //send acknowledgement email
 
@@ -134,6 +133,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public boolean deActivateAccount(Long id) {
 
         //check if id exist
@@ -149,9 +149,9 @@ public class UserServiceImpl implements UserService {
                 return true;
             }
 
-            foundUser.setActive(false);
-            userRepository.save(foundUser);
-
+//            foundUser.setActive(false);
+//            userRepository.save(foundUser);
+            userRepository.updateIsActive(false,foundUser.getEmail());
             logger.info("---------------ACCOUNT DEACTIVATED-------------------");
             //send acknowledgement email
             return true;
@@ -162,66 +162,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Iterable<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    @Override
-    public List<FetchCustomerDTO> getAllCustomers() {
-
-        List<FetchCustomerDTO> fetchCustomerDTOList = new ArrayList<>();
-
-//        return customerRepository.findAll();
-        Iterable<Customer> customers = customerRepository.findAll();
-
-        for (Customer customer : customers) {
-
-            FetchCustomerDTO fetchCustomerDTO = new FetchCustomerDTO();
-            fetchCustomerDTO.setId(customer.getId());
-            fetchCustomerDTO.setEmail(customer.getEmail());
-            fetchCustomerDTO.setActive(customer.isActive());
-            fetchCustomerDTO.setFullName(customer.getFirstName() + " " + customer.getMiddleName() + " " + customer.getLastName());
-
-            fetchCustomerDTOList.add(fetchCustomerDTO);
-        }
-        return fetchCustomerDTOList;
-
-    }
-
-    @Override
-    public List<FetchSellerDTO> getAllSellers() {
-
-        List<FetchSellerDTO> fetchSellerDTOList = new ArrayList<>();
-
-        Iterable<Seller> sellers = sellerRepository.findAll();
-
-        for (Seller seller : sellers) {
-
-            FetchSellerDTO fetchSellerDTO = new FetchSellerDTO();
-            fetchSellerDTO.setId(seller.getId());
-            fetchSellerDTO.setEmail(seller.getEmail());
-            fetchSellerDTO.setActive(seller.isActive());
-            fetchSellerDTO.setFullName(seller.getFirstName() + " " + seller.getMiddleName() + " " + seller.getLastName());
-            fetchSellerDTO.setCompanyName(seller.getCompanyName());
-            fetchSellerDTO.setCompanyContact(seller.getCompanyContact());
-
-
-            //only one address of seller is there
-            Address address = seller.getAddresses().get(0);
-
-            AddressDTO addressDTO = new AddressDTO();
-
-            addressDTO.setAddressLine(address.getAddressLine());
-            addressDTO.setCity(address.getCity());
-            addressDTO.setLabel(address.getLabel());
-            addressDTO.setZipCode(address.getZipCode());
-            addressDTO.setCountry(address.getCountry());
-            addressDTO.setState(address.getState());
-
-            fetchSellerDTO.setCompanyAddress(addressDTO);
-
-            fetchSellerDTOList.add(fetchSellerDTO);
-        }
-        return fetchSellerDTOList;
-
     }
 
     @Override
@@ -401,7 +341,8 @@ public class UserServiceImpl implements UserService {
     public void sendSellerAcknowledgement(String email) {
 
         String emailBody = "ACCOUNT CREATED WAITING FOR APPROVAL";
-        emailSenderService.sendEmail(email, "Registration Successfully", emailBody);
+        logger.info("--------------------"+emailBody+"------------------");
+      //  emailSenderService.sendEmail(email, "Registration Successfully", emailBody);
 
     }
 
@@ -414,7 +355,6 @@ public class UserServiceImpl implements UserService {
 
         String accessToken = user.getJwtAccessToken().getAccessToken();
         String refreshToken = user.getJwtRefreshToken().getRefreshToken();
-
 
         //add token to blacklist table
         blacklistTokenRepository.save(new BlacklistToken(accessToken));
@@ -488,19 +428,8 @@ public class UserServiceImpl implements UserService {
 
         List<Customer> customerList = customerPage.getContent();
 
-        return customerList.stream().map(customer -> {
-
-                    FetchCustomerDTO fetchCustomerDTO = new FetchCustomerDTO();
-                    fetchCustomerDTO.setEmail(customer.getEmail());
-                    fetchCustomerDTO.setId(customer.getId());
-                    fetchCustomerDTO.setFullName(customer.getFirstName() + " " + customer.getMiddleName() + " " + customer.getLastName());
-                    fetchCustomerDTO.setContact(customer.getContact());
-                    fetchCustomerDTO.setActive(customer.isActive());
-
-                    return fetchCustomerDTO;
-
-                }
-        ).collect(Collectors.toList());
+        //Constructor reference
+        return customerList.stream().map(FetchCustomerDTO::new).collect(Collectors.toList());
 
     }
 
@@ -512,34 +441,7 @@ public class UserServiceImpl implements UserService {
 
         List<Seller> sellerList = sellersPage.getContent();
 
-        return sellerList.stream().map(seller -> {
-
-                    FetchSellerDTO fetchSellerDTO = new FetchSellerDTO();
-                    fetchSellerDTO.setEmail(seller.getEmail());
-                    fetchSellerDTO.setId(seller.getId());
-                    fetchSellerDTO.setFullName(seller.getFirstName() + " " + seller.getMiddleName() + " " + seller.getLastName());
-                    fetchSellerDTO.setCompanyContact(seller.getCompanyContact());
-                    fetchSellerDTO.setGst(seller.getCompanyContact());
-
-                    fetchSellerDTO.setCompanyAddress(seller.getAddresses().stream().map(address -> {
-
-                        AddressDTO addressDTO = new AddressDTO();
-                        addressDTO.setState(address.getState());
-                        addressDTO.setCountry(address.getCountry());
-                        addressDTO.setCity(address.getCity());
-                        addressDTO.setZipCode(address.getZipCode());
-                        addressDTO.setLabel(address.getLabel());
-
-                        return addressDTO;
-                    }).toList().get(0));
-
-                    fetchSellerDTO.setActive(seller.isActive());
-
-                    return fetchSellerDTO;
-
-                }
-
-        ).collect(Collectors.toList());
+        return sellerList.stream().map(FetchSellerDTO::new).collect(Collectors.toList());
 
     }
 }

@@ -129,5 +129,16 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(IdNotFoundException.class)
+    public ResponseEntity<ApiError> handleIdNotFoundException(IdNotFoundException exception){
+
+        String message = messageSource.getMessage("id.not.found",null,"message",locale);
+        String error =messageSource.getMessage("id.not.found",null,"message",locale);
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.NOT_FOUND,message,error);
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
+
+    }
+
 
 }

@@ -3,8 +3,8 @@ package com.sahil.Ecom.controller;
 import com.sahil.Ecom.dto.FetchSellerDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.dto.SellerDTO;
-import com.sahil.Ecom.entity.LoginRequestDTO;
-import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.dto.LoginRequestDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.exception.CompanyNameAlreadyRegisteredException;
 import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
 import com.sahil.Ecom.exception.GstAlreadyRegisteredException;
@@ -85,7 +85,7 @@ public class SellerController {
         if (sellerService.register(sellerDTO)) {
 
             //send acknowledgment
-            // userService.sendSellerAcknowledgement(sellerDTO.getEmail());
+             userService.sendSellerAcknowledgement(sellerDTO.getEmail());
 
             ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
             responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));

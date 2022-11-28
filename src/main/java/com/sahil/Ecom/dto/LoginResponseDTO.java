@@ -1,4 +1,4 @@
-package com.sahil.Ecom.entity;
+package com.sahil.Ecom.dto;
 
 public class LoginResponseDTO {
 
@@ -7,10 +7,6 @@ public class LoginResponseDTO {
 
     public LoginResponseDTO() {
     }
-
-//    public JwtResponse(String accessToken) {
-//        this.accessToken = accessToken;
-//    }
 
     public LoginResponseDTO(String accessToken, String refreshToken) {
         this.accessToken = accessToken;

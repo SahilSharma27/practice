@@ -1,6 +1,6 @@
 package com.sahil.Ecom.dto;
 
-import org.springframework.data.annotation.ReadOnlyProperty;
+import com.sahil.Ecom.entity.Seller;
 
 public class FetchSellerDTO {
 
@@ -17,7 +17,23 @@ public class FetchSellerDTO {
     private String gst;
 
     public FetchSellerDTO() {
+
     }
+
+    public FetchSellerDTO(Seller seller) {
+
+        this.setEmail(seller.getEmail());
+        this.setId(seller.getId());
+        this.setFullName(seller.getFirstName() + " " + seller.getMiddleName() + " " + seller.getLastName());
+        this.setCompanyName(seller.getCompanyName());
+        this.setCompanyContact(seller.getCompanyContact());
+        this.setGst(seller.getCompanyContact());
+        this.setActive(seller.isActive());
+        this.setCompanyAddress(seller.getAddresses().stream().map(AddressDTO::new).toList().get(0));
+
+    }
+
+
 
     public Long getId() {
         return id;

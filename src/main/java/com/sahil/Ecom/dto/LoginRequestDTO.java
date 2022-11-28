@@ -1,4 +1,4 @@
-package com.sahil.Ecom.entity;
+package com.sahil.Ecom.dto;
 
 import javax.validation.constraints.Email;
 

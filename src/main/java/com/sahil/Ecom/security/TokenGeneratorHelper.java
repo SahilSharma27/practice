@@ -1,11 +1,10 @@
 package com.sahil.Ecom.security;
 
-import com.sahil.Ecom.entity.LoginRequestDTO;
-import com.sahil.Ecom.entity.LoginResponseDTO;
+import com.sahil.Ecom.dto.LoginRequestDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.exception.AccountLockedException;
 import com.sahil.Ecom.exception.AccountNotActiveException;
 import com.sahil.Ecom.repository.UserRepository;
-import com.sahil.Ecom.service.LockAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

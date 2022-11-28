@@ -1,5 +1,7 @@
 package com.sahil.Ecom.dto;
 
+import com.sahil.Ecom.entity.Customer;
+
 public class FetchCustomerDTO {
 
     private Long id;
@@ -10,6 +12,16 @@ public class FetchCustomerDTO {
     private String imageUrl;
 
     public FetchCustomerDTO() {
+    }
+
+    public FetchCustomerDTO(Customer customer) {
+
+        this.setEmail(customer.getEmail());
+        this.setId(customer.getId());
+        this.setFullName(customer.getFirstName() + " " + customer.getMiddleName() + " " + customer.getLastName());
+        this.setContact(customer.getContact());
+        this.setActive(customer.isActive());
+
     }
 
 

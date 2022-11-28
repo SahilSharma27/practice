@@ -1,12 +1,12 @@
 package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.ForgotPasswordDTO;
+import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.dto.ResetPassDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.InvalidTokenException;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
-import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.BlacklistTokenRepository;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
@@ -31,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
