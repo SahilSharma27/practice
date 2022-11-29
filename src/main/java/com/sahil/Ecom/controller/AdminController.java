@@ -183,10 +183,15 @@ public class AdminController {
 
     @GetMapping(value = "/categoryy")
     public ResponseEntity<?>fetchCategoryById(@RequestParam("categoryId")Long categoryId){
-
         return ResponseEntity.ok(categoryService.getCategoryById(categoryId));
-
     }
+
+//    @PostMapping(value = "/category/metadata")
+//    public ResponseEntity<?>addCategoryMetaData(@RequestBody Long categoryId){
+//
+//        return ResponseEntity.ok(categoryService.getCategoryById(categoryId));
+//
+//    }
 
 
 }

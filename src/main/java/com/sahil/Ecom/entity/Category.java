@@ -4,7 +4,9 @@ package com.sahil.Ecom.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,15 +29,20 @@ public class Category {
     @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL)
     private Set<Category> children = new HashSet<>();
 
+    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private List<CategoryMetaDataFieldValue> categoryMetaDataFieldValueList = new ArrayList<>();
 
     public Category() {
     }
 
     public Category(String name) {
+
+        super();
         this.name = name;
     }
 
     public Category(String name, Category parent) {
+        super();
         this.name = name;
         this.parent = parent;
     }
@@ -75,4 +82,18 @@ public class Category {
     public void addChildren(Category category){
         this.children.add(category);
     }
+
+    public List<CategoryMetaDataFieldValue> getCategoryMetaDataFieldValueList() {
+        return categoryMetaDataFieldValueList;
+    }
+
+    public void setCategoryMetaDataFieldValueList(List<CategoryMetaDataFieldValue> categoryMetaDataFieldValueList) {
+        this.categoryMetaDataFieldValueList = categoryMetaDataFieldValueList;
+    }
+
+    public void addCategoryMetaDataFieldValue(CategoryMetaDataFieldValue fieldValue) {
+        this.categoryMetaDataFieldValueList.add(fieldValue);
+    }
+
+
 }

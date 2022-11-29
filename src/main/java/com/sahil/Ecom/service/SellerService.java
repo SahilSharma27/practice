@@ -1,10 +1,6 @@
 package com.sahil.Ecom.service;
 
-import com.sahil.Ecom.dto.FetchSellerDTO;
-import com.sahil.Ecom.dto.SellerDTO;
-import com.sahil.Ecom.dto.SellerProfileDTO;
-import com.sahil.Ecom.dto.LoginRequestDTO;
-import com.sahil.Ecom.dto.LoginResponseDTO;
+import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Seller;
 
 public interface SellerService {
@@ -19,8 +15,7 @@ public interface SellerService {
 
     boolean checkSellerGst(String gst);
 
+    SellerProfileDTO fetchSellerProfileDetails(String userEmail);
 
-    FetchSellerDTO fetchSellerProfileDetails(String userEmail);
-
-    boolean updateSellerProfile(String username, SellerProfileDTO sellerProfileDTO);
+    boolean updateSellerProfile(String username, SellerProfileUpdateDTO sellerProfileUpdateDTO);
 }

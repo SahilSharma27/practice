@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -114,80 +115,73 @@ public class SellerServiceImpl implements SellerService{
 
 
     @Override
-    public FetchSellerDTO fetchSellerProfileDetails(String userEmail) {
-        if(userRepository.existsByEmail(userEmail)){
+    public SellerProfileDTO fetchSellerProfileDetails(String userEmail) {
 
             Seller seller = sellerRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
 
-            FetchSellerDTO fetchSellerDTO = new FetchSellerDTO();
-            fetchSellerDTO.setId(seller.getId());
-            fetchSellerDTO.setFullName(seller.getFirstName() + seller.getMiddleName() + seller.getLastName());
-            fetchSellerDTO.setActive(seller.isActive());
-            fetchSellerDTO.setEmail(userEmail);
+            SellerProfileDTO sellerProfile = new SellerProfileDTO();
 
+            sellerProfile.setId(seller.getId());
+            sellerProfile.setFirstName(seller.getFirstName());
+            sellerProfile.setMiddleName(seller.getMiddleName());
+            sellerProfile.setLastName(seller.getLastName());
+            sellerProfile.setActive(seller.isActive());
+            sellerProfile.setEmail(userEmail);
+            sellerProfile.setCompanyName(seller.getCompanyName());
+            sellerProfile.setCompanyContact(seller.getCompanyContact());
+            sellerProfile.setGst(seller.getGst());
+            sellerProfile.setCompanyAddress(new AddressDTO(seller.getAddresses().get(0)));
 
-            Address address = seller.getAddresses().get(0);
+//            String url = "localhost:8080/images/users/"+seller.getId()+ ".jpg";
+//
+//            sellerProfile.setImageUrl(url + seller.getId()+ ".jpg");
+            sellerProfile.setImageUrl(getImageUrlIfExist(seller.getId()));
 
+            return sellerProfile;
 
-            AddressDTO addressDTO= new AddressDTO(address);
-
-//            addressDTO.setAddressLine(address.getAddressLine());
-//            addressDTO.setCity(address.getCity());
-//            addressDTO.setCountry(address.getCountry());
-//            addressDTO.setLabel(address.getLabel());
-//            addressDTO.setZipCode(address.getZipCode());
-//            addressDTO.setState(addressDTO.getState());
-
-            fetchSellerDTO.setCompanyAddress(addressDTO);
-
-            fetchSellerDTO.setCompanyName(seller.getCompanyName());
-            fetchSellerDTO.setCompanyContact(seller.getCompanyContact());
-            fetchSellerDTO.setGst(seller.getGst());
-
-//            String url = "file:///home/sahil/IdeaProjects/Ecom/images/users/";
-            String url = "localhost:8080/images/users/";
-            fetchSellerDTO.setImageUrl(url + seller.getId()+ ".jpg");
-
-            return fetchSellerDTO;
-
-        }
-
-        throw new UserEmailNotFoundException();
     }
 
 
     @Override
-    public boolean updateSellerProfile(String username, SellerProfileDTO sellerProfileDTO) {
+    public boolean updateSellerProfile(String username, SellerProfileUpdateDTO sellerProfileUpdateDTO) {
 
-        if(userRepository.existsByEmail(username)){
-            Seller seller = sellerRepository.findByEmail(username).get();
+            Seller seller = sellerRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
 
-            if(sellerProfileDTO.getFirstName()!=null)
-                seller.setFirstName(sellerProfileDTO.getFirstName());
+            if(sellerProfileUpdateDTO.getFirstName()!=null)
+                seller.setFirstName(sellerProfileUpdateDTO.getFirstName());
 
-            if(sellerProfileDTO.getMiddleName()!=null)
-                seller.setMiddleName(sellerProfileDTO.getMiddleName());
+            if(sellerProfileUpdateDTO.getMiddleName()!=null)
+                seller.setMiddleName(sellerProfileUpdateDTO.getMiddleName());
 
-            if(sellerProfileDTO.getLastName()!=null)
-                seller.setLastName(sellerProfileDTO.getLastName());
+            if(sellerProfileUpdateDTO.getLastName()!=null)
+                seller.setLastName(sellerProfileUpdateDTO.getLastName());
 
-            if(sellerProfileDTO.getContact()!=null && !sellerProfileDTO.getContact().isEmpty())
-                seller.setCompanyName(sellerProfileDTO.getContact());
+            if(sellerProfileUpdateDTO.getCompanyContact()!=null)
+                seller.setCompanyContact(sellerProfileUpdateDTO.getCompanyContact());
 
-            if(sellerProfileDTO.getCompanyName()!= null)
-                seller.setCompanyName(sellerProfileDTO.getCompanyName());
+            if(sellerProfileUpdateDTO.getCompanyName()!= null)
+                seller.setCompanyName(sellerProfileUpdateDTO.getCompanyName());
 
-            if(sellerProfileDTO.getGst()!=null){
-                seller.setGst(sellerProfileDTO.getGst());
+            if(sellerProfileUpdateDTO.getGst()!=null){
+                seller.setGst(sellerProfileUpdateDTO.getGst());
             }
 
             sellerRepository.save(seller);
 
             return true;
+    }
+
+    private String getImageUrlIfExist(Long id){
+
+        String path = "./images/users/"+id+ ".jpg";
+
+        File f = new File(path.trim());
+        if(f.exists() && !f.isDirectory()) {
+            // do something
+
+            return "localhost:8080/images/users/"+id+".jpg";
         }
-
-
-        return false;
+        return "Not Uploaded";
     }
 
 }

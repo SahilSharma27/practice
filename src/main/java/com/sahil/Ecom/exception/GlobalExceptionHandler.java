@@ -2,6 +2,7 @@ package com.sahil.Ecom.exception;
 
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -139,6 +141,30 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
 
     }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ApiError> handleMalformedJwtException(MalformedJwtException exception){
+
+        String message = messageSource.getMessage("token.not.valid",null,"message",locale);
+        String error =messageSource.getMessage("token.not.valid",null,"message",locale);
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.UNAUTHORIZED,message,error);
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.UNAUTHORIZED);
+
+    }
+
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<ApiError> handleFileNotFoundException(FileNotFoundException exception){
+
+        String message = messageSource.getMessage("id.not.found",null,"message",locale);
+        String error =messageSource.getMessage("id.not.found",null,"message",locale);
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.NOT_FOUND,message,error);
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
+
+    }
+
+
 
 
 }

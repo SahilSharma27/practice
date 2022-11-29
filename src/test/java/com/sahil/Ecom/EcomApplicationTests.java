@@ -3,9 +3,12 @@ package com.sahil.Ecom;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.repository.*;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.File;
 import java.util.*;
 
 @SpringBootTest
@@ -25,6 +28,8 @@ class EcomApplicationTests {
 
 	@Autowired
 	private CategoryMetaDataFieldRepository categoryMetaDataFieldRepository;
+
+	Logger logger = LoggerFactory.getLogger(EcomApplicationTests.class);
 
 	@Test
 	void contextLoads() {
@@ -146,6 +151,7 @@ class EcomApplicationTests {
 
 		Category washingMachine = new Category("WASHING MACHINE",electronics);
 
+
 		electronics.addChildren(mobiles);
 		electronics.addChildren(washingMachine);
 
@@ -153,7 +159,64 @@ class EcomApplicationTests {
 
 		categoryRepository.save(electronics);
 
+		Category fashion = new Category("FASHION");
+		Category shirt = new Category("SHIRT",fashion);
 
+		fashion.addChildren(shirt);
+
+		categoryRepository.save(fashion);
+
+
+	}
+
+
+	@Test
+	void testMetaDataFieldValue(){
+
+//		Category fashion = new Category("Fashion");
+//		Category shirt = new Category("SHIRT",fashion);
+//		fashion.addChildren(shirt);
+//
+//		categoryRepository.save(fashion);
+//
+//		CategoryMetaDataField size = new CategoryMetaDataField("SIZE");
+//
+//		categoryMetaDataFieldRepository.save(size);
+
+		Category category = categoryRepository.findByName("SHIRT").get();
+
+		CategoryMetaDataField categoryMetaDataField = categoryMetaDataFieldRepository.findByName("SIZE").get();
+
+		CategoryMetaDataFieldValue value = new CategoryMetaDataFieldValue("S,M,L,XL,XXL");
+		value.setCategoryFieldValueKey(new CategoryFieldValueKey(category.getId(),categoryMetaDataField.getId()));
+		value.setCategory(category);
+		value.setCategoryMetaDataField(categoryMetaDataField);
+
+		category.addCategoryMetaDataFieldValue(value);
+
+		categoryMetaDataField.addCategoryMetaDataFieldValue(value);
+
+		categoryRepository.save(category);
+		categoryMetaDataFieldRepository.save(categoryMetaDataField);
+
+	}
+
+	@Test
+	void testFilePath() {
+
+		String url = "./images/users/3.**";
+
+		File f = new File(url.trim());
+
+		if (f.exists() && !f.isDirectory()) {
+			// do something
+			logger.info("--------Exist--------------");
+			logger.info(f.getAbsolutePath());
+			logger.info(f.getPath());
+			logger.info(f.getName());
+
+		} else
+			logger.info("--------NOPE--------------");
 
 	}
 

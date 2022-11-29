@@ -1,19 +1,13 @@
 package com.sahil.Ecom.controller;
 
-import com.sahil.Ecom.dto.FetchSellerDTO;
-import com.sahil.Ecom.dto.ResponseDTO;
-import com.sahil.Ecom.dto.SellerDTO;
-import com.sahil.Ecom.dto.LoginRequestDTO;
-import com.sahil.Ecom.dto.LoginResponseDTO;
-import com.sahil.Ecom.exception.CompanyNameAlreadyRegisteredException;
-import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
-import com.sahil.Ecom.exception.GstAlreadyRegisteredException;
-import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
+import com.sahil.Ecom.dto.*;
+import com.sahil.Ecom.exception.*;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.service.LoginService;
 import com.sahil.Ecom.service.SellerService;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.UserService;
+import io.jsonwebtoken.MalformedJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +15,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -125,27 +116,45 @@ public class SellerController {
 
         String requestHeader = request.getHeader("Authorization");
 
-        String userEmail = null;
-
         //check format
         if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-            String accessToken = requestHeader.substring("Bearer".length());
+            String accessToken = requestHeader.substring("Bearer ".length());
 
             try {
 
-                userEmail = this.jwtUtil.extractUsername(accessToken);
-                FetchSellerDTO fetchSellerDTO =  sellerService.fetchSellerProfileDetails(userEmail);
-                return ResponseEntity.ok(fetchSellerDTO);
+                String userEmail = this.jwtUtil.extractUsername(accessToken);
+                return ResponseEntity.ok(sellerService.fetchSellerProfileDetails(userEmail));
 
             } catch (Exception e) {
-
                 e.printStackTrace();
-
+                throw new InvalidTokenException();
             }
         }
+        throw new InvalidTokenException();
 
-        return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
+    }
 
+    @PatchMapping(value = "/users/update/profile" ,params = "role=seller")
+    public ResponseEntity<?> updateProfile(@RequestBody SellerProfileUpdateDTO sellerProfileUpdateDTO, HttpServletRequest request) {
+
+        String requestHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            username = jwtUtil.extractUsername(accessToken);
+
+            sellerService.updateSellerProfile(username,sellerProfileUpdateDTO);
+            String message = messageSource.getMessage("user.profile.updated",null,"message",locale);
+
+            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
+        }
+
+        throw new InvalidTokenException();
     }
 
 

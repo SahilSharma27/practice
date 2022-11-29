@@ -238,9 +238,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public boolean resetPassword(String email, String newPassword) {
 
-        if (userRepository.existsByEmail(email)) {
 
-            User foundUser = userRepository.findByEmail(email).get();
+            User foundUser = userRepository.findByEmail(email).orElseThrow(UserEmailNotFoundException::new);
 
             if (foundUser.isActive()) {
 
@@ -252,9 +251,7 @@ public class UserServiceImpl implements UserService {
                 throw new AccountNotActiveException();
             }
 
-        } else {
-            throw new UserEmailNotFoundException();
-        }
+
 
 
     }
@@ -299,9 +296,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean forgotPasswordHelper(String email) {
 
-        if (userRepository.existsByEmail(email)) {
-
-            User user = userRepository.findByEmail(email).get();
+            User user = userRepository.findByEmail(email).orElseThrow(UserEmailNotFoundException::new);
 
             if (!user.isActive()) {
                 throw new AccountNotActiveException();
@@ -332,9 +327,6 @@ public class UserServiceImpl implements UserService {
             logger.info(emailBody);
 
             return true;
-        }
-
-        throw new UserEmailNotFoundException();
     }
 
     @Override
@@ -373,8 +365,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean updateAddress(Long id, Address newAddress) {
 
-        if (addressRepository.existsById(id)) {
-            Address addressToBeUpdated = addressRepository.findById(id).get();
+            Address addressToBeUpdated = addressRepository.findById(id).orElseThrow(IdNotFoundException::new);
 
             if (newAddress.getAddressLine() != null)
                 addressToBeUpdated.setAddressLine(newAddress.getAddressLine());
@@ -398,9 +389,6 @@ public class UserServiceImpl implements UserService {
             addressRepository.save(addressToBeUpdated);
 
             return true;
-        }
-
-        return false;
 
     }
 

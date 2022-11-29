@@ -156,8 +156,7 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public boolean updateProfile(String username, CustomerProfileDTO customerProfileDTO) {
 
-        if(userRepository.existsByEmail(username)){
-            Customer customer = customerRepository.findByEmail(username).get();
+            Customer customer = customerRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
 
             if(customerProfileDTO.getFirstName()!=null)
                 customer.setFirstName(customerProfileDTO.getFirstName());
@@ -174,9 +173,5 @@ public class CustomerServiceImpl implements CustomerService{
             customerRepository.save(customer);
 
             return true;
-        }
-
-
-        return false;
     }
 }

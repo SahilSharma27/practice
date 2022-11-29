@@ -36,40 +36,47 @@ public class Bootstrap implements CommandLineRunner {
 
 //        roleRepository.deleteAll();
 
-        Role role1 = new Role();
-        role1.setId(1L);
-        role1.setAuthority("ROLE_ADMIN");
+        if (roleRepository.count() < 3) {
 
-        Role role2 = new Role();
-        role2.setId(2L);
-        role2.setAuthority("ROLE_SELLER");
-
-        Role role3 = new Role();
-        role3.setId(3L);
-        role3.setAuthority("ROLE_CUSTOMER");
-
-        roleRepository.save(role1);
-        roleRepository.save(role2);
-        roleRepository.save(role3);
+            roleRepository.deleteAll();
 
 
-        Admin admin = new Admin();
-        admin.setEmail("admin@gmail.com");
-        admin.setFirstName("admin");
-        admin.setMiddleName("admin");
-        admin.setLastName("admin");
-        admin.setPassword(bCryptPasswordEncoder.encode("admin"));
+            Role role1 = new Role();
+
+            role1.setId(1L);
+            role1.setAuthority("ROLE_ADMIN");
+
+            Role role2 = new Role();
+            role2.setId(2L);
+            role2.setAuthority("ROLE_SELLER");
+
+            Role role3 = new Role();
+            role3.setId(3L);
+            role3.setAuthority("ROLE_CUSTOMER");
+
+            roleRepository.save(role1);
+            roleRepository.save(role2);
+            roleRepository.save(role3);
+
+
+            Admin admin = new Admin();
+            admin.setEmail("admin@gmail.com");
+            admin.setFirstName("admin");
+            admin.setMiddleName("admin");
+            admin.setLastName("admin");
+            admin.setPassword(bCryptPasswordEncoder.encode("admin"));
 //        admin.setConfirmPassword(bCryptPasswordEncoder.encode("admin"));
 
-        admin.setActive(true);
-        admin.setExpired(false);
-        admin.setDeleted(false);
-        admin.setLocked(false);
-        admin.setPasswordUpdateDate(new Date());
+            admin.setActive(true);
+            admin.setExpired(false);
+            admin.setDeleted(false);
+            admin.setLocked(false);
+            admin.setPasswordUpdateDate(new Date());
 
-        admin.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_ADMIN")));
-        userRepository.save(admin);
+            admin.setRoles(Arrays.asList(roleRepository.findByAuthority("ROLE_ADMIN")));
+            userRepository.save(admin);
 
+        }
     }
 }
 

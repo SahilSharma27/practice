@@ -4,9 +4,11 @@ package com.sahil.Ecom.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sahil.Ecom.entity.BlacklistToken;
 import com.sahil.Ecom.exception.ApiError;
+import com.sahil.Ecom.exception.InvalidTokenException;
 import com.sahil.Ecom.exception.TokenExpiredException;
 import com.sahil.Ecom.repository.BlacklistTokenRepository;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -72,13 +74,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 username = this.jwtUtil.extractUsername(jwtToken);
 
-            }catch (ExpiredJwtException e) {
+            }catch (ExpiredJwtException |MalformedJwtException e) {
 
                 Map<String, Object> errorDetails = new HashMap<>();
 
                 errorDetails.put("message", "Invalid token");
 
-                response.setStatus(HttpStatus.FORBIDDEN.value());
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
                 ObjectMapper mapper = new ObjectMapper();
@@ -86,8 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
                 throw new TokenExpiredException("FILTER:TOKEN EXPIRED");
-            }
-            catch (UsernameNotFoundException e){
+            }catch (UsernameNotFoundException e){
 
                 throw new UsernameNotFoundException("FILTER:NO USER NAME FOUND");
             }

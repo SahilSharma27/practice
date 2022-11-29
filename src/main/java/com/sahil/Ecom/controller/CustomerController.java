@@ -234,7 +234,7 @@ public class CustomerController {
 
     }
 
-    @PatchMapping(value = "/users/update/profile")
+    @PatchMapping(value = "/users/update/profile",params = "role=customer")
     public ResponseEntity<?> updateCustomerProfile(@RequestBody CustomerProfileDTO customerProfileDTO,HttpServletRequest request) {
 
         String requestHeader = request.getHeader("Authorization");

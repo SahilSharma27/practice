@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
@@ -18,12 +19,9 @@ public class FileServiceImpl implements FileService {
 
         String name = file.getOriginalFilename();
 
- /*       String randomId = UUID.randomUUID().toString();
 
-        String fileName = randomId.concat(name.substring(name.lastIndexOf(".")));*/
-
-        String extention = name.substring(name.lastIndexOf("."));
-        String fileName = id +extention;
+        String extension = name.substring(name.lastIndexOf("."));
+        String fileName = id + extension;
         //full path
 
         String filePath = path + File.separator + fileName;
@@ -36,8 +34,13 @@ public class FileServiceImpl implements FileService {
             f.mkdirs();
         }
 
+//        if(f.exists() && !f.isDirectory()) {
+//            // do something
+//            return "localhost:8080/images/users/"+id+".jpg";
+//        }
+
         try {
-            Files.copy(file.getInputStream(), Paths.get(filePath));
+            Files.copy(file.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
         }catch (Exception e){
             e.printStackTrace();
         }

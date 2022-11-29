@@ -85,7 +85,7 @@ public class UserController {
 
         //check format
         if (refreshTokenHeader != null && refreshTokenHeader.startsWith("Bearer")) {
-            jwtRefreshToken = refreshTokenHeader.substring("Bearer".length());
+            jwtRefreshToken = refreshTokenHeader.substring("Bearer ".length());
 
             try {
                 username = this.jwtUtil.extractUsername(jwtRefreshToken);
@@ -190,11 +190,12 @@ public class UserController {
             if (requestHeader != null && requestHeader.startsWith("Bearer")) {
 
 
-                accessToken = requestHeader.substring("Bearer".length());
+                accessToken = requestHeader.substring("Bearer ".length());
                 try {
                     username = this.jwtUtil.extractUsername(accessToken);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    throw new InvalidTokenException();
                 }
 
                 if (userService.resetPassword(username, resetPassDTO.getNewPassword()))
@@ -268,11 +269,14 @@ public class UserController {
 
     }
 
-    @PostMapping("users/image/{user_id}")
+    @PostMapping(value = "users/image/{user_id}")
     public ResponseEntity<?> upload(@PathVariable(name = "user_id") Long id, @RequestParam("image") MultipartFile image) {
 
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
+
+
+        logger.info("--------------------------"+image.getContentType());
 
         if (userService.saveUserImage(id, image)) {
 
@@ -292,6 +296,7 @@ public class UserController {
 
     @GetMapping(value = "/images/users/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
     public void serveProfileImage(@PathVariable(name = "imageName") String imageName, HttpServletResponse response) throws IOException {
+
         InputStream resource = this.fileService.getProfileImage(path, imageName);
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());

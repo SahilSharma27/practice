@@ -2,6 +2,7 @@ package com.sahil.Ecom.dto;
 
 import com.sahil.Ecom.entity.Seller;
 
+//For admin
 public class FetchSellerDTO {
 
     private Long id;
@@ -11,8 +12,6 @@ public class FetchSellerDTO {
     private String companyName;
     private AddressDTO companyAddress;
     private String companyContact;
-
-    private String imageUrl;
 
     private String gst;
 
@@ -32,7 +31,6 @@ public class FetchSellerDTO {
         this.setCompanyAddress(seller.getAddresses().stream().map(AddressDTO::new).toList().get(0));
 
     }
-
 
 
     public Long getId() {
@@ -89,14 +87,6 @@ public class FetchSellerDTO {
 
     public void setCompanyContact(String companyContact) {
         this.companyContact = companyContact;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public String getGst() {
