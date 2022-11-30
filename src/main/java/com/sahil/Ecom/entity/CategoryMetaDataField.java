@@ -16,7 +16,7 @@ public class CategoryMetaDataField {
     @Column(name = "NAME" , unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "categoryMetaDataField",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "categoryMetaDataField",cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
     private List<CategoryMetaDataFieldValue> categoryMetaDataFieldValueList = new ArrayList<>();
 
 

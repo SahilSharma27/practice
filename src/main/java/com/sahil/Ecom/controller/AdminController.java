@@ -1,10 +1,6 @@
 package com.sahil.Ecom.controller;
 
-import com.sahil.Ecom.dto.AddCategoryDTO;
-import com.sahil.Ecom.dto.AddMetaDataFieldDTO;
-import com.sahil.Ecom.dto.ResponseDTO;
-import com.sahil.Ecom.dto.LoginRequestDTO;
-import com.sahil.Ecom.dto.LoginResponseDTO;
+import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.*;
@@ -49,7 +45,6 @@ public class AdminController {
 
     @Autowired
     private CategoryService categoryService;
-
 
     Logger logger = LoggerFactory.getLogger(AdminController.class);
 
@@ -186,12 +181,14 @@ public class AdminController {
         return ResponseEntity.ok(categoryService.getCategoryById(categoryId));
     }
 
-//    @PostMapping(value = "/category/metadata")
-//    public ResponseEntity<?>addCategoryMetaData(@RequestBody Long categoryId){
-//
-//        return ResponseEntity.ok(categoryService.getCategoryById(categoryId));
-//
-//    }
+    @PostMapping(value = "/category/metadata/value")
+    public ResponseEntity<?>addCategoryMetaData(@RequestBody AddCategoryMetaDataFieldValueDTO addCategoryMetaDataFieldValueDTO){
+
+        categoryService.addCategoryMetadataFieldWithValue(addCategoryMetaDataFieldValueDTO);
+
+        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,"added",HttpStatus.OK));
+
+    }
 
 
 }

@@ -245,7 +245,7 @@ public class CustomerController {
         //check format
         if (requestHeader != null && requestHeader.startsWith("Bearer")) {
 
-            accessToken = requestHeader.substring("Bearer".length());
+            accessToken = requestHeader.substring("Bearer ".length());
             username = jwtUtil.extractUsername(accessToken);
 
             customerService.updateProfile(username,customerProfileDTO);
@@ -256,7 +256,11 @@ public class CustomerController {
     }
 
 
+    @GetMapping(value = "/category",params = "role=customer")
+    public ResponseEntity<?>fetchAllCategoriesForCustomer(@RequestParam(name = "categoryId",required = false) Long categoryId){
+        return ResponseEntity.ok(customerService.getAllCategoriesForCustomer(categoryId));
 
+    }
 
 
 

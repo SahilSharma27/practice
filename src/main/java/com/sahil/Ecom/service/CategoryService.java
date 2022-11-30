@@ -1,9 +1,6 @@
 package com.sahil.Ecom.service;
 
-import com.sahil.Ecom.dto.AddCategoryDTO;
-import com.sahil.Ecom.dto.AddMetaDataFieldDTO;
-import com.sahil.Ecom.dto.FetchCategoryDTO;
-import com.sahil.Ecom.dto.FetchMetaDataFieldDTO;
+import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Category;
 
 
@@ -20,4 +17,12 @@ public interface CategoryService {
     List<FetchCategoryDTO> getAllCategories();
 
     FetchCategoryDTO getCategoryById(Long id);
+
+    void addCategoryMetadataFieldWithValue(AddCategoryMetaDataFieldValueDTO addCategoryMetaDataFieldValueDTO);
+
+    void checkCategoryUniqueness(AddCategoryDTO addCategoryDTO);
+
+    List<FetchCategoryDTO> getAllRootCategories();
+
+
 }

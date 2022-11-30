@@ -19,27 +19,31 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SellerServiceImpl implements SellerService{
 
     @Autowired
-    SellerRepository sellerRepository;
+    private SellerRepository sellerRepository;
 
     @Autowired
-    BCryptPasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
     @Autowired
-    LoginService loginService;
+    private LoginService loginService;
 
     @Autowired
-    TokenGeneratorHelper tokenGeneratorHelper;
+    private TokenGeneratorHelper tokenGeneratorHelper;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Override
     public boolean checkSellerCompanyName(String companyName) {
@@ -184,4 +188,12 @@ public class SellerServiceImpl implements SellerService{
         return "Not Uploaded";
     }
 
+    @Override
+    public List<FetchCategoryDTO> getAllCategoriesForSeller() {
+
+        List<FetchCategoryDTO> fetchCategoryList = categoryService.getAllCategories();
+
+        return fetchCategoryList.stream().filter(fetchCategoryDTO -> fetchCategoryDTO.getChildren().size() == 0).collect(Collectors.toList());
+
+    }
 }

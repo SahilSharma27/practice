@@ -2,9 +2,11 @@ package com.sahil.Ecom.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sahil.Ecom.entity.Category;
+import com.sahil.Ecom.entity.CategoryMetaDataFieldValue;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class FetchCategoryDTO {
@@ -13,6 +15,7 @@ public class FetchCategoryDTO {
     private String name;
     private Category parent;
     private Set<Category> children;
+    private List<CategoryMetaDataFieldValue> metaDataFieldValues;
 
     public FetchCategoryDTO() {
     }
@@ -23,6 +26,7 @@ public class FetchCategoryDTO {
         this.name = category.getName();
         this.parent = category.getParent();
         this.children = category.getChildren();
+        this.metaDataFieldValues= category.getCategoryMetaDataFieldValueList();
 
     }
 
@@ -57,5 +61,13 @@ public class FetchCategoryDTO {
 
     public void setChildren(Set<Category> children) {
         this.children = children;
+    }
+
+    public List<CategoryMetaDataFieldValue> getMetaDataFieldValues() {
+        return metaDataFieldValues;
+    }
+
+    public void setMetaDataFieldValues(List<CategoryMetaDataFieldValue> metaDataFieldValues) {
+        this.metaDataFieldValues = metaDataFieldValues;
     }
 }

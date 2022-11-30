@@ -18,7 +18,7 @@ public class Category {
     @Column(name = "ID")
     private Long Id;
 
-    @Column(name = "NAME",unique = true)
+    @Column(name = "NAME")
     private String name;
 
     @OneToOne
@@ -26,10 +26,10 @@ public class Category {
     private Category parent;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Set<Category> children = new HashSet<>();
 
-    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category",cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
     private List<CategoryMetaDataFieldValue> categoryMetaDataFieldValueList = new ArrayList<>();
 
     public Category() {

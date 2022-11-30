@@ -157,6 +157,12 @@ public class SellerController {
         throw new InvalidTokenException();
     }
 
+    @GetMapping(value = "/category",params = "role=seller")
+    public ResponseEntity<?>fetchAllCategoriesForSeller(){
+        return ResponseEntity.ok(sellerService.getAllCategoriesForSeller());
+
+    }
+
 
 
 }

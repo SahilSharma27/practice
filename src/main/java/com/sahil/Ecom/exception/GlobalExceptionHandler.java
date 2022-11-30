@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Locale;
 
 @RestControllerAdvice
@@ -161,6 +162,17 @@ public class GlobalExceptionHandler {
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.NOT_FOUND,message,error);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
+
+    }
+
+    @ExceptionHandler(CategoryHierarchyException.class)
+    public ResponseEntity<ApiError> handleCategoryHierarchyException(CategoryHierarchyException exception){
+
+//        String message = messageSource.getMessage("id.not.found",null,"message",locale);
+//        String error =messageSource.getMessage("id.not.found",null,"message",locale);
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.INTERNAL_SERVER_ERROR,exception.getMessage(),exception.getLocalizedMessage());
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 

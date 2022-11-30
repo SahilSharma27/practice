@@ -15,33 +15,37 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerServiceImpl implements CustomerService{
 
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
     @Autowired
-    BCryptPasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    AddressRepository addressRepository;
+    private AddressRepository addressRepository;
 
     @Autowired
-    LoginService loginService;
+    private LoginService loginService;
 
     @Autowired
-    TokenGeneratorHelper tokenGeneratorHelper;
+    private TokenGeneratorHelper tokenGeneratorHelper;
 
     @Autowired
-    LockAccountService lockAccountService;
+    private LockAccountService lockAccountService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Override
     public boolean register(CustomerDTO customerDTO) {
@@ -173,5 +177,22 @@ public class CustomerServiceImpl implements CustomerService{
             customerRepository.save(customer);
 
             return true;
+    }
+
+
+    @Override
+    public List<FetchCategoryDTO> getAllCategoriesForCustomer(Long categoryId) {
+
+        if(categoryId == null){
+            return categoryService.getAllRootCategories();
+        }
+
+        return categoryService
+                .getCategoryById(categoryId)
+                .getChildren()
+                .stream()
+                .map(FetchCategoryDTO::new)
+                .collect(Collectors.toList());
+
     }
 }

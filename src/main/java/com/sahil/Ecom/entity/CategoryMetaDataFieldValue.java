@@ -1,6 +1,8 @@
 package com.sahil.Ecom.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,17 +10,20 @@ import javax.persistence.*;
 public class CategoryMetaDataFieldValue {
 
     @EmbeddedId
+    @JsonIgnore
     CategoryFieldValueKey categoryFieldValueKey = new CategoryFieldValueKey();
 
     @Column(name = "FIELD_VALUES")
     private String values;
 
+    @JsonIgnore
     @ManyToOne
     @MapsId("categoryId")
     private Category category;
 
     @ManyToOne
     @MapsId("fieldId")
+    @JsonIgnore
     private CategoryMetaDataField categoryMetaDataField;
 
     public CategoryMetaDataFieldValue() {

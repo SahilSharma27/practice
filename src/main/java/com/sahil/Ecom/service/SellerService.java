@@ -3,6 +3,8 @@ package com.sahil.Ecom.service;
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.entity.Seller;
 
+import java.util.List;
+
 public interface SellerService {
 
     Seller getSellerById(Long id);
@@ -18,4 +20,6 @@ public interface SellerService {
     SellerProfileDTO fetchSellerProfileDetails(String userEmail);
 
     boolean updateSellerProfile(String username, SellerProfileUpdateDTO sellerProfileUpdateDTO);
+
+    List<FetchCategoryDTO> getAllCategoriesForSeller();
 }

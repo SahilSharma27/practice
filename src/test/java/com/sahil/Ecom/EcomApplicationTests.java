@@ -1,7 +1,9 @@
 package com.sahil.Ecom;
 
+import com.sahil.Ecom.dto.AddCategoryDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.repository.*;
+import com.sahil.Ecom.service.CategoryService;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,9 @@ class EcomApplicationTests {
 
 	@Autowired
 	private CategoryMetaDataFieldRepository categoryMetaDataFieldRepository;
+
+	@Autowired
+	private CategoryService categoryService;
 
 	Logger logger = LoggerFactory.getLogger(EcomApplicationTests.class);
 
@@ -202,6 +207,28 @@ class EcomApplicationTests {
 	}
 
 	@Test
+	void testMetaDataFieldValue2(){
+
+
+		Category category = categoryRepository.findById(4L).get();
+
+		CategoryMetaDataField categoryMetaDataField = categoryMetaDataFieldRepository.findById(1L).get();
+
+		CategoryMetaDataFieldValue value = new CategoryMetaDataFieldValue("GOLD,SILVER");
+		value.setCategoryFieldValueKey(new CategoryFieldValueKey(category.getId(),categoryMetaDataField.getId()));
+		value.setCategory(category);
+		value.setCategoryMetaDataField(categoryMetaDataField);
+
+		category.addCategoryMetaDataFieldValue(value);
+
+		categoryMetaDataField.addCategoryMetaDataFieldValue(value);
+
+		categoryRepository.save(category);
+		categoryMetaDataFieldRepository.save(categoryMetaDataField);
+
+	}
+
+	@Test
 	void testFilePath() {
 
 		String url = "./images/users/3.**";
@@ -217,6 +244,22 @@ class EcomApplicationTests {
 
 		} else
 			logger.info("--------NOPE--------------");
+
+	}
+
+	@Test
+	void testUniqueCheck(){
+
+		int c = categoryRepository.checkUniqueAtRoot("HOME");
+		logger.info("======================="+c+"-----------------");
+
+	}
+
+	@Test
+	void testCategoryUniqueCheck(){
+
+		categoryService.checkCategoryUniqueness(new AddCategoryDTO(4L,"ELECTRONICS"));
+//		logger.info("======================="+result+"-----------------");
 
 	}
 
