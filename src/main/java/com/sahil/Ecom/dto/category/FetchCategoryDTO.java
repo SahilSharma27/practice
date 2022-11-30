@@ -1,11 +1,8 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.category;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sahil.Ecom.entity.Category;
 import com.sahil.Ecom.entity.CategoryMetaDataFieldValue;
 
-import javax.persistence.*;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

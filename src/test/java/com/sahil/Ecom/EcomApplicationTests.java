@@ -1,6 +1,6 @@
 package com.sahil.Ecom;
 
-import com.sahil.Ecom.dto.AddCategoryDTO;
+import com.sahil.Ecom.dto.category.AddCategoryDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.repository.*;
 import com.sahil.Ecom.service.CategoryService;

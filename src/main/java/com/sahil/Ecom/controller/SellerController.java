@@ -1,13 +1,14 @@
 package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.*;
+import com.sahil.Ecom.dto.seller.SellerDTO;
+import com.sahil.Ecom.dto.seller.SellerProfileUpdateDTO;
 import com.sahil.Ecom.exception.*;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.service.LoginService;
 import com.sahil.Ecom.service.SellerService;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.UserService;
-import io.jsonwebtoken.MalformedJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,28 +1,15 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.seller;
 
-public class SellerProfileDTO {
+public class SellerProfileUpdateDTO {
 
-    private Long id;
     private String firstName;
     private String middleName;
     private String lastName;
     private String companyContact;
     private String companyName;
-    private String imageUrl;
-    private boolean isActive;
-    private String email;
     private String gst;
-    private AddressDTO companyAddress;
 
-    public SellerProfileDTO() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public SellerProfileUpdateDTO() {
     }
 
     public String getFirstName() {
@@ -65,43 +52,11 @@ public class SellerProfileDTO {
         this.companyName = companyName;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
     public String getGst() {
         return gst;
     }
 
     public void setGst(String gst) {
         this.gst = gst;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public AddressDTO getCompanyAddress() {
-        return companyAddress;
-    }
-
-    public void setCompanyAddress(AddressDTO companyAddress) {
-        this.companyAddress = companyAddress;
     }
 }

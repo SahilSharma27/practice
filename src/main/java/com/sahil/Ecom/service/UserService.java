@@ -1,18 +1,13 @@
 package com.sahil.Ecom.service;
 
 
-import com.sahil.Ecom.dto.AddressDTO;
-import com.sahil.Ecom.dto.FetchCustomerDTO;
-import com.sahil.Ecom.dto.FetchSellerDTO;
+import com.sahil.Ecom.dto.customer.FetchCustomerDTO;
+import com.sahil.Ecom.dto.seller.FetchSellerDTO;
 import com.sahil.Ecom.entity.Address;
-import com.sahil.Ecom.entity.Customer;
-import com.sahil.Ecom.entity.Seller;
 import com.sahil.Ecom.entity.User;
-import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
 
@@ -48,7 +43,11 @@ public interface UserService {
 
     boolean logoutHelper(String username);
 
-    boolean updateAddress(Long id,Address address);
+    void updateAddress(Long id,Address address);
 
     boolean saveUserImage(Long id, MultipartFile image);
+
+    FetchCustomerDTO getCustomer(String email);
+
+    FetchSellerDTO getSeller(String email);
 }

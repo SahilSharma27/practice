@@ -2,7 +2,8 @@ package com.sahil.Ecom.controller;
 
 
 import com.sahil.Ecom.dto.*;
-import com.sahil.Ecom.entity.Address;
+import com.sahil.Ecom.dto.customer.CustomerDTO;
+import com.sahil.Ecom.dto.customer.CustomerProfileUpdateDTO;
 import com.sahil.Ecom.dto.LoginRequestDTO;
 import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.exception.EmailAlreadyRegisteredException;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Locale;
 
 @RestController
@@ -87,16 +87,15 @@ public class CustomerController {
 
 
         LoginResponseDTO loginResponseDTO = customerService.loginCustomer(loginRequestDTO);
-        if(loginResponseDTO!=null){
-                    return ResponseEntity.ok(loginResponseDTO);
+        if (loginResponseDTO != null) {
+            return ResponseEntity.ok(loginResponseDTO);
         }
 
-        ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(),false,HttpStatus.INTERNAL_SERVER_ERROR);
-        responseDTO.setMessage(messageSource.getMessage("login.failed",null,"message",locale));
-        return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
+        ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
+        responseDTO.setMessage(messageSource.getMessage("login.failed", null, "message", locale));
+        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
-
 
 
     @PostMapping(value = "/users/address", params = "role=customer")
@@ -111,13 +110,10 @@ public class CustomerController {
 
         String userEmail = null;
 
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setTimestamp(LocalDateTime.now());
-
 
         //check format
         if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-            String accessToken = requestHeader.substring("Bearer".length());
+            String accessToken = requestHeader.substring("Bearer ".length());
 
             try {
 
@@ -126,27 +122,22 @@ public class CustomerController {
             } catch (Exception e) {
 
                 e.printStackTrace();
+                throw new InvalidTokenException();
 
             }
-
-            if (customerService.addAddressToCustomer(userEmail, addressDTO)) {
-                responseDTO.setMessage(messageSource.getMessage("customer.address.added", null, "message", locale));
-                responseDTO.setResponseStatusCode(HttpStatus.OK);
-                return ResponseEntity.ok(responseDTO);
-            }
-
-            responseDTO.setMessage(messageSource.getMessage("user.not.found", null, "message", locale));
-            responseDTO.setResponseStatusCode(HttpStatus.NOT_FOUND);
-
-            return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
 
         }
-        throw new InvalidTokenException();
 
-//        responseDTO.setMessage("INVALID TOKEN");
-//        responseDTO.setResponseStatusCode(HttpStatus.FORBIDDEN);
-//
-//        return new ResponseEntity<>(responseDTO, HttpStatus.FORBIDDEN);
+
+        customerService.addAddressToCustomer(userEmail, addressDTO);
+
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setTimestamp(LocalDateTime.now());
+        responseDTO.setMessage(messageSource.getMessage("customer.address.added", null, "message", locale));
+        responseDTO.setResponseStatusCode(HttpStatus.OK);
+
+        return ResponseEntity.ok(responseDTO);
+
 
     }
 
@@ -154,11 +145,6 @@ public class CustomerController {
     @GetMapping(value = "/users/address", params = "role=customer")
     public ResponseEntity<?> getAddressList(HttpServletRequest request) {
 
-        //get token
-        //get email form token
-        //get user from email
-        //get address form user
-
         String requestHeader = request.getHeader("Authorization");
 
         String userEmail = null;
@@ -171,71 +157,51 @@ public class CustomerController {
                 userEmail = this.jwtUtil.extractUsername(accessToken);
             } catch (Exception e) {
                 e.printStackTrace();
+                throw new InvalidTokenException();
             }
-
-            List<Address> addresses = customerService.getAllCustomerAddresses(userEmail);
-
-            return ResponseEntity.ok(addresses);
-
         }
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setTimestamp(LocalDateTime.now());
-        responseDTO.setMessage("INVALID TOKEN");
-        responseDTO.setResponseStatusCode(HttpStatus.FORBIDDEN);
-        return new ResponseEntity<>(responseDTO, HttpStatus.FORBIDDEN);
+        return ResponseEntity.ok(customerService.getAllCustomerAddresses(userEmail));
     }
 
     @DeleteMapping(value = "/users/address/{addressId}", params = "role=customer")
-    public ResponseEntity<?> deleteAddress(@PathVariable (name = "addressId") Long id) {
+    public ResponseEntity<?> deleteAddress(@PathVariable(name = "addressId") Long id) {
 
-    //find address by id and delete
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setTimestamp(LocalDateTime.now());
+        //find address by id and delete
 
-        if(customerService.removeAddress(id)){
+        customerService.removeAddress(id);
 
-            responseDTO.setMessage(messageSource.getMessage("address.deleted",null,"message",locale));
-            responseDTO.setResponseStatusCode(HttpStatus.OK);
-            return ResponseEntity.ok(responseDTO);
+        String message = messageSource.getMessage("address.deleted", null, "message", locale);
 
-        }
+        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
 
-
-        responseDTO.setMessage("INVALID TOKEN");
-        responseDTO.setResponseStatusCode(HttpStatus.FORBIDDEN);
-        return new ResponseEntity<>(responseDTO, HttpStatus.FORBIDDEN);
     }
 
 
     @GetMapping(value = "users/profile", params = "role=customer")
     public ResponseEntity<?> getCustomerProfile(HttpServletRequest request) {
-        //get token
-        //get username
-        //get profile
 
         String requestHeader = request.getHeader("Authorization");
 
         String userEmail = null;
 
-        //check format
         if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-            String accessToken = requestHeader.substring("Bearer".length());
+            String accessToken = requestHeader.substring("Bearer ".length());
 
             try {
                 userEmail = this.jwtUtil.extractUsername(accessToken);
-                FetchCustomerDTO fetchCustomerDTO =  customerService.fetchCustomerProfileDetails(userEmail);
-                return ResponseEntity.ok(fetchCustomerDTO);
+
             } catch (Exception e) {
                 e.printStackTrace();
+                throw new InvalidTokenException();
             }
         }
+        return ResponseEntity.ok(customerService.fetchCustomerProfileDetails(userEmail));
 
-        return new ResponseEntity<>("",HttpStatus.NOT_FOUND);
 
     }
 
-    @PatchMapping(value = "/users/update/profile",params = "role=customer")
-    public ResponseEntity<?> updateCustomerProfile(@RequestBody CustomerProfileDTO customerProfileDTO,HttpServletRequest request) {
+    @PatchMapping(value = "/users/update/profile", params = "role=customer")
+    public ResponseEntity<?> updateCustomerProfile(@RequestBody CustomerProfileUpdateDTO customerProfileUpdateDTO, HttpServletRequest request) {
 
         String requestHeader = request.getHeader("Authorization");
 
@@ -246,22 +212,27 @@ public class CustomerController {
         if (requestHeader != null && requestHeader.startsWith("Bearer")) {
 
             accessToken = requestHeader.substring("Bearer ".length());
-            username = jwtUtil.extractUsername(accessToken);
-
-            customerService.updateProfile(username,customerProfileDTO);
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new InvalidTokenException();
+            }
 
         }
 
-        return new ResponseEntity<>("HELLO",HttpStatus.OK);
+        customerService.updateProfile(username, customerProfileUpdateDTO);
+        String message = messageSource.getMessage("user.profile.updated", null, "message", locale);
+        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
+
+
     }
 
 
-    @GetMapping(value = "/category",params = "role=customer")
-    public ResponseEntity<?>fetchAllCategoriesForCustomer(@RequestParam(name = "categoryId",required = false) Long categoryId){
+    @GetMapping(value = "/category", params = "role=customer")
+    public ResponseEntity<?> fetchAllCategoriesForCustomer(@RequestParam(name = "categoryId", required = false) Long categoryId) {
         return ResponseEntity.ok(customerService.getAllCategoriesForCustomer(categoryId));
-
     }
-
 
 
 }

@@ -1,4 +1,4 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.category;
 
 public class FetchMetaDataFieldDTO {
 

@@ -1,6 +1,6 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.seller;
 
-import com.sahil.Ecom.entity.Address;
+import com.sahil.Ecom.dto.AddressDTO;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;

@@ -1,23 +1,21 @@
 package com.sahil.Ecom.service;
 
-import com.sahil.Ecom.dto.*;
+import com.sahil.Ecom.dto.category.*;
 import com.sahil.Ecom.entity.Category;
 import com.sahil.Ecom.entity.CategoryFieldValueKey;
 import com.sahil.Ecom.entity.CategoryMetaDataField;
 import com.sahil.Ecom.entity.CategoryMetaDataFieldValue;
 import com.sahil.Ecom.exception.CategoryHierarchyException;
 import com.sahil.Ecom.exception.IdNotFoundException;
-import com.sahil.Ecom.exception.UniqueCategoryException;
 import com.sahil.Ecom.repository.CategoryMetaDataFieldRepository;
 import com.sahil.Ecom.repository.CategoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,7 +54,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public AddCategoryDTO addCategory(AddCategoryDTO addCategoryDTO) {
+    public SavedCategoryDTO addCategory(AddCategoryDTO addCategoryDTO) {
 
         Category newCategory;
 
@@ -72,15 +70,25 @@ public class CategoryServiceImpl implements CategoryService{
 
             parent.addChildren(newCategory);
 
-            return new AddCategoryDTO(categoryRepository.save(parent));
+            categoryRepository.save(parent);
 
-//            Category savedCategory = categoryRepository.findByName(addCategoryDTO.getCategoryName()).get();
-//
-//            return new AddCategoryDTO(savedCategory);
+            List<Category> savedCategory = categoryRepository.findAllByName(addCategoryDTO.getCategoryName());
+
+//            SavedCategoryDTO savedCategoryDTO = new SavedCategoryDTO();
+//problem
+            return new SavedCategoryDTO(
+            savedCategory
+                    .stream()
+                    .filter(category ->
+                            Objects.equals(category.getParent().getId(), parent.getId())
+                    ).findFirst()
+                    .get());
+
+//            return new FetchCategoryDTO(savedCategory);
 
         }
 
-        return  new AddCategoryDTO(categoryRepository.save(new Category(addCategoryDTO.getCategoryName())));
+        return new SavedCategoryDTO(categoryRepository.save(new Category(addCategoryDTO.getCategoryName())));
 
     }
 
@@ -149,7 +157,7 @@ public class CategoryServiceImpl implements CategoryService{
 
         String categoryName = addCategoryDTO.getCategoryName();
 
-        logger.info("----------------CHEKING ---------" + categoryName);
+        logger.info("----------------CHECKING ---------" + categoryName);
 
         //category already Exist
         if(categoryRepository.existsByName(categoryName)){
@@ -162,7 +170,7 @@ public class CategoryServiceImpl implements CategoryService{
                 if(categoryRepository.checkUniqueAtRoot(categoryName) == 0){
                     return;
                 }
-                throw new CategoryHierarchyException("Category: " + categoryName + "Already Exist at Root Level");
+                throw new CategoryHierarchyException("Category: " + categoryName + " Already Exist at Root Level ");
             }
 
             //check parents name till root
@@ -173,7 +181,7 @@ public class CategoryServiceImpl implements CategoryService{
                 if(child.getName().equals(categoryName)){
                     logger.info("--------------SAME SIBLING----------");
 //                    return false;
-                    throw new CategoryHierarchyException("SAME SIBLING ALREADY EXIST");
+                    throw new CategoryHierarchyException(" SAME SIBLING ALREADY EXIST ");
                 }
             }
 
@@ -181,8 +189,7 @@ public class CategoryServiceImpl implements CategoryService{
 
                 if(category.getParent().getName().equals(categoryName)){
                     logger.info("--------------SAME NAME IN ROOT to NODE Path----------");
-//                    return false;
-                    throw  new CategoryHierarchyException("SAME NAME IN ROOT TO NODE PATH");
+                    throw  new CategoryHierarchyException(" SAME NAME IN ROOT TO NODE PATH ");
                 }
                 category = category.getParent();
 
@@ -195,6 +202,5 @@ public class CategoryServiceImpl implements CategoryService{
 
         logger.info("--------------SIMPLE CASE----------");
 
-//        return;
     }
 }

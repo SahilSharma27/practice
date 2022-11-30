@@ -2,7 +2,12 @@ package com.sahil.Ecom.service;
 
 
 import com.sahil.Ecom.dto.*;
+import com.sahil.Ecom.dto.category.FetchCategoryDTO;
+import com.sahil.Ecom.dto.customer.CustomerDTO;
+import com.sahil.Ecom.dto.customer.CustomerProfileDTO;
+import com.sahil.Ecom.dto.customer.CustomerProfileUpdateDTO;
 import com.sahil.Ecom.entity.*;
+import com.sahil.Ecom.exception.IdNotFoundException;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.AddressRepository;
 import com.sahil.Ecom.repository.CustomerRepository;
@@ -10,7 +15,6 @@ import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.UserRepository;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -94,89 +98,67 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO) {
 
-        if (userRepository.existsByEmail(userEmail)) {
-            User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("NOT FOUND"));
+            User user = userRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
 
             Address newAddress = addressDTO.mapAddressDTOtoAddress();
-
-//            newAddress.setAddressLine(addressDTO.getAddressLine());
-//            newAddress.setCity(addressDTO.getCity());
-//            newAddress.setLabel(addressDTO.getLabel());
-//            newAddress.setZipCode(addressDTO.getZipCode());
-//            newAddress.setState(addressDTO.getState());
-//            newAddress.setCountry(addressDTO.getCountry());
-
             user.getAddresses().add(newAddress);
 
             userRepository.save(user);
-
             return true;
-        }
-        return false;
+
     }
 
     @Override
-    public List<Address> getAllCustomerAddresses(String userEmail) {
-        if(userRepository.existsByEmail(userEmail)){
+    public List<AddressDTO> getAllCustomerAddresses(String userEmail) {
 
-            User user =  userRepository.findByEmail(userEmail).get();
-            return user.getAddresses();
+        User user =  userRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
+        return user.getAddresses().stream().map(AddressDTO::new).collect(Collectors.toList());
 
-        }
-        throw new UserEmailNotFoundException();
     }
 
     @Override
-    public boolean removeAddress(Long id) {
+    public void removeAddress(Long id) {
+
         if(addressRepository.existsById(id)){
             addressRepository.deleteById(id);
-            return true;
+            return;
         }
-        return false;
+
+        throw new IdNotFoundException();
     }
 
     @Override
-    public FetchCustomerDTO fetchCustomerProfileDetails(String userEmail) {
-        if(userRepository.existsByEmail(userEmail)){
-            Customer customer = customerRepository.findByEmail(userEmail).get();
+    public CustomerProfileDTO fetchCustomerProfileDetails(String userEmail) {
 
-            FetchCustomerDTO fetchCustomerDTO = new FetchCustomerDTO();
-            fetchCustomerDTO.setId(customer.getId());
-            fetchCustomerDTO.setFullName(customer.getFirstName() + customer.getMiddleName() + customer.getLastName());
-            fetchCustomerDTO.setActive(customer.isActive());
-            fetchCustomerDTO.setContact(customer.getContact());
-            fetchCustomerDTO.setEmail(userEmail);
+            Customer customer = customerRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
 
+            CustomerProfileDTO customerProfileDTO = new CustomerProfileDTO(customer);
             String url = "localhost:8080/images/users/";
-            fetchCustomerDTO.setImageUrl(url + customer.getId()+ ".jpg");
+            customerProfileDTO.setImageUrl(url + customer.getId()+ ".jpg");
 
-            return fetchCustomerDTO;
+            return customerProfileDTO;
 
-        }
-
-        throw new UserEmailNotFoundException();
     }
 
     @Override
-    public boolean updateProfile(String username, CustomerProfileDTO customerProfileDTO) {
+    public void updateProfile(String username, CustomerProfileUpdateDTO customerProfileUpdateDTO) {
 
             Customer customer = customerRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
 
-            if(customerProfileDTO.getFirstName()!=null)
-                customer.setFirstName(customerProfileDTO.getFirstName());
+            if(customerProfileUpdateDTO.getFirstName()!=null)
+                customer.setFirstName(customerProfileUpdateDTO.getFirstName());
 
-            if(customerProfileDTO.getMiddleName()!=null)
-                customer.setMiddleName(customerProfileDTO.getMiddleName());
+            if(customerProfileUpdateDTO.getMiddleName()!=null)
+                customer.setMiddleName(customerProfileUpdateDTO.getMiddleName());
 
-            if(customerProfileDTO.getLastName()!=null)
-                customer.setLastName(customerProfileDTO.getLastName());
+            if(customerProfileUpdateDTO.getLastName()!=null)
+                customer.setLastName(customerProfileUpdateDTO.getLastName());
 
-            if(customerProfileDTO.getContact()!=null)
-                customer.setContact(customerProfileDTO.getContact());
+            if(customerProfileUpdateDTO.getContact()!=null)
+                customer.setContact(customerProfileUpdateDTO.getContact());
 
             customerRepository.save(customer);
 
-            return true;
     }
 
 

@@ -1,27 +1,28 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.customer;
+
+import com.sahil.Ecom.entity.Customer;
 
 public class CustomerProfileDTO {
 
-    private Long id;
+
     private String firstName;
-    private String middleName;
     private String lastName;
     private String contact;
     private String imageUrl;
     private boolean isActive;
 
 
-
     public CustomerProfileDTO() {
     }
 
-    public Long getId() {
-        return id;
+    public CustomerProfileDTO(Customer customer) {
+        this.firstName=customer.getFirstName();
+        this.lastName=customer.getLastName();
+        this.isActive = customer.isActive();
+        this.contact = customer.getContact();
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+
 
     public String getFirstName() {
         return firstName;
@@ -29,14 +30,6 @@ public class CustomerProfileDTO {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-
-    public String getMiddleName() {
-        return middleName;
-    }
-
-    public void setMiddleName(String middleName) {
-        this.middleName = middleName;
     }
 
     public String getLastName() {

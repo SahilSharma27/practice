@@ -1,4 +1,4 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.customer;
 
 import com.sahil.Ecom.entity.Customer;
 
@@ -8,8 +8,8 @@ public class FetchCustomerDTO {
     private String fullName;
     private String email;
     private boolean isActive;
-    private String contact;
-    private String imageUrl;
+//    private String contact;
+//    private String imageUrl;
 
     public FetchCustomerDTO() {
     }
@@ -19,8 +19,8 @@ public class FetchCustomerDTO {
         this.setEmail(customer.getEmail());
         this.setId(customer.getId());
         this.setFullName(customer.getFirstName() + " " + customer.getMiddleName() + " " + customer.getLastName());
-        this.setContact(customer.getContact());
-        this.setActive(customer.isActive());
+//        this.setContact(customer.getContact());
+//        this.setActive(customer.isActive());
 
     }
 
@@ -57,19 +57,19 @@ public class FetchCustomerDTO {
         isActive = active;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
+//    public String getImageUrl() {
+//        return imageUrl;
+//    }
+//
+//    public void setImageUrl(String imageUrl) {
+//        this.imageUrl = imageUrl;
+//    }
+//
+//    public String getContact() {
+//        return contact;
+//    }
+//
+//    public void setContact(String contact) {
+//        this.contact = contact;
+//    }
 }

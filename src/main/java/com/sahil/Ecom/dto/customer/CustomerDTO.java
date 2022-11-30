@@ -1,13 +1,6 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.customer;
 
-import com.sahil.Ecom.entity.Address;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.UniqueElements;
-
-import javax.validation.Valid;
 import javax.validation.constraints.*;
-import java.util.List;
-import java.util.Set;
 
 public class CustomerDTO {
 

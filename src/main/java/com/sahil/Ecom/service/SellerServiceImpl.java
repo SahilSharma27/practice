@@ -1,17 +1,21 @@
 package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.*;
+import com.sahil.Ecom.dto.category.FetchCategoryDTO;
+import com.sahil.Ecom.dto.seller.SellerDTO;
+import com.sahil.Ecom.dto.seller.SellerProfileDTO;
+import com.sahil.Ecom.dto.seller.SellerProfileUpdateDTO;
 import com.sahil.Ecom.entity.Address;
 import com.sahil.Ecom.dto.LoginRequestDTO;
 import com.sahil.Ecom.dto.LoginResponseDTO;
 import com.sahil.Ecom.entity.Seller;
+import com.sahil.Ecom.exception.IdNotFoundException;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.SellerRepository;
 import com.sahil.Ecom.repository.UserRepository;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +62,7 @@ public class SellerServiceImpl implements SellerService{
     @Override
     public Seller getSellerById(Long id){
 //       if(sellerRepository.existsById(id)){
-            return sellerRepository.findById(id).orElseThrow(()-> new UsernameNotFoundException("NOT FOUND"));
+            return sellerRepository.findById(id).orElseThrow(IdNotFoundException::new);
 //        }
 //        throw new UsernameNotFoundException("SELLER SERVICE:USER ID NOT FOUND");
 //        return null;

@@ -1,4 +1,4 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.password;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

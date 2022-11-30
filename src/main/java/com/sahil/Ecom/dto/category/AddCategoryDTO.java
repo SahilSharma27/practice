@@ -1,12 +1,10 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.category;
 import com.sahil.Ecom.entity.Category;
 
 public class AddCategoryDTO {
 
     //Reusing it to show response
     //id is set when category added successfully
-
-    private Long id;
     private Long parentId;
     private String categoryName;
 
@@ -15,7 +13,6 @@ public class AddCategoryDTO {
     }
 
     public AddCategoryDTO(Category category) {
-        this.id = category.getId();
         this.categoryName =category.getName();
     }
 
@@ -26,14 +23,6 @@ public class AddCategoryDTO {
 
     public AddCategoryDTO(String categoryName) {
         this.categoryName = categoryName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getParentId() {

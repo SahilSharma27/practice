@@ -1,7 +1,6 @@
 package com.sahil.Ecom.service;
 
-import com.sahil.Ecom.dto.*;
-import com.sahil.Ecom.entity.Category;
+import com.sahil.Ecom.dto.category.*;
 
 
 import java.util.List;
@@ -12,7 +11,7 @@ public interface CategoryService {
 
     List<FetchMetaDataFieldDTO> getAllMetaDataFields();
 
-    AddCategoryDTO addCategory(AddCategoryDTO addCategoryDTO);
+    SavedCategoryDTO addCategory(AddCategoryDTO addCategoryDTO);
 
     List<FetchCategoryDTO> getAllCategories();
 

@@ -1,5 +1,6 @@
-package com.sahil.Ecom.dto;
+package com.sahil.Ecom.dto.seller;
 
+import com.sahil.Ecom.dto.AddressDTO;
 import com.sahil.Ecom.entity.Seller;
 
 //For admin

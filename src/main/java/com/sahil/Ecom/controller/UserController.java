@@ -1,8 +1,8 @@
 package com.sahil.Ecom.controller;
 
-import com.sahil.Ecom.dto.ForgotPasswordDTO;
+import com.sahil.Ecom.dto.password.ForgotPasswordDTO;
 import com.sahil.Ecom.dto.LoginResponseDTO;
-import com.sahil.Ecom.dto.ResetPassDTO;
+import com.sahil.Ecom.dto.password.ResetPassDTO;
 import com.sahil.Ecom.dto.ResponseDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.InvalidTokenException;
@@ -43,13 +43,13 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    TokenGeneratorHelper tokenGeneratorHelper;
+    private TokenGeneratorHelper tokenGeneratorHelper;
 
     @Autowired
-    UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
     @Autowired
-    MessageSource messageSource;
+    private MessageSource messageSource;
 
     @Value("${project.image}")
     private String path;
@@ -189,7 +189,6 @@ public class UserController {
             //check format
             if (requestHeader != null && requestHeader.startsWith("Bearer")) {
 
-
                 accessToken = requestHeader.substring("Bearer ".length());
                 try {
                     username = this.jwtUtil.extractUsername(accessToken);
@@ -198,15 +197,12 @@ public class UserController {
                     throw new InvalidTokenException();
                 }
 
-                if (userService.resetPassword(username, resetPassDTO.getNewPassword()))
-                    return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,"User Password Updated", HttpStatus.OK));
-
-                else throw new Exception("PTA NAHI");
-
             }
+            if (userService.resetPassword(username, resetPassDTO.getNewPassword()))
+                return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,"User Password Updated", HttpStatus.OK));
         }
+
         throw new PassConfirmPassNotMatchingException();
-//
 
     }
 
@@ -243,29 +239,21 @@ public class UserController {
         throw new InvalidTokenException();
     }
 
-
+    //common for customer and seller
     @PatchMapping(value = "users/address/{address_id}")
     public ResponseEntity<?> updateAddress(@RequestBody Address address, @PathVariable(name = "address_id") Long id) {
 
         //find address by id
         //update given fields
 
+        userService.updateAddress(id, address);
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
         String message;
-
-        if (userService.updateAddress(id, address)) {
-            message = messageSource.getMessage("user.address.updated", null, "message", locale);
-            responseDTO.setResponseStatusCode(HttpStatus.OK);
-            responseDTO.setMessage(message);
-            return ResponseEntity.ok(responseDTO);
-        }
-
-        message = messageSource.getMessage("user.not.found", null, "message", locale);
-        responseDTO.setResponseStatusCode(HttpStatus.NOT_FOUND);
+        message = messageSource.getMessage("user.address.updated", null, "message", locale);
+        responseDTO.setResponseStatusCode(HttpStatus.OK);
         responseDTO.setMessage(message);
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+        return ResponseEntity.ok(responseDTO);
 
     }
 

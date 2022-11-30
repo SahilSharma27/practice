@@ -1,7 +1,10 @@
 package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.*;
-import com.sahil.Ecom.entity.Address;
+import com.sahil.Ecom.dto.category.FetchCategoryDTO;
+import com.sahil.Ecom.dto.customer.CustomerDTO;
+import com.sahil.Ecom.dto.customer.CustomerProfileDTO;
+import com.sahil.Ecom.dto.customer.CustomerProfileUpdateDTO;
 
 import java.util.List;
 
@@ -13,13 +16,13 @@ public interface CustomerService {
 
     boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO);
 
-    List<Address> getAllCustomerAddresses(String userEmail);
+    List<AddressDTO> getAllCustomerAddresses(String userEmail);
 
-    boolean removeAddress(Long id);
+    void removeAddress(Long id);
 
-    FetchCustomerDTO fetchCustomerProfileDetails(String userEmail);
+    CustomerProfileDTO fetchCustomerProfileDetails(String userEmail);
 
-    boolean updateProfile(String username, CustomerProfileDTO customerProfileDTO);
+    void updateProfile(String username, CustomerProfileUpdateDTO customerProfileUpdateDTO);
 
     List<FetchCategoryDTO> getAllCategoriesForCustomer(Long categoryId);
 }

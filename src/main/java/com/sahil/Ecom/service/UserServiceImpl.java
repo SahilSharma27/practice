@@ -1,8 +1,7 @@
 package com.sahil.Ecom.service;
 
-import com.sahil.Ecom.dto.AddressDTO;
-import com.sahil.Ecom.dto.FetchCustomerDTO;
-import com.sahil.Ecom.dto.FetchSellerDTO;
+import com.sahil.Ecom.dto.customer.FetchCustomerDTO;
+import com.sahil.Ecom.dto.seller.FetchSellerDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.*;
 import com.sahil.Ecom.repository.*;
@@ -24,10 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -242,16 +239,10 @@ public class UserServiceImpl implements UserService {
             User foundUser = userRepository.findByEmail(email).orElseThrow(UserEmailNotFoundException::new);
 
             if (foundUser.isActive()) {
-
                 return userRepository.updatePassword(passwordEncoder.encode(newPassword), email) > 0;
-//                foundUser.setPassword(passwordEncoder.encode(newPassword));
-//                userRepository.save(foundUser);
-//                return true;
             } else {
                 throw new AccountNotActiveException();
             }
-
-
 
 
     }
@@ -363,7 +354,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateAddress(Long id, Address newAddress) {
+    public void updateAddress(Long id, Address newAddress) {
 
             Address addressToBeUpdated = addressRepository.findById(id).orElseThrow(IdNotFoundException::new);
 
@@ -388,7 +379,6 @@ public class UserServiceImpl implements UserService {
 
             addressRepository.save(addressToBeUpdated);
 
-            return true;
 
     }
 
@@ -431,5 +421,15 @@ public class UserServiceImpl implements UserService {
 
         return sellerList.stream().map(FetchSellerDTO::new).collect(Collectors.toList());
 
+    }
+
+    @Override
+    public FetchCustomerDTO getCustomer(String email) {
+        return new FetchCustomerDTO(customerRepository.findByEmail(email).orElseThrow(UserEmailNotFoundException::new));
+    }
+
+    @Override
+    public FetchSellerDTO getSeller(String email) {
+        return new FetchSellerDTO(sellerRepository.findByEmail(email).orElseThrow(UserEmailNotFoundException::new));
     }
 }

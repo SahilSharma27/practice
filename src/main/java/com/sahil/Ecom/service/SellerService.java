@@ -1,6 +1,10 @@
 package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.*;
+import com.sahil.Ecom.dto.category.FetchCategoryDTO;
+import com.sahil.Ecom.dto.seller.SellerDTO;
+import com.sahil.Ecom.dto.seller.SellerProfileDTO;
+import com.sahil.Ecom.dto.seller.SellerProfileUpdateDTO;
 import com.sahil.Ecom.entity.Seller;
 
 import java.util.List;

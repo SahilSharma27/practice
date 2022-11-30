@@ -1,6 +1,9 @@
 package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.*;
+import com.sahil.Ecom.dto.category.AddCategoryDTO;
+import com.sahil.Ecom.dto.category.AddCategoryMetaDataFieldValueDTO;
+import com.sahil.Ecom.dto.category.AddMetaDataFieldDTO;
 import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.*;
@@ -88,7 +91,8 @@ public class AdminController {
 
         }else{
 
-            return ResponseEntity.ok(customerService.fetchCustomerProfileDetails(email));
+//            return ResponseEntity.ok(customerService.fetchCustomerProfileDetails(email));
+            return ResponseEntity.ok(userService.getCustomer(email));
 
         }
 
@@ -106,7 +110,8 @@ public class AdminController {
 
             return new ResponseEntity<>(userService.getAllSellersPaged(page, size, sort), HttpStatus.OK);
         }else{
-            return ResponseEntity.ok(sellerService.fetchSellerProfileDetails(email));
+//            return ResponseEntity.ok(sellerService.fetchSellerProfileDetails(email));
+            return ResponseEntity.ok(userService.getSeller(email));
         }
 
     }
@@ -163,8 +168,7 @@ public class AdminController {
     @PostMapping(value = "/category")
     public ResponseEntity<?> addNewCategory(@RequestBody AddCategoryDTO addCategoryDTO){
 
-        AddCategoryDTO addedCategory = categoryService.addCategory(addCategoryDTO);
-        return ResponseEntity.ok(addedCategory);
+        return ResponseEntity.ok(categoryService.addCategory(addCategoryDTO));
 
     }
 
