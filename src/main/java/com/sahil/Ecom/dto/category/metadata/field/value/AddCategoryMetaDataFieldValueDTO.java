@@ -1,11 +1,13 @@
-package com.sahil.Ecom.dto.category;
+package com.sahil.Ecom.dto.category.metadata.field.value;
 
 import java.util.Set;
 
 public class AddCategoryMetaDataFieldValueDTO {
 
     private Long categoryId;
+
     private Long metaDataFieldId;
+
     private Set<String> metaDataFieldValues;
 
     public AddCategoryMetaDataFieldValueDTO() {

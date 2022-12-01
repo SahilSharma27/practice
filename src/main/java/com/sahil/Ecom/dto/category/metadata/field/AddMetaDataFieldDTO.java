@@ -1,4 +1,4 @@
-package com.sahil.Ecom.dto.category;
+package com.sahil.Ecom.dto.category.metadata.field;
 
 import javax.validation.constraints.NotBlank;
 

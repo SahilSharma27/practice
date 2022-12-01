@@ -34,6 +34,9 @@ class EcomApplicationTests {
 	@Autowired
 	private CategoryService categoryService;
 
+	@Autowired
+			private CategoryMetaDataFieldValueRepository categoryMetaDataFieldValueRepository;
+
 	Logger logger = LoggerFactory.getLogger(EcomApplicationTests.class);
 
 	@Test
@@ -146,34 +149,73 @@ class EcomApplicationTests {
 	}
 
 	@Test
-	void testCategory(){
+	void testCategory1(){
 
 		Category electronics = new Category("ELECTRONICS");
 
-		Category mobiles = new Category("MOBILES",electronics);
-
-		Category iphone = new Category("IPHONE",mobiles);
-
-		Category washingMachine = new Category("WASHING MACHINE",electronics);
+		Category savedElec = categoryRepository.save(electronics);
 
 
-		electronics.addChildren(mobiles);
-		electronics.addChildren(washingMachine);
 
-		mobiles.addChildren(iphone);
+		Category mobiles = new Category("MOBILES");
+		mobiles.setParent(categoryRepository.findById(savedElec.getId()).get());
 
-		categoryRepository.save(electronics);
+		Category savedMobile = categoryRepository.save(mobiles);
 
-		Category fashion = new Category("FASHION");
-		Category shirt = new Category("SHIRT",fashion);
+		logger.info("-----------------------------"+savedMobile.getId()+"------------------");
 
-		fashion.addChildren(shirt);
 
-		categoryRepository.save(fashion);
+
+//		Category iphone = new Category("IPHONE",mobiles);
+//
+//		Category washingMachine = new Category("WASHING MACHINE",electronics);
+//
+//
+//		electronics.addChildren(mobiles);
+//		electronics.addChildren(washingMachine);
+//
+//		mobiles.addChildren(iphone);
+//
+//		categoryRepository.save(electronics);
+//
+//		Category fashion = new Category("FASHION");
+//		Category shirt = new Category("SHIRT",fashion);
+//
+//		fashion.addChildren(shirt);
+//
+//		categoryRepository.save(fashion);
 
 
 	}
 
+//	@Test
+//	void testCategory2(){
+//
+////		Category electronics = new Category("ELECTRONICS");
+////
+////		Category mobiles = new Category("MOBILES",electronics);
+//
+//		Category iphone = new Category("IPHONE",mobiles);
+//
+//		Category washingMachine = new Category("WASHING MACHINE",electronics);
+//
+//
+//		electronics.addChildren(mobiles);
+//		electronics.addChildren(washingMachine);
+//
+//		mobiles.addChildren(iphone);
+//
+//		categoryRepository.save(electronics);
+//
+//		Category fashion = new Category("FASHION");
+//		Category shirt = new Category("SHIRT",fashion);
+//
+//		fashion.addChildren(shirt);
+//
+//		categoryRepository.save(fashion);
+//
+//
+//	}
 
 	@Test
 	void testMetaDataFieldValue(){
@@ -260,6 +302,29 @@ class EcomApplicationTests {
 
 		categoryService.checkCategoryUniqueness(new AddCategoryDTO(4L,"ELECTRONICS"));
 //		logger.info("======================="+result+"-----------------");
+
+	}
+
+	@Test
+	void randomTest(){
+
+//		Category category = categoryRepository.findById(4L).get();
+//		List<CategoryMetaDataFieldValue> categoryMetaDataFieldValueList= category.getCategoryMetaDataFieldValueList();
+
+		CategoryMetaDataFieldValue x =categoryMetaDataFieldValueRepository.findById(new CategoryFieldValueKey(4L,1L)).get();
+		logger.info(x.getValues());
+		String[] valueList = x.getValues().split(",");
+
+		Set<String> valuesSet = new HashSet<>(Arrays.asList(valueList));
+		logger.info(valuesSet.toString());
+
+//		return valuesSet;
+
+//		categoryMetaDataFieldValueList.forEach(value ->{
+//			logger.info(value.getValues());
+//		});
+
+
 
 	}
 

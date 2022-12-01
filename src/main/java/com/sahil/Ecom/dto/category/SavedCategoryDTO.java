@@ -3,6 +3,7 @@ package com.sahil.Ecom.dto.category;
 import com.sahil.Ecom.entity.Category;
 
 public class SavedCategoryDTO {
+
     private Long id;
     private String categoryName;
 

@@ -2,8 +2,9 @@ package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.dto.category.AddCategoryDTO;
-import com.sahil.Ecom.dto.category.AddCategoryMetaDataFieldValueDTO;
-import com.sahil.Ecom.dto.category.AddMetaDataFieldDTO;
+import com.sahil.Ecom.dto.category.metadata.field.value.AddCategoryMetaDataFieldValueDTO;
+import com.sahil.Ecom.dto.category.metadata.field.AddMetaDataFieldDTO;
+import com.sahil.Ecom.dto.category.CategoryUpdateDTO;
 import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.*;
@@ -158,6 +159,17 @@ public class AdminController {
 
     }
 
+//    @PutMapping(value = "/category/metadata-update")
+//    public ResponseEntity<?> updateMetaDataField(@RequestBody AddMetaDataFieldDTO addMetaDataFieldDTO){
+//
+////        AddMetaDataFieldDTO savedMetaDatField = categoryService.addCategoryMetadataField(addMetaDataFieldDTO);
+////        return ResponseEntity.ok(savedMetaDatField);
+//
+//
+//    }
+
+
+
     @GetMapping(value = "/category/metadata")
     public ResponseEntity<?> fetchMetaDataField(){
         return ResponseEntity.ok(categoryService.getAllMetaDataFields());
@@ -172,13 +184,35 @@ public class AdminController {
 
     }
 
-    @GetMapping(value = "/category")
+    @PutMapping(value = "/category-update")
+    public ResponseEntity<?> updateCategory(@RequestBody CategoryUpdateDTO categoryUpdateDTO){
+
+        ResponseDTO responseDTO =new ResponseDTO();
+        responseDTO.setTimestamp(LocalDateTime.now());
+
+        if(categoryService.updateCategory(categoryUpdateDTO)){
+
+            responseDTO.setSuccess(true);
+            responseDTO.setMessage("UPDATED SUCCESSFULLY");
+            responseDTO.setResponseStatusCode(HttpStatus.OK);
+
+            return ResponseEntity.ok(responseDTO);
+        }
+
+        responseDTO.setSuccess(false);
+        responseDTO.setMessage("SOMETHING WENT WRONG");
+        responseDTO.setResponseStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+    @GetMapping(value = "/category",params = "role=admin")
     public ResponseEntity<?>fetchAllCategories(){
 
         return ResponseEntity.ok(categoryService.getAllCategories());
 
     }
-
 
     @GetMapping(value = "/categoryy")
     public ResponseEntity<?>fetchCategoryById(@RequestParam("categoryId")Long categoryId){
@@ -186,13 +220,23 @@ public class AdminController {
     }
 
     @PostMapping(value = "/category/metadata/value")
-    public ResponseEntity<?>addCategoryMetaData(@RequestBody AddCategoryMetaDataFieldValueDTO addCategoryMetaDataFieldValueDTO){
+    public ResponseEntity<?>addCategoryMetaData(@Valid @RequestBody AddCategoryMetaDataFieldValueDTO addCategoryMetaDataFieldValueDTO){
 
         categoryService.addCategoryMetadataFieldWithValue(addCategoryMetaDataFieldValueDTO);
 
         return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,"added",HttpStatus.OK));
 
     }
+
+    @PutMapping(value = "/category/metadata/value-update")
+    public ResponseEntity<?>updateCategoryMetaData(@RequestBody AddCategoryMetaDataFieldValueDTO updateCategoryMetaDataFieldValueDTO){
+
+        categoryService.updateCategoryMetadataFieldWithValue(updateCategoryMetaDataFieldValueDTO);
+
+        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,"updated",HttpStatus.OK));
+
+    }
+
 
 
 }

@@ -1,21 +1,27 @@
 package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.category.*;
-import com.sahil.Ecom.entity.Category;
-import com.sahil.Ecom.entity.CategoryFieldValueKey;
-import com.sahil.Ecom.entity.CategoryMetaDataField;
-import com.sahil.Ecom.entity.CategoryMetaDataFieldValue;
+import com.sahil.Ecom.dto.category.metadata.field.AddMetaDataFieldDTO;
+import com.sahil.Ecom.dto.category.metadata.field.FetchMetaDataFieldDTO;
+import com.sahil.Ecom.dto.category.metadata.field.value.AddCategoryMetaDataFieldValueDTO;
+import com.sahil.Ecom.dto.customer.FetchCustomerDTO;
+import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.CategoryHierarchyException;
 import com.sahil.Ecom.exception.IdNotFoundException;
 import com.sahil.Ecom.repository.CategoryMetaDataFieldRepository;
+import com.sahil.Ecom.repository.CategoryMetaDataFieldValueRepository;
 import com.sahil.Ecom.repository.CategoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import javax.transaction.Transactional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +32,10 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Autowired
     CategoryRepository categoryRepository;
+
+
+    @Autowired
+    CategoryMetaDataFieldValueRepository categoryMetaDataFieldValueRepository;
 
     Logger logger= LoggerFactory.getLogger(CategoryServiceImpl.class);
 
@@ -68,33 +78,66 @@ public class CategoryServiceImpl implements CategoryService{
 
             newCategory = new Category(addCategoryDTO.getCategoryName(),parent);
 
-            parent.addChildren(newCategory);
+            newCategory.setParent(parent);
+//            parent.addChildren(newCategory);
 
-            categoryRepository.save(parent);
+            Category savedCategory = categoryRepository.save(newCategory);
+            return new SavedCategoryDTO(savedCategory);
 
-            List<Category> savedCategory = categoryRepository.findAllByName(addCategoryDTO.getCategoryName());
-
-//            SavedCategoryDTO savedCategoryDTO = new SavedCategoryDTO();
-//problem
-            return new SavedCategoryDTO(
-            savedCategory
-                    .stream()
-                    .filter(category ->
-                            Objects.equals(category.getParent().getId(), parent.getId())
-                    ).findFirst()
-                    .get());
-
-//            return new FetchCategoryDTO(savedCategory);
 
         }
 
         return new SavedCategoryDTO(categoryRepository.save(new Category(addCategoryDTO.getCategoryName())));
+    }
+
+    @Transactional
+    @Override
+    public boolean updateCategory(CategoryUpdateDTO categoryUpdateDTO) {
+
+        //check if exist
+        //
+        if(categoryRepository.existsById(categoryUpdateDTO.getCategoryId())){
+            return  categoryRepository
+                    .updateCategoryName(
+                            categoryUpdateDTO.getCategoryName(),
+                            categoryUpdateDTO.getCategoryId()
+                    )>0;
+        }
+        throw new IdNotFoundException();
+
+    }
+
+    public List<FetchCategoryDTO> getAllCategoriesPaged(int page, int size, String sort,String order) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        if(order.equals("ASC")){
+
+            pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
+
+        }
+        else if(order.equals("DESC")){
+            pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+
+        }
+
+//        assert pageable != null;
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+
+        List<Category> categoryList = categoryPage.getContent();
+
+        //Constructor reference
+        return categoryList.stream().map(FetchCategoryDTO::new).collect(Collectors.toList());
 
     }
 
     @Override
     public List<FetchCategoryDTO> getAllCategories() {
-        return categoryRepository.findAll().stream().map(FetchCategoryDTO::new).collect(Collectors.toList());
+        return categoryRepository
+                .findAll()
+                .stream()
+                .map(FetchCategoryDTO::new)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -111,34 +154,102 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public void addCategoryMetadataFieldWithValue(AddCategoryMetaDataFieldValueDTO addCategoryMetaDataFieldValueDTO) {
 
+        //find category for given id
         Category category = categoryRepository
                 .findById(addCategoryMetaDataFieldValueDTO
                         .getCategoryId()).orElseThrow(IdNotFoundException::new);
 
+        //exception if not a leaf node
+        if(category.getChildren().size() >0){
+            throw new CategoryHierarchyException(" META DATA FIELD VALUES CAN ONLY BE ADDED IN LEAF CATEGORIES ");
+        }
+
+        //find field for given id
         CategoryMetaDataField categoryMetaDataField = categoryMetaDataFieldRepository
                 .findById(addCategoryMetaDataFieldValueDTO
                         .getMetaDataFieldId())
                 .orElseThrow(IdNotFoundException::new);
 
+        //make string form set
         String valuesString = String.join(",",addCategoryMetaDataFieldValueDTO.getMetaDataFieldValues());
 
+        //set up object to save in db
         CategoryMetaDataFieldValue value = new CategoryMetaDataFieldValue(valuesString);
-
         value.setCategoryFieldValueKey(new CategoryFieldValueKey(category.getId(),categoryMetaDataField.getId()));
-
         value.setCategory(category);
-
         value.setCategoryMetaDataField(categoryMetaDataField);
 
+        //add value to category object
         category.addCategoryMetaDataFieldValue(value);
 
+        //add value to Field object
         categoryMetaDataField.addCategoryMetaDataFieldValue(value);
 
+
+        ///save category
         categoryRepository.save(category);
 
+
+        //save meta data field
         categoryMetaDataFieldRepository.save(categoryMetaDataField);
 
 
+    }
+
+    @Override
+    public void updateCategoryMetadataFieldWithValue(AddCategoryMetaDataFieldValueDTO updateCategoryMetaDataFieldValueDTO) {
+        //get category if exist
+        Category category = categoryRepository
+                .findById(updateCategoryMetaDataFieldValueDTO
+                        .getCategoryId()).orElseThrow(IdNotFoundException::new);
+
+        //if not a leaf then not possible
+        if(category.getChildren().size() > 0){
+            throw new CategoryHierarchyException(" META DATA FIELD VALUES CAN ONLY BE ADDED IN LEAF CATEGORIES ");
+        }
+
+        //find meta field if exist
+        CategoryMetaDataField categoryMetaDataField = categoryMetaDataFieldRepository
+                .findById(updateCategoryMetaDataFieldValueDTO
+                        .getMetaDataFieldId())
+                .orElseThrow(IdNotFoundException::new);
+
+        // find value String for provide category and field
+        CategoryMetaDataFieldValue categoryMetaDataFieldValue = categoryMetaDataFieldValueRepository
+                .findById(new CategoryFieldValueKey(category.getId(),categoryMetaDataField.getId()))
+                .orElseThrow(IdNotFoundException::new);
+
+//        get saved values String
+        String savedValueString  = categoryMetaDataFieldValue.getValues();
+
+        //convert to set
+        Set<String> savedValuesSet =  convertStringValuesToSet(savedValueString);
+
+        //new Set of values
+        Set<String> newValuesSet = updateCategoryMetaDataFieldValueDTO.getMetaDataFieldValues();
+
+
+        //merge both sets
+        savedValuesSet.addAll(newValuesSet);
+
+        //convert back Set to String
+        String updatedValuesString = String.join(",",savedValuesSet);
+
+        categoryMetaDataFieldValue.setValues(updatedValuesString);
+
+        //save
+        categoryMetaDataFieldValueRepository.save(categoryMetaDataFieldValue);
+
+    }
+
+    private Set<String> convertStringValuesToSet(String values){
+
+        String[] valueList = values.split(",");
+
+        Set<String> valuesSet = new HashSet<>(Arrays.asList(valueList));
+        logger.info(valuesSet.toString());
+
+        return valuesSet;
     }
 
     @Override
