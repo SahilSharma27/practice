@@ -1,5 +1,7 @@
 package com.sahil.Ecom.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.dto.product.AddProductDTO;
 import com.sahil.Ecom.dto.product.variation.AddProductVariationDTO;
@@ -20,6 +22,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -51,6 +54,9 @@ public class SellerController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     Logger logger = LoggerFactory.getLogger(SellerController.class);
 
@@ -205,17 +211,47 @@ public class SellerController {
     }
 
 
-    @PostMapping(value = "/products/variation")
-    public ResponseEntity<?>addProductVariation(@RequestBody AddProductVariationDTO addProductVariationDTO, HttpServletRequest request){
+//    @PostMapping(value = "/products/variation")
+//    public ResponseEntity<?>addProductVariation(@RequestBody AddProductVariationDTO addProductVariationDTO, HttpServletRequest request){
+//
+//        productService.addProductVariation(addProductVariationDTO, file);
+//        ResponseDTO responseDTO = new ResponseDTO();
+//        responseDTO.setTimestamp(LocalDateTime.now());
+//        responseDTO.setSuccess(true);
+//        responseDTO.setResponseStatusCode(HttpStatus.OK);
+//        responseDTO.setMessage("PRODUCT  VARIATION ADDED SUCCESSFULLY");
+//
+//        return ResponseEntity.ok(responseDTO);
+//
+//    }
 
-        productService.addProductVariation(addProductVariationDTO);
+    @PostMapping(value = "/products/variation")
+    public ResponseEntity<?>addProductVariationWithFile(
+            @RequestParam("primary_image") MultipartFile file,
+            @RequestParam("product_variation") String productVariation){
+
+        logger.info(file.getOriginalFilename());
+        logger.info(productVariation);
+        AddProductVariationDTO addProductVariationDTO;
+        try {
+            addProductVariationDTO =
+                    objectMapper.readValue(productVariation, AddProductVariationDTO.class);
+
+        } catch (JsonProcessingException e) {
+            return new ResponseEntity<>("invalid request",HttpStatus.BAD_REQUEST);
+        }
+
+        productService.addProductVariation(addProductVariationDTO,file);
+
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
         responseDTO.setSuccess(true);
         responseDTO.setResponseStatusCode(HttpStatus.OK);
-        responseDTO.setMessage("PRODUCT  VARIATION ADDED SUCCESSFULLY");
+        responseDTO.setMessage("PRODUCT  VARIATION ADDED SUCCESSFULLY image uploaded");
 
         return ResponseEntity.ok(responseDTO);
 
+
     }
+
 }

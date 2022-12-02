@@ -335,6 +335,14 @@ class EcomApplicationTests {
 	@Test
 	void productTest() {
 
+
+//		String temmp = "metadata":{
+//			"ram":"6GB",
+//					"color":"Gold",
+//					"memory":"128GB"
+//		}"
+
+
 		ProductVariation variation = new ProductVariation();
 
 		variation.setProduct(null);

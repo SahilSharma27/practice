@@ -14,7 +14,7 @@ public class Product {
     private Long id;
 
     @Column(name = "NAME")
-    private String Name;
+    private String name;
 
     @Column(name = "DESCRIPTION")
     private String description;
@@ -45,11 +45,20 @@ public class Product {
     @JoinColumn(name = "SELLER_ID")
     private Seller seller;
 
-
-
     public Product() {
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Product)
+                &&
+                (((Product) obj).getName().equals(this.getName()));
+
+    }
+
+    public int hashCode() {
+        return this.name.hashCode();
+    }
 
     public Long getId() {
         return id;
@@ -60,11 +69,11 @@ public class Product {
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public String getDescription() {

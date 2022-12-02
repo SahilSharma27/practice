@@ -25,9 +25,6 @@ public class ProductVariation {
     @Column(name = "METADATA")
     private JSONObject metadata;
 
-    @Column(name = "PRIMARY_IMAGE_NAME")
-    private String primaryImageName;
-
     @Column(name = "IS_ACTIVE")
     private boolean isActive;
 
@@ -70,14 +67,6 @@ public class ProductVariation {
 
     public void setMetadata(JSONObject metadata) {
         this.metadata = metadata;
-    }
-
-    public String getPrimaryImageName() {
-        return primaryImageName;
-    }
-
-    public void setPrimaryImageName(String primaryImageName) {
-        this.primaryImageName = primaryImageName;
     }
 
     public boolean isActive() {

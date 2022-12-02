@@ -206,8 +206,8 @@ public class AdminController {
         return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
-
-    @GetMapping(value = "/category",params = "role=admin")
+//,params = "role=admin"
+    @GetMapping(value = "/category")
     public ResponseEntity<?>fetchAllCategories(){
 
         return ResponseEntity.ok(categoryService.getAllCategories());
@@ -225,7 +225,6 @@ public class AdminController {
         categoryService.addCategoryMetadataFieldWithValue(addCategoryMetaDataFieldValueDTO);
 
         return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,"added",HttpStatus.OK));
-
     }
 
     @PutMapping(value = "/category/metadata/value-update")
