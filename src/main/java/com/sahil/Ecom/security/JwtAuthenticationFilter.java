@@ -76,15 +76,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             }catch (ExpiredJwtException |MalformedJwtException e) {
 
-                Map<String, Object> errorDetails = new HashMap<>();
+//                Map<String, Object> errorDetails = new HashMap<>();
+//
+//                errorDetails.put("message", "Invalid token");
+//
+//                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+//
+//                ObjectMapper mapper = new ObjectMapper();
+//                mapper.writeValue(response.getWriter(),errorDetails);
 
-                errorDetails.put("message", "Invalid token");
 
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                final Map<String, Object> body = new HashMap<>();
+                body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+                body.put("error", "Unauthorized");
+                body.put("message","TOKEN INVALID");
+                body.put("path", request.getServletPath());
 
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.writeValue(response.getWriter(),errorDetails);
+                final ObjectMapper mapper = new ObjectMapper();
+                mapper.writeValue(response.getOutputStream(), body);
 
 
                 throw new TokenExpiredException("FILTER:TOKEN EXPIRED");

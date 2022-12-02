@@ -2,11 +2,22 @@ package com.sahil.Ecom.dto.product.variation;
 
 import org.json.simple.JSONObject;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class AddProductVariationDTO {
 
+
+    @NotNull
     private Long productId;
+
+    @NotNull
     private JSONObject metadata;
+
+    @NotNull
     private int quantityAvailable;
+
+    @NotNull
     private double price;
 
     public Long getProductId() {

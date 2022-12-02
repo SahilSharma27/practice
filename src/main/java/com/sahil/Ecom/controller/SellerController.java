@@ -247,11 +247,141 @@ public class SellerController {
         responseDTO.setTimestamp(LocalDateTime.now());
         responseDTO.setSuccess(true);
         responseDTO.setResponseStatusCode(HttpStatus.OK);
-        responseDTO.setMessage("PRODUCT  VARIATION ADDED SUCCESSFULLY image uploaded");
+        responseDTO.setMessage("PRODUCT VARIATION ADDED SUCCESSFULLY image uploaded");
 
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping(value = "/products",params = "role=seller")
+    public ResponseEntity<?> getAllProducts(
+            @RequestParam(value = "page",defaultValue = "0") String page,
+            @RequestParam(value = "size",defaultValue = "10")String size,
+            @RequestParam(value = "sort",defaultValue = "id")String sort,
+            @RequestParam(value = "order",defaultValue = "asc")String order,
+            HttpServletRequest servletRequest) {
+
+        String requestHeader = servletRequest.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+            }
+            catch (Exception e){
+                throw  new InvalidTokenException();
+            }
+
+        }
 
 
+        return ResponseEntity.ok(
+                productService
+                        .getAllProducts(username
+                                ,Integer.parseInt(page)
+                                ,Integer.parseInt(size)
+                                ,sort
+                                ,order));
+
+    }
+
+
+    @GetMapping(value = "/products/{product_id}")
+    public ResponseEntity<?> getProduct(@PathVariable("product_id")Long productId, HttpServletRequest servletRequest) {
+
+
+        String requestHeader = servletRequest.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+            }
+            catch (Exception e){
+                throw  new InvalidTokenException();
+            }
+
+        }
+
+        return ResponseEntity.ok(
+                productService
+                        .getProduct(username,productId));
+
+    }
+
+    @GetMapping(value = "/products/variation/(product_variation_id")
+    public ResponseEntity<?> getProductVariation(@PathVariable("product_variation_id") Long id ,  HttpServletRequest servletRequest) {
+
+        String requestHeader = servletRequest.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+            }
+            catch (Exception e){
+                throw  new InvalidTokenException();
+            }
+
+        }
+
+        return ResponseEntity.ok(
+                productService
+                        .getProductVariation(username,id));
+
+
+
+    }
+
+    @GetMapping(value = "/products/variation",params = "role=seller")
+    public ResponseEntity<?> getAllProductVariation(
+            @RequestParam(value = "page",defaultValue = "0") String page,
+            @RequestParam(value = "size",defaultValue = "10")String size,
+            @RequestParam(value = "sort",defaultValue = "id")String sort,
+            @RequestParam(value = "order",defaultValue = "asc")String order,
+            @RequestParam("product_id") String id,HttpServletRequest servletRequest) {
+
+
+        String requestHeader = servletRequest.getHeader("Authorization");
+        Long productId = Long.parseLong(id);
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+            }
+            catch (Exception e){
+                throw  new InvalidTokenException();
+            }
+
+        }
+
+        return ResponseEntity.ok(productService
+                .getAllProductVariations(
+                        username,productId
+                        ,Integer.parseInt(page)
+                        ,Integer.parseInt(size)
+                        ,sort
+                        ,order));
     }
 
 }
