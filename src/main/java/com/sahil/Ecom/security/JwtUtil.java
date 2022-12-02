@@ -55,7 +55,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000))// valid for 10 min
+                .setExpiration(new Date(System.currentTimeMillis() + 20 * 60 * 1000))// valid for 20 min
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
@@ -65,7 +65,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 2 * 60 * 1000))// valid for 2 min
+                .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000))// valid for 10 min
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 

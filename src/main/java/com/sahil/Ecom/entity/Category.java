@@ -2,6 +2,8 @@ package com.sahil.Ecom.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -26,11 +28,19 @@ public class Category {
     private Category parent;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL)
     private Set<Category> children = new HashSet<>();
 
-    @OneToMany(mappedBy = "category",cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "category",cascade = CascadeType.MERGE)
     private List<CategoryMetaDataFieldValue> categoryMetaDataFieldValueList = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
+    private List<Product> products = new ArrayList<>();
+
+
 
     public Category() {
     }
@@ -95,5 +105,15 @@ public class Category {
         this.categoryMetaDataFieldValueList.add(fieldValue);
     }
 
+    public List<Product> getProducts() {
+        return products;
+    }
 
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
+    public void addProducts(Product products) {
+        this.products.add(products);
+    }
 }

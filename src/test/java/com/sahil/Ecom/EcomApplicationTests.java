@@ -1,13 +1,16 @@
 package com.sahil.Ecom;
 
+import com.google.gson.JsonObject;
 import com.sahil.Ecom.dto.category.AddCategoryDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.repository.*;
 import com.sahil.Ecom.service.CategoryService;
+import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
@@ -36,6 +39,9 @@ class EcomApplicationTests {
 
 	@Autowired
 			private CategoryMetaDataFieldValueRepository categoryMetaDataFieldValueRepository;
+
+	@Autowired
+	ProductVariationRepository productVariationRepository;
 
 	Logger logger = LoggerFactory.getLogger(EcomApplicationTests.class);
 
@@ -324,8 +330,34 @@ class EcomApplicationTests {
 //			logger.info(value.getValues());
 //		});
 
+	}
+
+	@Test
+	void productTest() {
+
+		ProductVariation variation = new ProductVariation();
+
+		variation.setProduct(null);
+		variation.setPrice(1000.0);
+		variation.setQuantityAvailable(1);
+		variation.setActive(true);
+
+		JSONObject object = new JSONObject();
+
+	//		"{size - 28, color -red, length xcm} , quant- 5
+//		{size - 28, color -red, length xcm} , quant- 5
+//		{size - 28, color -blue, length xcm}, quant -10"
+//		object.put("size",28);
+
+
+		object.put("size",28);
+		object.put("color","red");
+		object.put("length","xcm");
+
+		variation.setMetadata(object);
+
+		productVariationRepository.save(variation);
 
 
 	}
-
 }

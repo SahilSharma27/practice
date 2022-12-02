@@ -1,11 +1,14 @@
 package com.sahil.Ecom.controller;
 
 import com.sahil.Ecom.dto.*;
+import com.sahil.Ecom.dto.product.AddProductDTO;
+import com.sahil.Ecom.dto.product.variation.AddProductVariationDTO;
 import com.sahil.Ecom.dto.seller.SellerDTO;
 import com.sahil.Ecom.dto.seller.SellerProfileUpdateDTO;
 import com.sahil.Ecom.exception.*;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.service.LoginService;
+import com.sahil.Ecom.service.ProductService;
 import com.sahil.Ecom.service.SellerService;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.UserService;
@@ -37,13 +40,17 @@ public class SellerController {
     private SellerService sellerService;
 
     @Autowired
-    JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
     @Autowired
     private MessageSource messageSource;
 
     @Autowired
     private LoginService loginService;
+
+
+    @Autowired
+    private ProductService productService;
 
     Logger logger = LoggerFactory.getLogger(SellerController.class);
 
@@ -165,5 +172,50 @@ public class SellerController {
     }
 
 
+    @PostMapping(value = "/products")
+    public ResponseEntity<?>addProduct(@RequestBody AddProductDTO addProductDTO,HttpServletRequest request){
 
+        String requestHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+            }
+            catch (Exception e){
+                throw  new InvalidTokenException();
+            }
+
+        }
+
+        productService.addProduct(addProductDTO,username);
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setTimestamp(LocalDateTime.now());
+        responseDTO.setSuccess(true);
+        responseDTO.setMessage("PRODUCT ADDED SUCCESSFULLY");
+        responseDTO.setResponseStatusCode(HttpStatus.OK);
+
+        return ResponseEntity.ok(responseDTO);
+
+    }
+
+
+    @PostMapping(value = "/products/variation")
+    public ResponseEntity<?>addProductVariation(@RequestBody AddProductVariationDTO addProductVariationDTO, HttpServletRequest request){
+
+        productService.addProductVariation(addProductVariationDTO);
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setTimestamp(LocalDateTime.now());
+        responseDTO.setSuccess(true);
+        responseDTO.setResponseStatusCode(HttpStatus.OK);
+        responseDTO.setMessage("PRODUCT  VARIATION ADDED SUCCESSFULLY");
+
+        return ResponseEntity.ok(responseDTO);
+
+    }
 }

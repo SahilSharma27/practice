@@ -43,16 +43,15 @@ public class MyCustomUserDetailsService implements UserDetailsService {
 
         logger.info("-------------------------------" + email);
 
-            com.sahil.Ecom.entity.User user  =  userRepository.findByEmail(email).orElseThrow(
-                    ()-> new UsernameNotFoundException(messageSource.getMessage("username.not.found",null,"message",locale)));
-
-
+            com.sahil.Ecom.entity.User user  =  userRepository
+                    .findByEmail(email)
+                    .orElseThrow(()-> new UsernameNotFoundException(
+                            messageSource
+                                    .getMessage("username.not.found",null,"message",locale)));
 
 
             //check isActive
             boolean enabled = !user.isActive();
-
-
 
 
             //check is  Locked

@@ -1,7 +1,10 @@
 package com.sahil.Ecom.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,6 +19,10 @@ public class Seller extends User{
 
     @Column(name = "COMPANY_NAME",unique = true)
     private String companyName;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "seller",cascade = CascadeType.ALL)
+    private List<Product> products = new ArrayList<>();
 
     public Seller() {
     }
@@ -44,4 +51,15 @@ public class Seller extends User{
         this.companyName = companyName;
     }
 
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
+    public void addProducts(Product product) {
+        this.products.add(product);
+    }
 }

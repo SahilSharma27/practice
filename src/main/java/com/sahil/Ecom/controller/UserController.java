@@ -58,17 +58,17 @@ public class UserController {
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
 
     @Autowired
-    LoginService loginService;
+    private LoginService loginService;
 
     @Autowired
-    BlacklistTokenRepository blacklistTokenRepository;
+    private BlacklistTokenRepository blacklistTokenRepository;
 
     @Autowired
-    FileService fileService;
+    private FileService fileService;
 
 
     Locale locale = LocaleContextHolder.getLocale();

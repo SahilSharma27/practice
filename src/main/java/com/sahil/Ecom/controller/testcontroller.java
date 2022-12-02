@@ -2,6 +2,7 @@ package com.sahil.Ecom.controller;
 
 
 import com.sahil.Ecom.dto.ResponseDTO;
+import com.sahil.Ecom.repository.ProductVariationRepository;
 import com.sahil.Ecom.service.EmailSenderService;
 import com.sahil.Ecom.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class testcontroller {
 
     @Autowired
     FileService fileService;
+
+    @Autowired
+    ProductVariationRepository productVariationRepository;
 
     @Value("${project.image}")
     private String path;
@@ -63,6 +67,11 @@ public class testcontroller {
 //
 //    }
 
+
+    @GetMapping("/products")
+    public ResponseEntity<?> getProductsVars(){
+        return ResponseEntity.ok(productVariationRepository.findAll());
+    }
 
 
 

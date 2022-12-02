@@ -196,7 +196,7 @@ public class UserServiceImpl implements UserService {
         logger.info("ACTIVATION URL" + emailBody);
 
         //send email
-//         emailSenderService.sendEmail(email,"Account activation",emailBody);
+         emailSenderService.sendEmail(email,"Account activation",emailBody);
     }
 
     @Override

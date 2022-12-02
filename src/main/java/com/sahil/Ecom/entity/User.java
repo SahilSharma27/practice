@@ -32,7 +32,6 @@ public class User {
     @Column(name = "PASSWORD")
     private String password;
 
-
     @Column(name = "IS_DELETED")
     private  boolean isDeleted;
 
