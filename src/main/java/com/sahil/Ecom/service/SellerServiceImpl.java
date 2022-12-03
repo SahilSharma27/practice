@@ -86,7 +86,11 @@ public class SellerServiceImpl implements SellerService{
 
         //Only one can be added
         List<Address> sellerAddressList = new ArrayList<>();
-        sellerAddressList.add(sellerDTO.getAddress().mapAddressDTOtoAddress());
+        Address addressToBeSaved = sellerDTO.getAddress().mapAddressDTOtoAddress();
+        addressToBeSaved.setCreatedBy(newSeller.getEmail());
+//        addressToBeSaved.set
+        sellerAddressList.add(addressToBeSaved);
+
         newSeller.setAddresses(sellerAddressList);
 
 

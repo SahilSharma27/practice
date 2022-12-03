@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
 
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    Locale locale = LocaleContextHolder.getLocale();
+
 
 
     @Transactional
@@ -112,6 +112,12 @@ public class UserServiceImpl implements UserService {
 
             User foundUser = userRepository.findById(id).orElseThrow(IdNotFoundException::new);
 
+            if(foundUser.getRoles().get(0).getAuthority().equals("ROLE_ADMIN")){
+                logger.info("ADMIN ACCOUNT CANNOT BE MODIFIED");
+                throw new IdNotFoundException();
+            }
+
+
             if (foundUser.isActive()) {
                 logger.info("------------Already Activated------------");
                 return true;
@@ -139,7 +145,14 @@ public class UserServiceImpl implements UserService {
 
         if (userRepository.existsById(id)) {
 
-            User foundUser = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("NOT FOUND"));
+            User foundUser = userRepository.findById(id).orElseThrow(IdNotFoundException::new);
+
+            //check for admin account
+            if(foundUser.getRoles().get(0).getAuthority().equals("ROLE_ADMIN")){
+                logger.info("ADMIN ACCOUNT CANNOT BE MODIFIED");
+                throw new IdNotFoundException();
+
+            }
 
             if (!foundUser.isActive()) {
                 logger.info("------------Already Deactivated------------");
@@ -334,7 +347,7 @@ public class UserServiceImpl implements UserService {
     public boolean logoutHelper(String username) {
 
         User user = userRepository.findByEmail(username).orElseThrow(
-                ()->new UsernameNotFoundException(messageSource.getMessage("user.not.found",null,"message",locale)));
+                ()->new UsernameNotFoundException(messageSource.getMessage("user.not.found",null,"message",LocaleContextHolder.getLocale())));
 
         String accessToken = user.getJwtAccessToken().getAccessToken();
         String refreshToken = user.getJwtRefreshToken().getRefreshToken();

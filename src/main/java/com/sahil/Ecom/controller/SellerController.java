@@ -60,12 +60,11 @@ public class SellerController {
 
     Logger logger = LoggerFactory.getLogger(SellerController.class);
 
-    Locale locale = LocaleContextHolder.getLocale();
+
 
     @PostMapping(value = "/register", params = "role=seller")
     public ResponseEntity<?> registerSeller(@Valid @RequestBody SellerDTO sellerDTO) {
 
-        Locale locale = LocaleContextHolder.getLocale();
 
         //check pass and cpass
         if (!sellerDTO.getPassword().equals(sellerDTO.getConfirmPassword()))
@@ -93,14 +92,14 @@ public class SellerController {
              userService.sendSellerAcknowledgement(sellerDTO.getEmail());
 
             ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
-            responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));
+            responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", LocaleContextHolder.getLocale()));
 
             return ResponseEntity.ok(responseDTO);
 
         }
 
         ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
-        responseDTO.setMessage(messageSource.getMessage("user.registered.unsuccessful", null, "message", locale));
+        responseDTO.setMessage(messageSource.getMessage("user.registered.unsuccessful", null, "message", LocaleContextHolder.getLocale()));
 
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 
@@ -116,7 +115,7 @@ public class SellerController {
         }
 
         ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(),false,HttpStatus.INTERNAL_SERVER_ERROR);
-        responseDTO.setMessage(messageSource.getMessage("login.failed",null,"message",locale));
+        responseDTO.setMessage(messageSource.getMessage("login.failed",null,"message",LocaleContextHolder.getLocale()));
         return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
@@ -163,7 +162,7 @@ public class SellerController {
             username = jwtUtil.extractUsername(accessToken);
 
             sellerService.updateSellerProfile(username,sellerProfileUpdateDTO);
-            String message = messageSource.getMessage("user.profile.updated",null,"message",locale);
+            String message = messageSource.getMessage("user.profile.updated",null,"message",LocaleContextHolder.getLocale());
 
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
         }

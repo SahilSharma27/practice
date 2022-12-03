@@ -27,7 +27,6 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     @Autowired
     MessageSource messageSource;
 
-//    Locale locale = LocaleContextHolder.getLocale();
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(

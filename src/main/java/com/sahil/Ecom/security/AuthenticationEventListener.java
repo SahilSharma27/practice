@@ -1,6 +1,8 @@
-package com.sahil.Ecom.service;
+package com.sahil.Ecom.security;
 
+import com.sahil.Ecom.entity.User;
 import com.sahil.Ecom.repository.UserRepository;
+import com.sahil.Ecom.service.LockAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,13 @@ public class AuthenticationEventListener {
 
         if(userRepository.existsByEmail(username)){
             logger.info("---------------------USER NAME EXIST PASSWORD WRONG---------------");
+
+            logger.info("CHECKING FOR ADMIN");
+
+            User user = userRepository.findByEmail(username).get();
+            if(user.getRoles().get(0).getAuthority().equals("ROLE_ADMIN")){
+                return;
+            }
                 lockAccountService.increaseCount(username);
                 return;
         }

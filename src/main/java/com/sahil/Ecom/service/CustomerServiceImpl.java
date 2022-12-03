@@ -73,6 +73,8 @@ public class CustomerServiceImpl implements CustomerService{
         newCustomer.setPasswordUpdateDate(new Date());
         newCustomer.setInvalidAttemptCount(0);
 
+
+
         customerRepository.save(newCustomer);
 
         return true;

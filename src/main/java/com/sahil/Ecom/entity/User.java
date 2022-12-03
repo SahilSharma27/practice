@@ -13,7 +13,8 @@ import java.util.Set;
 public class User {
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "EMAIL", unique = true)
@@ -53,25 +54,27 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name="USER_ID", referencedColumnName="ID")
-    List<Address> addresses;
+    private List<Address> addresses;
 
     @ManyToMany(fetch = FetchType.EAGER)
             @JoinTable(name = "USER_ROLE",
             joinColumns = @JoinColumn(name = "USER_ID",referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "ROLE_ID",referencedColumnName = "ID"))
-    List<Role> roles;
+    private List<Role> roles;
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
-    JwtAccessToken jwtAccessToken;
+    private JwtAccessToken jwtAccessToken;
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
-    JwtRefreshToken jwtRefreshToken;
+    private JwtRefreshToken jwtRefreshToken;
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
-    LockedAccount lockedAccount;
+    private LockedAccount lockedAccount;
+
+
 
 
     public User() {

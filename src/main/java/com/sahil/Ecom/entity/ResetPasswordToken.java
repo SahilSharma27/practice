@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "RESET_PASS_TOKEN")
 public class ResetPasswordToken {
+
     @Column(name = "TOKEN")
     @Id
     private String resetPassToken;

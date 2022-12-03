@@ -33,7 +33,6 @@ public class MyCustomUserDetailsService implements UserDetailsService {
     @Autowired
     MessageSource messageSource;
 
-    Locale locale = LocaleContextHolder.getLocale();
 
     @Autowired
     LockAccountService lockAccountService;
@@ -47,7 +46,7 @@ public class MyCustomUserDetailsService implements UserDetailsService {
                     .findByEmail(email)
                     .orElseThrow(()-> new UsernameNotFoundException(
                             messageSource
-                                    .getMessage("username.not.found",null,"message",locale)));
+                                    .getMessage("username.not.found",null,"message",LocaleContextHolder.getLocale())));
 
 
             //check isActive

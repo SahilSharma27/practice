@@ -43,15 +43,15 @@ public class Bootstrap implements CommandLineRunner {
 
             Role role1 = new Role();
 
-            role1.setId(1L);
+//            role1.setId(1L);
             role1.setAuthority("ROLE_ADMIN");
 
             Role role2 = new Role();
-            role2.setId(2L);
+//            role2.setId(2L);
             role2.setAuthority("ROLE_SELLER");
 
             Role role3 = new Role();
-            role3.setId(3L);
+//            role3.setId(3L);
             role3.setAuthority("ROLE_CUSTOMER");
 
             roleRepository.save(role1);

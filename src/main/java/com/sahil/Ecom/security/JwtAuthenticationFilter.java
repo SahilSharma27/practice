@@ -12,6 +12,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -74,7 +75,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 username = this.jwtUtil.extractUsername(jwtToken);
 
-            }catch (ExpiredJwtException |MalformedJwtException e) {
+            }
+            catch (ExpiredJwtException |MalformedJwtException e) {
 
 //                Map<String, Object> errorDetails = new HashMap<>();
 //

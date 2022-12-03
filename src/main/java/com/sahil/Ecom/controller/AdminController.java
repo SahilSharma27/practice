@@ -52,7 +52,7 @@ public class AdminController {
 
     Logger logger = LoggerFactory.getLogger(AdminController.class);
 
-    Locale locale = LocaleContextHolder.getLocale();
+
 
 
     @PostMapping(value = "/login", params = "role=admin")
@@ -125,11 +125,11 @@ public class AdminController {
 
         if (userService.activateAccount(userId)) {
 
-            message = messageSource.getMessage("user.account.activated", null, "message", locale);
+            message = messageSource.getMessage("user.account.activated", null, "message", LocaleContextHolder.getLocale());
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
 
         }
-        message = messageSource.getMessage("user.not.found", null, "message", locale);
+        message = messageSource.getMessage("user.not.found", null, "message", LocaleContextHolder.getLocale());
         return new ResponseEntity<>(new ResponseDTO(LocalDateTime.now(),false,message,HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
 
     }
@@ -141,12 +141,12 @@ public class AdminController {
         String message;
 
         if (userService.deActivateAccount(userId)){
-            message = messageSource.getMessage("user.account.deactivated", null, "message", locale);
+            message = messageSource.getMessage("user.account.deactivated", null, "message", LocaleContextHolder.getLocale());
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true, message, HttpStatus.OK));
 
         }
 
-        message = messageSource.getMessage("user.not.found", null, "message", locale);
+        message = messageSource.getMessage("user.not.found", null, "message", LocaleContextHolder.getLocale());
         return new ResponseEntity<>(new ResponseDTO(LocalDateTime.now(),false,message,HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
 
     }

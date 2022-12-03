@@ -1,15 +1,28 @@
 package com.sahil.Ecom.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sahil.Ecom.audit.Auditable;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import javax.persistence.*;
 
 
 @Entity
+@SQLDelete(sql = "UPDATE ADDRESS SET IS_DELETED = 1 where ID = ?")
+@Where(clause = "IS_DELETED = 0")
 @Table(name = "ADDRESS")
-public class Address {
+public class Address extends Auditable {
 
     @Column(name="ID")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "CITY")
@@ -31,12 +44,19 @@ public class Address {
     @Column(name = "LABEL")
     private String label;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "USER_ID")
-//    User user;
-//
-//    @OneToOne
-//    private Seller seller;
+    @JsonIgnore
+    @Column(name="IS_DELETED",nullable = false)
+    private Boolean isDeleted;
+
+
+
+    @PrePersist
+    public void setFlags(){
+        if(isDeleted==null){
+            isDeleted=false;
+        }
+    }
+
 
     public Address() {
     }
@@ -97,20 +117,13 @@ public class Address {
         this.label = label;
     }
 
-//    public User getUser() {
-//        return user;
-//    }
-//
-//    public void setUser(User user) {
-//        this.user = user;
-//    }
+    public Boolean getDeleted() {
+        return isDeleted;
+    }
 
-//
-//    public Seller getSeller() {
-//        return seller;
-//    }
-//
-//    public void setSeller(Seller seller) {
-//        this.seller = seller;
-//    }
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
+
+
 }

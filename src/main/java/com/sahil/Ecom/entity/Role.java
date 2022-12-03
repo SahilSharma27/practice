@@ -10,6 +10,7 @@ public class Role {
 
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "AUTHORITY")

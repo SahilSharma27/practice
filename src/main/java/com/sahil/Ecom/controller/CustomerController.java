@@ -52,7 +52,6 @@ public class CustomerController {
     @Autowired
     private ProductService productService;
 
-    Locale locale = LocaleContextHolder.getLocale();
 
     Logger logger  = LoggerFactory.getLogger(CustomerController.class);
 
@@ -78,13 +77,13 @@ public class CustomerController {
             userService.activationHelper(customerDTO.getEmail());
 
             ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
-            responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));
+            responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", LocaleContextHolder.getLocale()));
             logger.info("Successfully registered.."+customerDTO.getEmail());
             return ResponseEntity.ok(responseDTO);
         }
 
         ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
-        responseDTO.setMessage(messageSource.getMessage("user.registered.unsuccessful", null, "message", locale));
+        responseDTO.setMessage(messageSource.getMessage("user.registered.unsuccessful", null, "message", LocaleContextHolder.getLocale()));
 
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 
@@ -102,7 +101,7 @@ public class CustomerController {
         }
 
         ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
-        responseDTO.setMessage(messageSource.getMessage("login.failed", null, "message", locale));
+        responseDTO.setMessage(messageSource.getMessage("login.failed", null, "message", LocaleContextHolder.getLocale()));
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
@@ -143,7 +142,7 @@ public class CustomerController {
 
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
-        responseDTO.setMessage(messageSource.getMessage("customer.address.added", null, "message", locale));
+        responseDTO.setMessage(messageSource.getMessage("customer.address.added", null, "message", LocaleContextHolder.getLocale()));
         responseDTO.setResponseStatusCode(HttpStatus.OK);
 
         return ResponseEntity.ok(responseDTO);
@@ -180,7 +179,7 @@ public class CustomerController {
 
         customerService.removeAddress(id);
 
-        String message = messageSource.getMessage("address.deleted", null, "message", locale);
+        String message = messageSource.getMessage("address.deleted", null, "message", LocaleContextHolder.getLocale());
 
         return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
 
@@ -232,7 +231,7 @@ public class CustomerController {
         }
 
         customerService.updateProfile(username, customerProfileUpdateDTO);
-        String message = messageSource.getMessage("user.profile.updated", null, "message", locale);
+        String message = messageSource.getMessage("user.profile.updated", null, "message", LocaleContextHolder.getLocale());
         return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
 
 

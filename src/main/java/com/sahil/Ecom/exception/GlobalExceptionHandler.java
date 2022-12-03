@@ -24,13 +24,11 @@ public class GlobalExceptionHandler {
     @Autowired
     private MessageSource messageSource;
 
-    Locale locale = LocaleContextHolder.getLocale();
-
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
     public ResponseEntity<ApiError> handleEmailAlreadyExistsException(EmailAlreadyRegisteredException ex) {
 
-        String message = messageSource.getMessage("already.registered",null,"message",locale);
-        String error =  messageSource.getMessage("email.already.registered",null,"message",locale);
+        String message = messageSource.getMessage("already.registered",null,"message",LocaleContextHolder.getLocale());
+        String error =  messageSource.getMessage("email.already.registered",null,"message",LocaleContextHolder.getLocale());
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
@@ -39,8 +37,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PassConfirmPassNotMatchingException.class)
     public ResponseEntity<ApiError> handlePassConfirmPassNotMatchingException(PassConfirmPassNotMatchingException exception){
 
-        String message = messageSource.getMessage("password.confirm.password",null,"message",locale);
-        String error =  messageSource.getMessage("password.confirm.password",null,"message",locale);
+        String message = messageSource.getMessage("password.confirm.password",null,"message",LocaleContextHolder.getLocale());
+        String error =  messageSource.getMessage("password.confirm.password",null,"message",LocaleContextHolder.getLocale());
 
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
@@ -50,8 +48,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CompanyNameAlreadyRegisteredException.class)
     public ResponseEntity<ApiError> handleCompanyNameAlreadyRegisteredException(CompanyNameAlreadyRegisteredException exception){
 
-        String message = messageSource.getMessage("already.registered",null,"message",locale);
-        String error =  messageSource.getMessage("company.name.already.registered",null,"message",locale);
+        String message = messageSource.getMessage("already.registered",null,"message",LocaleContextHolder.getLocale());
+        String error =  messageSource.getMessage("company.name.already.registered",null,"message",LocaleContextHolder.getLocale());
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
@@ -61,8 +59,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GstAlreadyRegisteredException.class)
     public ResponseEntity<ApiError> handleGstAlreadyRegisteredException(GstAlreadyRegisteredException exception){
 
-        String message = messageSource.getMessage("already.registered",null,"message",locale);
-        String error =  messageSource.getMessage("gst.already.registered",null,"message",locale);
+        String message = messageSource.getMessage("already.registered",null,"message",LocaleContextHolder.getLocale());
+        String error =  messageSource.getMessage("gst.already.registered",null,"message",LocaleContextHolder.getLocale());
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
@@ -72,8 +70,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<ApiError> handleTokenExpiredException(TokenExpiredException exception){
 
-        String message = messageSource.getMessage("time.limit.message",null,"message",locale);
-        String error =  messageSource.getMessage("token.expired",null,"message",locale);
+        String message = messageSource.getMessage("time.limit.message",null,"message",LocaleContextHolder.getLocale());
+        String error =  messageSource.getMessage("token.expired",null,"message",LocaleContextHolder.getLocale());
 
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,error);
@@ -84,7 +82,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleBadCredentialsException(BadCredentialsException exception){
 
 //        String message = messageSource.getMessage("time.limit.message",null,"message",locale);
-        String error =  messageSource.getMessage("user.login.bad.credentials",null,"message",locale);
+        String error =  messageSource.getMessage("user.login.bad.credentials",null,"message",LocaleContextHolder.getLocale());
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,exception.getMessage(),error);
         return new ResponseEntity<ApiError>(apiError,HttpStatus.BAD_REQUEST);
@@ -105,8 +103,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccountNotActiveException.class)
     public ResponseEntity<ApiError> handleAccountNotActiveException(AccountNotActiveException exception){
 
-        String message = messageSource.getMessage("account.not.active",null,"message",locale);
-        String error =messageSource.getMessage("account.not.active",null,"message",locale);
+        String message = messageSource.getMessage("account.not.active",null,"message",LocaleContextHolder.getLocale());
+        String error =messageSource.getMessage("account.not.active",null,"message",LocaleContextHolder.getLocale());
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.FORBIDDEN,message,error);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.FORBIDDEN);
     }
@@ -114,8 +112,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccountLockedException.class)
     public ResponseEntity<ApiError> handleAccountLockedException(AccountLockedException exception){
 
-        String message = messageSource.getMessage("account.locked",null,"message",locale);
-        String error =messageSource.getMessage("account.locked",null,"message",locale);
+        String message = messageSource.getMessage("account.locked",null,"message",LocaleContextHolder.getLocale());
+        String error =messageSource.getMessage("account.locked",null,"message",LocaleContextHolder.getLocale());
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.FORBIDDEN,message,error);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.FORBIDDEN);
 
@@ -124,8 +122,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ApiError> handleInvalidTokenException(InvalidTokenException exception){
 
-        String message = messageSource.getMessage("token.not.valid",null,"message",locale);
-        String error =messageSource.getMessage("token.not.valid",null,"message",locale);
+        String message = messageSource.getMessage("token.not.valid",null,"message",LocaleContextHolder.getLocale());
+        String error =messageSource.getMessage("token.not.valid",null,"message",LocaleContextHolder.getLocale());
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.FORBIDDEN,message,error);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.FORBIDDEN);
 
@@ -135,8 +133,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IdNotFoundException.class)
     public ResponseEntity<ApiError> handleIdNotFoundException(IdNotFoundException exception){
 
-        String message = messageSource.getMessage("id.not.found",null,"message",locale);
-        String error =messageSource.getMessage("id.not.found",null,"message",locale);
+        String message = messageSource.getMessage("id.not.found",null,"message",LocaleContextHolder.getLocale());
+        String error =messageSource.getMessage("id.not.found",null,"message",LocaleContextHolder.getLocale());
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.NOT_FOUND,message,error);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
@@ -146,8 +144,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<ApiError> handleMalformedJwtException(MalformedJwtException exception){
 
-        String message = messageSource.getMessage("token.not.valid",null,"message",locale);
-        String error =messageSource.getMessage("token.not.valid",null,"message",locale);
+        String message = messageSource.getMessage("token.not.valid",null,"message",LocaleContextHolder.getLocale());
+        String error =messageSource.getMessage("token.not.valid",null,"message",LocaleContextHolder.getLocale());
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.UNAUTHORIZED,message,error);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.UNAUTHORIZED);
@@ -157,8 +155,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FileNotFoundException.class)
     public ResponseEntity<ApiError> handleFileNotFoundException(FileNotFoundException exception){
 
-        String message = messageSource.getMessage("id.not.found",null,"message",locale);
-        String error =messageSource.getMessage("id.not.found",null,"message",locale);
+        String message = messageSource.getMessage("id.not.found",null,"message",LocaleContextHolder.getLocale());
+        String error =messageSource.getMessage("id.not.found",null,"message",LocaleContextHolder.getLocale());
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.NOT_FOUND,message,error);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
@@ -167,9 +165,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CategoryHierarchyException.class)
     public ResponseEntity<ApiError> handleCategoryHierarchyException(CategoryHierarchyException exception){
-
-//        String message = messageSource.getMessage("id.not.found",null,"message",locale);
-//        String error =messageSource.getMessage("id.not.found",null,"message",locale);
 
         ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.INTERNAL_SERVER_ERROR,exception.getMessage(),exception.getLocalizedMessage());
         return new ResponseEntity<ApiError>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);

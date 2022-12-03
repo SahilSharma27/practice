@@ -76,7 +76,6 @@ public class UserController {
     private FileService fileService;
 
 
-    Locale locale = LocaleContextHolder.getLocale();
 
     @GetMapping("/token/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
@@ -121,12 +120,12 @@ public class UserController {
         String email = userService.validateActivationToken(uuid);
 
         if(userService.activateByEmail(email)) {
-            String message = messageSource.getMessage("user.account.activated", null, "message", locale);
+            String message = messageSource.getMessage("user.account.activated", null, "message", LocaleContextHolder.getLocale());
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
         }
 
         ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
-        responseDTO.setMessage(messageSource.getMessage("user.not.activated", null, "message", locale));
+        responseDTO.setMessage(messageSource.getMessage("user.not.activated", null, "message",LocaleContextHolder.getLocale()));
 
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -143,13 +142,13 @@ public class UserController {
         String message;
 
         if(userService.forgotPasswordHelper(forgotPasswordDTO.getUserEmail())){
-            message = messageSource.getMessage("reset.pass.email.sent",null,"message",locale);
+            message = messageSource.getMessage("reset.pass.email.sent",null,"message",LocaleContextHolder.getLocale());
             responseDTO= new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK);
 
             return ResponseEntity.ok(responseDTO);
         }
 
-        message = messageSource.getMessage("email.not.sent",null,"message",locale);
+        message = messageSource.getMessage("email.not.sent",null,"message",LocaleContextHolder.getLocale());
         responseDTO = new ResponseDTO(LocalDateTime.now(),false,message,HttpStatus.INTERNAL_SERVER_ERROR);
 
         return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
@@ -170,7 +169,7 @@ public class UserController {
             if (email.equals(resetPassDTO.getUserEmail())) {
                 userService.resetPassword(email, resetPassDTO.getNewPassword());
             }
-            String message = messageSource.getMessage("user.password.updated",null,"message",locale);
+            String message = messageSource.getMessage("user.password.updated",null,"message",LocaleContextHolder.getLocale());
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,message, HttpStatus.OK));
         }
 
@@ -235,7 +234,7 @@ public class UserController {
             if(userService.logoutHelper(username)){
                 responseDTO.setSuccess(true);
                 responseDTO.setResponseStatusCode(HttpStatus.OK);
-                responseDTO.setMessage(messageSource.getMessage("user.logged.out",null,"message",locale));
+                responseDTO.setMessage(messageSource.getMessage("user.logged.out",null,"message",LocaleContextHolder.getLocale()));
                 return ResponseEntity.ok(responseDTO);
             }
 
@@ -255,7 +254,7 @@ public class UserController {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
         String message;
-        message = messageSource.getMessage("user.address.updated", null, "message", locale);
+        message = messageSource.getMessage("user.address.updated", null, "message", LocaleContextHolder.getLocale());
         responseDTO.setResponseStatusCode(HttpStatus.OK);
         responseDTO.setMessage(message);
         return ResponseEntity.ok(responseDTO);
