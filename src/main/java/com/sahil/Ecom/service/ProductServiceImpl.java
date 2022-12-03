@@ -1,6 +1,7 @@
 package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.product.AddProductDTO;
+import com.sahil.Ecom.dto.product.FetchProductCustomerDTO;
 import com.sahil.Ecom.dto.product.FetchProductSellerDTO;
 import com.sahil.Ecom.dto.product.variation.AddProductVariationDTO;
 import com.sahil.Ecom.dto.product.variation.FetchProductVariationSellerDTO;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 
@@ -234,7 +234,7 @@ public class ProductServiceImpl implements ProductService{
 
 
     @Override
-    public List<FetchProductSellerDTO> getAllProducts(String sellerEmail, int page, int size, String sort, String order) {
+    public List<FetchProductSellerDTO> getAllProductsForSeller(String sellerEmail, int page, int size, String sort, String order) {
 
         Pageable pageable = null;
 
@@ -280,7 +280,7 @@ public class ProductServiceImpl implements ProductService{
 //    }
 
     @Override
-    public List<FetchProductVariationSellerDTO> getAllProductVariations(String sellerEmail, Long productId,int page, int size, String sort, String order) {
+    public List<FetchProductVariationSellerDTO> getAllProductVariationsForSeller(String sellerEmail, Long productId, int page, int size, String sort, String order) {
 
 
         Pageable pageable = null;
@@ -310,19 +310,22 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public FetchProductSellerDTO getProduct(String sellerEmail, Long productId) {
+    public FetchProductSellerDTO getProductForSeller(String sellerEmail, Long productId) {
         Seller seller = sellerRepository.findByEmail(sellerEmail)
                 .orElseThrow(UserEmailNotFoundException::new);
 
-        Product product = productRepository.findById(seller.getId()).orElseThrow(IdNotFoundException::new);
+        return new FetchProductSellerDTO(seller.getProducts().stream().filter(product -> Objects.equals(product.getId(), productId))
+                .findFirst().orElseThrow(IdNotFoundException::new));
 
-        return
-                new FetchProductSellerDTO(product);
+//        Product product = productRepository.findById(productId).orElseThrow(IdNotFoundException::new);
+////        if(seller.getProducts().contains(product);
+//        return
+//                new FetchProductSellerDTO(product);
 
     }
 
     @Override
-    public FetchProductVariationSellerDTO getProductVariation(String sellerEmail, Long productVarId) {
+    public FetchProductVariationSellerDTO getProductVariationForSeller(String sellerEmail, Long productVarId) {
         Seller seller = sellerRepository.findByEmail(sellerEmail)
                 .orElseThrow(UserEmailNotFoundException::new);
 
@@ -330,9 +333,49 @@ public class ProductServiceImpl implements ProductService{
                 .findById(productVarId)
                 .orElseThrow(IdNotFoundException::new);
 
+        //variation should be of the authenticated customer
+        if(Objects.equals(productVariation.getProduct().getSeller().getId(), seller.getId())){
+            return
+                    new FetchProductVariationSellerDTO(productVariation);
+        }
 
-        return
-                new FetchProductVariationSellerDTO(productVariation);
+        throw new IdNotFoundException();
 
     }
+
+    @Override
+    public List<FetchProductCustomerDTO> getAllProductsForCustomer(Long categoryId,int page, int size, String sort, String order) {
+
+        Pageable pageable = null;
+
+        if(order.equalsIgnoreCase("ASC")){
+            pageable= PageRequest.of(page,size,Sort.by(sort).ascending());
+        }
+        else if(order.equalsIgnoreCase("DESC")) {
+            pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+        }
+
+        Category savedCategory = categoryRepository.findById(categoryId).orElseThrow(IdNotFoundException::new);
+
+        if(savedCategory.getChildren().size()>0){
+            throw new CategoryHierarchyException("NOT A LEAF CATEGORY");
+        }
+
+        Page <Product> products = productRepository.findAllByCategory(savedCategory,pageable);
+
+        return products.getContent().stream().map(FetchProductCustomerDTO::new).collect(Collectors.toList());
+
+    }
+
+
+    @Override
+    public FetchProductCustomerDTO getProductForCustomer(Long productId) {
+
+        Product savedProduct = productRepository.findById(productId).orElseThrow(IdNotFoundException::new);
+
+        return new FetchProductCustomerDTO(savedProduct);
+
+    }
+
+
 }

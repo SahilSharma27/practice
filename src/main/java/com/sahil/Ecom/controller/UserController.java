@@ -55,6 +55,10 @@ public class UserController {
     private String path;
 
 
+    @Value("${project.image.product}")
+    private String pathProduct;
+
+
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
@@ -285,7 +289,16 @@ public class UserController {
     @GetMapping(value = "/images/users/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
     public void serveProfileImage(@PathVariable(name = "imageName") String imageName, HttpServletResponse response) throws IOException {
 
-        InputStream resource = this.fileService.getProfileImage(path, imageName);
+        InputStream resource = this.fileService.getImage(path, imageName);
+        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        StreamUtils.copy(resource, response.getOutputStream());
+
+    }
+
+    @GetMapping(value = "/images/product/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public void serveProductImage(@PathVariable(name = "imageName") String imageName, HttpServletResponse response) throws IOException {
+
+        InputStream resource = this.fileService.getImage(pathProduct, imageName);
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());
 

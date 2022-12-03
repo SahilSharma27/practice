@@ -1,13 +1,7 @@
 package com.sahil.Ecom.dto.product.variation;
 
-import com.sahil.Ecom.entity.Product;
 import com.sahil.Ecom.entity.ProductVariation;
 import org.json.simple.JSONObject;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 public class FetchProductVariationSellerDTO {
     private Long id;
@@ -20,6 +14,11 @@ public class FetchProductVariationSellerDTO {
 
     private boolean isActive;
 
+    private String primaryImageURL;
+
+
+
+
 //    private Product product;
 
     public FetchProductVariationSellerDTO() {
@@ -31,7 +30,11 @@ public class FetchProductVariationSellerDTO {
         this.price = productVariation.getPrice();
         this.metadata = productVariation.getMetadata();
         this.isActive = productVariation.isActive();
-//        this.product = productVariation.getProduct();
+
+        String url = "localhost:8080/images/product/";
+
+        this.setPrimaryImageURL(url + this.id + ".jpeg");
+
     }
 
     public Long getId() {
@@ -74,7 +77,15 @@ public class FetchProductVariationSellerDTO {
         isActive = active;
     }
 
-//    public Product getProduct() {
+    public String getPrimaryImageURL() {
+        return primaryImageURL;
+    }
+
+    public void setPrimaryImageURL(String primaryImageURL) {
+        this.primaryImageURL = primaryImageURL;
+    }
+
+    //    public Product getProduct() {
 //        return product;
 //    }
 //

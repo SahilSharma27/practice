@@ -14,8 +14,7 @@ public class FetchCategoryDTO {
     private Set<Category> children;
     private List<CategoryMetaDataFieldValue> metaDataFieldValues;
 
-    public FetchCategoryDTO() {
-    }
+    public FetchCategoryDTO() {}
 
     public FetchCategoryDTO(Category category) {
 

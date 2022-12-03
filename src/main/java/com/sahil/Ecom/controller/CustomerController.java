@@ -11,9 +11,7 @@ import com.sahil.Ecom.exception.InvalidTokenException;
 import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
-import com.sahil.Ecom.service.CustomerService;
-import com.sahil.Ecom.service.LoginService;
-import com.sahil.Ecom.service.UserService;
+import com.sahil.Ecom.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -42,10 +40,14 @@ public class CustomerController {
     private MessageSource messageSource;
 
     @Autowired
-    JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
     @Autowired
-    TokenGeneratorHelper tokenGeneratorHelper;
+    private TokenGeneratorHelper tokenGeneratorHelper;
+
+
+    @Autowired
+    private ProductService productService;
 
     Locale locale = LocaleContextHolder.getLocale();
 
@@ -84,7 +86,6 @@ public class CustomerController {
 
     @PostMapping(value = "/login", params = "role=customer")
     public ResponseEntity<?> loginCustomer(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
-
 
         LoginResponseDTO loginResponseDTO = customerService.loginCustomer(loginRequestDTO);
         if (loginResponseDTO != null) {
@@ -234,5 +235,34 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getAllCategoriesForCustomer(categoryId));
     }
 
+
+    @GetMapping(value = "/products/{product_id}",params = "role=customer")
+    public ResponseEntity<?> getProductForCustomer(@PathVariable("product_id")Long productId) {
+        return ResponseEntity.ok(
+                productService
+                        .getProductForCustomer(productId));
+
+    }
+
+
+    @GetMapping(value = "/products",params = "role=customer")
+    public ResponseEntity<?> getAllProductsCustomer(
+            @RequestParam(value= "category_id")String categoryId,
+            @RequestParam(value = "page",defaultValue = "0") String page,
+            @RequestParam(value = "size",defaultValue = "10")String size,
+            @RequestParam(value = "sort",defaultValue = "id")String sort,
+            @RequestParam(value = "order",defaultValue = "asc")String order) {
+
+
+        return ResponseEntity.ok(
+                productService
+                        .getAllProductsForCustomer(
+                                Long.parseLong(categoryId)
+                                ,Integer.parseInt(page)
+                                ,Integer.parseInt(size)
+                                ,sort
+                                ,order));
+
+    }
 
 }

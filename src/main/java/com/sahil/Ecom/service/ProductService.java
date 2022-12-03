@@ -1,6 +1,7 @@
 package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.product.AddProductDTO;
+import com.sahil.Ecom.dto.product.FetchProductCustomerDTO;
 import com.sahil.Ecom.dto.product.FetchProductSellerDTO;
 import com.sahil.Ecom.dto.product.variation.AddProductVariationDTO;
 import com.sahil.Ecom.dto.product.variation.FetchProductVariationSellerDTO;
@@ -16,11 +17,16 @@ public interface ProductService {
 
     boolean saveProductImage(Long id, MultipartFile image);
 
-    List<FetchProductSellerDTO> getAllProducts(String sellerEmail,int page, int size,String sort,String order);
+    List<FetchProductSellerDTO> getAllProductsForSeller(String sellerEmail, int page, int size, String sort, String order);
 
-    List<FetchProductVariationSellerDTO> getAllProductVariations(String sellerEmail,Long productId,int page, int size, String sort, String order);
+    List<FetchProductVariationSellerDTO> getAllProductVariationsForSeller(String sellerEmail, Long productId, int page, int size, String sort, String order);
 
-    FetchProductSellerDTO getProduct(String username, Long productId);
+    FetchProductSellerDTO getProductForSeller(String username, Long productId);
 
-    FetchProductVariationSellerDTO getProductVariation(String sellerEmail, Long productId);
+    FetchProductVariationSellerDTO getProductVariationForSeller(String sellerEmail,Long productId);
+
+    List<FetchProductCustomerDTO> getAllProductsForCustomer(Long categoryId,int page, int size, String sort, String order);
+
+    FetchProductCustomerDTO getProductForCustomer(Long productId);
+
 }

@@ -52,7 +52,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public InputStream getProfileImage(String path, String filename) {
+    public InputStream getImage(String path, String filename) {
         //file separator is used in place of " / " as depending on the OS it may require " \ "
 
         String fullPath = path+File.separator+filename;
@@ -64,4 +64,6 @@ public class FileServiceImpl implements FileService {
         }
         return inputStream;
     }
+
+
 }

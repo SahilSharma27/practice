@@ -11,6 +11,7 @@ public interface FileService {
 
     String uploadImage(Long id,String path, MultipartFile file);
 
-    InputStream getProfileImage(String path,String filename);
+    InputStream getImage(String path,String filename);
+
 
 }

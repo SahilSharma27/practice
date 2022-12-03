@@ -281,7 +281,7 @@ public class SellerController {
 
         return ResponseEntity.ok(
                 productService
-                        .getAllProducts(username
+                        .getAllProductsForSeller(username
                                 ,Integer.parseInt(page)
                                 ,Integer.parseInt(size)
                                 ,sort
@@ -290,9 +290,8 @@ public class SellerController {
     }
 
 
-    @GetMapping(value = "/products/{product_id}")
+    @GetMapping(value = "/products/{product_id}",params = "role=seller")
     public ResponseEntity<?> getProduct(@PathVariable("product_id")Long productId, HttpServletRequest servletRequest) {
-
 
         String requestHeader = servletRequest.getHeader("Authorization");
 
@@ -314,12 +313,12 @@ public class SellerController {
 
         return ResponseEntity.ok(
                 productService
-                        .getProduct(username,productId));
+                        .getProductForSeller(username,productId));
 
     }
 
-    @GetMapping(value = "/products/variation/(product_variation_id")
-    public ResponseEntity<?> getProductVariation(@PathVariable("product_variation_id") Long id ,  HttpServletRequest servletRequest) {
+    @GetMapping(value = "/products/variation/{product_variation_id}",params = "role=seller")
+    public ResponseEntity<?> getProductVariation(@PathVariable("product_variation_id")Long id ,  HttpServletRequest servletRequest) {
 
         String requestHeader = servletRequest.getHeader("Authorization");
 
@@ -341,7 +340,7 @@ public class SellerController {
 
         return ResponseEntity.ok(
                 productService
-                        .getProductVariation(username,id));
+                        .getProductVariationForSeller(username,id));
 
 
 
@@ -376,7 +375,7 @@ public class SellerController {
         }
 
         return ResponseEntity.ok(productService
-                .getAllProductVariations(
+                .getAllProductVariationsForSeller(
                         username,productId
                         ,Integer.parseInt(page)
                         ,Integer.parseInt(size)

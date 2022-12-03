@@ -1,6 +1,7 @@
 package com.sahil.Ecom.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.TypeDef;
 import org.json.simple.JSONObject;
 
@@ -28,6 +29,7 @@ public class ProductVariation {
     @Column(name = "IS_ACTIVE")
     private boolean isActive;
 
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "PRODUCT_ID")
     private Product product;
