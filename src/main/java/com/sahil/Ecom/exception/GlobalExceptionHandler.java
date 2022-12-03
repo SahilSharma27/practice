@@ -22,7 +22,7 @@ import java.util.Locale;
 public class GlobalExceptionHandler {
 
     @Autowired
-    MessageSource messageSource;
+    private MessageSource messageSource;
 
     Locale locale = LocaleContextHolder.getLocale();
 

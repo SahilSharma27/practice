@@ -67,6 +67,7 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST,"/products").hasRole(EcomRoles.SELLER.label)
 //                .antMatchers(HttpMethod.GET"/products/**").hasAnyRole()Role(EcomRoles.SELLER.label)
                 .anyRequest().authenticated()
+//                .anyRequest().permitAll()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

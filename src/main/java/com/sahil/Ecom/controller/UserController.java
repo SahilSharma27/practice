@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -132,7 +133,7 @@ public class UserController {
 
 
     @PostMapping(value = "/users/forgotPassword")
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDTO forgotPasswordDTO) {
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordDTO forgotPasswordDTO) {
 
 //        1 check Email in db
 //        2 generate url
@@ -157,7 +158,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/users/resetPassword")
-    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody ResetPassDTO resetPassDTO) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestParam String token, @RequestBody ResetPassDTO resetPassDTO) {
 //        1 check token in db
 //        check time limit
 //        2 get email
@@ -179,7 +180,7 @@ public class UserController {
 
 
     @PatchMapping(value = "/users/update/password")
-    public ResponseEntity<?> updatePassword(@RequestBody ResetPassDTO resetPassDTO, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody ResetPassDTO resetPassDTO, HttpServletRequest request) throws Exception {
 
         logger.info("------------------------------------------------------------------");
         logger.info(resetPassDTO.getNewPassword() + "  " + resetPassDTO.getConfirmNewPassword());
@@ -211,7 +212,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/users/logout")
-    public ResponseEntity<?> logoutUser(@RequestHeader("Authorization")String requestHeader) {
+    public ResponseEntity<?> logoutUser(@Valid @RequestHeader("Authorization")String requestHeader) {
 
         String username = null;
         String accessToken = null;
@@ -282,7 +283,7 @@ public class UserController {
 
         responseDTO.setSuccess(false);
         return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-//
+
 
     }
 

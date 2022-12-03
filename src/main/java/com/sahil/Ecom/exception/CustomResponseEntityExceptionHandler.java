@@ -27,7 +27,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     @Autowired
     MessageSource messageSource;
 
-    Locale locale = LocaleContextHolder.getLocale();
+//    Locale locale = LocaleContextHolder.getLocale();
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -40,7 +40,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
             errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
         }
 
-        String message = messageSource.getMessage("arguments.not.valid",null,"message",locale);
+        String message = messageSource.getMessage("arguments.not.valid",null,"message",LocaleContextHolder.getLocale());
 
         ApiError apiError =
                 new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message, errors);

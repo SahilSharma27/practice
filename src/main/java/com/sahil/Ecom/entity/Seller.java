@@ -16,7 +16,7 @@ public class Seller extends User{
     @Column(name = "GST",unique = true)
     private String gst;
 
-    @Column(name = "COMPANY_CONTACT", unique = true)
+    @Column(name = "COMPANY_CONTACT")
     private String companyContact;
 
     @Column(name = "COMPANY_NAME",unique = true)

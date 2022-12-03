@@ -4,25 +4,36 @@ import com.sahil.Ecom.entity.Address;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 public class AddressDTO {
 
-    @NotBlank
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
     private String city;
 
-    @NotBlank
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
     private String state;
 
-    @NotBlank
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
     private String country;
 
-    @NotBlank
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
     private String addressLine;
 
-    @NotBlank
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
+    @Size(min = 6,max = 6,message = "{zipcode.validation}")
+    @Pattern(regexp = "^[0-9]+$",message ="{zipcode.validation}" )
     private String zipCode;
 
-    @NotBlank
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
     private String label;
 
     public AddressDTO() {

@@ -74,6 +74,8 @@ public class User {
     LockedAccount lockedAccount;
 
 
+    public User() {
+    }
 
     public Long getId() {
         return id;

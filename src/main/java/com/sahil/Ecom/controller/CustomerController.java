@@ -12,6 +12,8 @@ import com.sahil.Ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -24,17 +26,18 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
+
 @RestController
 public class CustomerController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    CustomerService customerService;
+    private CustomerService customerService;
 
     @Autowired
-    LoginService loginService;
+    private LoginService loginService;
 
     @Autowired
     private MessageSource messageSource;
@@ -51,8 +54,12 @@ public class CustomerController {
 
     Locale locale = LocaleContextHolder.getLocale();
 
+    Logger logger  = LoggerFactory.getLogger(CustomerController.class);
+
     @PostMapping(value = "/register", params = "role=customer")
     public ResponseEntity<?> registerCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
+
+        logger.info("Registering customer.."+customerDTO.getEmail());
 
         //check pass and cpass
         if (!customerDTO.getPassword().equals(customerDTO.getConfirmPassword()))
@@ -72,7 +79,7 @@ public class CustomerController {
 
             ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
             responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", locale));
-
+            logger.info("Successfully registered.."+customerDTO.getEmail());
             return ResponseEntity.ok(responseDTO);
         }
 
@@ -85,10 +92,12 @@ public class CustomerController {
 
 
     @PostMapping(value = "/login", params = "role=customer")
-    public ResponseEntity<?> loginCustomer(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
+    public ResponseEntity<?> loginCustomer(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
+        logger.info("Logging In..."+loginRequestDTO.getUsername());
 
         LoginResponseDTO loginResponseDTO = customerService.loginCustomer(loginRequestDTO);
         if (loginResponseDTO != null) {
+            logger.info("Logged In..."+loginRequestDTO.getUsername());
             return ResponseEntity.ok(loginResponseDTO);
         }
 
@@ -100,7 +109,7 @@ public class CustomerController {
 
 
     @PostMapping(value = "/users/address", params = "role=customer")
-    public ResponseEntity<?> addAddress(@RequestBody AddressDTO addressDTO, HttpServletRequest request) {
+    public ResponseEntity<?> addAddress(@Valid @RequestBody AddressDTO addressDTO, HttpServletRequest request) {
 
         //get token
         //get email form token

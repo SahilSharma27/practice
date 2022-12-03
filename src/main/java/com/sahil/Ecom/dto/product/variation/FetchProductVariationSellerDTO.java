@@ -4,6 +4,7 @@ import com.sahil.Ecom.entity.ProductVariation;
 import org.json.simple.JSONObject;
 
 public class FetchProductVariationSellerDTO {
+
     private Long id;
 
     private int quantityAvailable;
@@ -15,8 +16,6 @@ public class FetchProductVariationSellerDTO {
     private boolean isActive;
 
     private String primaryImageURL;
-
-
 
 
 //    private Product product;
