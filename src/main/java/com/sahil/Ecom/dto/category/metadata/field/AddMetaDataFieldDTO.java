@@ -1,12 +1,15 @@
 package com.sahil.Ecom.dto.category.metadata.field;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 public class AddMetaDataFieldDTO {
 
+    @NotNull(message = "{not.null}")
     private Long id;
 
-    @NotBlank
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
     private String fieldName;
 
     public AddMetaDataFieldDTO() {

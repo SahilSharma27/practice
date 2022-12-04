@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "BLACKLIST_TOKEN")
-public class BlacklistToken extends Auditable {
+public class BlacklistToken  {
 
     @Id
     @Column(name = "ID")

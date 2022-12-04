@@ -1,11 +1,17 @@
 package com.sahil.Ecom.dto.category;
 import com.sahil.Ecom.entity.Category;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class AddCategoryDTO {
 
-    //Reusing it to show response
-    //id is set when category added successfully
+
+    @NotNull(message = "{not.null}")
     private Long parentId;
+
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
     private String categoryName;
 
 

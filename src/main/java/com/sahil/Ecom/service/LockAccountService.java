@@ -19,12 +19,15 @@ import java.time.LocalDateTime;
 public class LockAccountService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     Logger logger = LoggerFactory.getLogger(LockAccountService.class);
 
     @Autowired
-    LockedAccountRepository lockedAccountRepository;
+    private LockedAccountRepository lockedAccountRepository;
+
+    @Autowired
+    private GeneralMailService generalMailService;
 
     @Transactional
     public void increaseCount(String userEmail){
@@ -59,6 +62,8 @@ public class LockAccountService {
 
         userRepository.save(user);
         logger.info("---------------------ACCOUNT LOCKED---------------");
+        //send ack
+        generalMailService.sendAccountLockedAck(user.getEmail());
 
     }
 

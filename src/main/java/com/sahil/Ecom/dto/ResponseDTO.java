@@ -1,5 +1,6 @@
 package com.sahil.Ecom.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
@@ -7,7 +8,9 @@ import java.util.Date;
 
 public class ResponseDTO {
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
+
     private boolean success;
     private String message;
     private HttpStatus responseStatusCode;

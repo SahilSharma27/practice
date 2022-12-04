@@ -27,8 +27,10 @@ public class EmailSenderService {
 
         javaMailSender.send(mailMessage);
 
-        logger.info("ACTIVATION MAIL SENT TO" + toEmail);
     }
+
+
+
 
 
 }

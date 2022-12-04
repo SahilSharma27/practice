@@ -80,8 +80,13 @@ public class UserServiceImpl implements UserService {
     @Value("${project.image}")
     private String path;
 
+    @Autowired
+    private GeneralMailService generalMailService;
+
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
+
+    //customer activation through Activation Link
     @Transactional
     @Override
     public boolean activateByEmail(String email) {
@@ -97,6 +102,8 @@ public class UserServiceImpl implements UserService {
 
     }
 
+
+    //admin activating accounts for seller and customer
     @Override
     @Transactional
     public boolean activateAccount(Long id) {
@@ -120,18 +127,19 @@ public class UserServiceImpl implements UserService {
                 return true;
             }
 
-//            foundUser.setActive(true);
-//            userRepository.save(foundUser);
+
             userRepository.updateIsActive(true,foundUser.getEmail());
             logger.info("---------------ACCOUNT ACTIVATED-------------------");
             //send acknowledgement email
-
+            generalMailService.sendAccountActivationAck(foundUser.getEmail());
             return true;
 
         }
         return false;
     }
 
+
+    // admin deactivating accounts for customer
     @Override
     @Transactional
     public boolean deActivateAccount(Long id) {
@@ -161,6 +169,7 @@ public class UserServiceImpl implements UserService {
             userRepository.updateIsActive(false,foundUser.getEmail());
             logger.info("---------------ACCOUNT DEACTIVATED-------------------");
             //send acknowledgement email
+            generalMailService.sendAccountDeActivationAck(foundUser.getEmail());
             return true;
         }
         return false;
@@ -177,7 +186,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void activationHelper(String email) {
+    public void activationHelper(String email)  {
 //        generate token
         String token = UUIDTokenService.getUUIDToken();
 
@@ -189,24 +198,33 @@ public class UserServiceImpl implements UserService {
         // setting time limits to the token
         LocalDateTime currentDateTime = LocalDateTime.now();
         activationToken.setTokenTimeLimit(currentDateTime.plusMinutes(1));
+//        activationToken.setTokenTimeLimit(currentDateTime.plusHours(3));
 
         activationTokenRepository.save(activationToken);
 
-        logger.info("UUID as String: " + token);
 
-        //generate url
-        String emailBody = "";
         try {
-            emailBody = "Activation Link: " + UUIDTokenService.generateActivationURL(token);
+            String url = UUIDTokenService.generateActivationURL(token);
+            generalMailService.sendAccountActivationUrlCustomer(email,url);
         } catch (MalformedURLException e) {
             logger.info("URL Error" + e);
             e.printStackTrace();
         }
 
-        logger.info("ACTIVATION URL" + emailBody);
+        //generate url
+//        String emailBody = "";
+//        try {
+//            emailBody = "Activation Link: " + UUIDTokenService.generateActivationURL(token);
+//        } catch (MalformedURLException e) {
+//            logger.info("URL Error" + e);
+//            e.printStackTrace();
+//        }
+//
+//        logger.info("ACTIVATION URL" + emailBody);
 
+//        generalMailService.sendAccountActivationUrl(email,url);
         //send email
-         emailSenderService.sendEmail(email,"Account activation",emailBody);
+         //emailSenderService.sendEmail(email,"Account activation",emailBody);
     }
 
     @Override
@@ -297,47 +315,50 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean forgotPasswordHelper(String email) {
 
-            User user = userRepository.findByEmail(email).orElseThrow(UserEmailNotFoundException::new);
+        User user = userRepository.findByEmail(email).orElseThrow(UserEmailNotFoundException::new);
 
-            if (!user.isActive()) {
-                throw new AccountNotActiveException();
-            }
+        if (!user.isActive()) {
+            throw new AccountNotActiveException();
+        }
 
 //        generate token
-            String token = UUIDTokenService.getUUIDToken();
+        String token = UUIDTokenService.getUUIDToken();
 
 //        save in db
-            ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
-            resetPasswordToken.setResetPassToken(token);
-            resetPasswordToken.setUserEmail(email);
-            resetPasswordToken.setTokenTimeLimit(LocalDateTime.now().plusMinutes(1));
-            resetPassTokenRepository.save(resetPasswordToken);
+        ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
+        resetPasswordToken.setResetPassToken(token);
+        resetPasswordToken.setUserEmail(email);
+        resetPasswordToken.setTokenTimeLimit(LocalDateTime.now().plusMinutes(1));
+        resetPassTokenRepository.save(resetPasswordToken);
 
 
-            //generate url
-            String emailBody = "";
-            try {
-                emailBody = "Reset Password Link: " + UUIDTokenService.generateResetPassURL(token);
-            } catch (MalformedURLException e) {
-                logger.info("URL Error" + e);
-                e.printStackTrace();
-            }
+        try {
+            String url = UUIDTokenService.generateResetPassURL(token);
+            generalMailService.sendForgotPasswordEmail(email, url);
 
-            //send email
-            // emailSenderService.sendEmail(email,"Reset Password",emailBody);
-            logger.info(emailBody);
+        } catch (MalformedURLException e) {
+            logger.info("URL Error" + e);
+            e.printStackTrace();
+        }
+        //generate url
+//            String emailBody = "";
+//            try {
+//                emailBody = "Reset Password Link: " + UUIDTokenService.generateResetPassURL(token);
+//            } catch (MalformedURLException e) {
+//                logger.info("URL Error" + e);
+//                e.printStackTrace();
+//            }
 
-            return true;
+//            generalMailService.sendForgotPasswordEmail(email,url);
+
+        //send email
+        // emailSenderService.sendEmail(email,"Reset Password",emailBody);
+//            logger.info(emailBody);
+
+        return true;
     }
 
-    @Override
-    public void sendSellerAcknowledgement(String email) {
 
-        String emailBody = "ACCOUNT CREATED WAITING FOR APPROVAL";
-        logger.info("--------------------"+emailBody+"------------------");
-      //  emailSenderService.sendEmail(email, "Registration Successfully", emailBody);
-
-    }
 
 
     @Override

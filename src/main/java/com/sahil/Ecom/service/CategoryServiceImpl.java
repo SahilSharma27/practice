@@ -14,6 +14,8 @@ import com.sahil.Ecom.repository.CategoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,16 +30,18 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService{
 
     @Autowired
-    CategoryMetaDataFieldRepository categoryMetaDataFieldRepository;
+    private CategoryMetaDataFieldRepository categoryMetaDataFieldRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
-
+    private CategoryRepository categoryRepository;
 
     @Autowired
-    CategoryMetaDataFieldValueRepository categoryMetaDataFieldValueRepository;
+    private CategoryMetaDataFieldValueRepository categoryMetaDataFieldValueRepository;
 
     Logger logger= LoggerFactory.getLogger(CategoryServiceImpl.class);
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Override
     public AddMetaDataFieldDTO addCategoryMetadataField(AddMetaDataFieldDTO metaDataFieldDTO) {
@@ -161,7 +165,8 @@ public class CategoryServiceImpl implements CategoryService{
 
         //exception if not a leaf node
         if(category.getChildren().size() >0){
-            throw new CategoryHierarchyException(" META DATA FIELD VALUES CAN ONLY BE ADDED IN LEAF CATEGORIES ");
+//            throw new CategoryHierarchyException(" META DATA FIELD VALUES CAN ONLY BE ADDED IN LEAF CATEGORIES ");
+            throw new CategoryHierarchyException(messageSource.getMessage("leaf.category.validation",null,"message", LocaleContextHolder.getLocale()));
         }
 
         //find field for given id
@@ -205,7 +210,8 @@ public class CategoryServiceImpl implements CategoryService{
 
         //if not a leaf then not possible
         if(category.getChildren().size() > 0){
-            throw new CategoryHierarchyException(" META DATA FIELD VALUES CAN ONLY BE ADDED IN LEAF CATEGORIES ");
+            throw new CategoryHierarchyException(messageSource.getMessage("leaf.category.validation",null,"message", LocaleContextHolder.getLocale()));
+//            throw new CategoryHierarchyException(" META DATA FIELD VALUES CAN ONLY BE ADDED IN LEAF CATEGORIES ");
         }
 
         //find meta field if exist
@@ -281,7 +287,10 @@ public class CategoryServiceImpl implements CategoryService{
                 if(categoryRepository.checkUniqueAtRoot(categoryName) == 0){
                     return;
                 }
-                throw new CategoryHierarchyException("Category: " + categoryName + " Already Exist at Root Level ");
+
+//                throw new CategoryHierarchyException("Category: " + categoryName + " Already Exist at Root Level ");
+                throw new CategoryHierarchyException(categoryName +
+                        messageSource.getMessage("root.category.validation",null,"message",LocaleContextHolder.getLocale()));
             }
 
             //check parents name till root
@@ -292,7 +301,9 @@ public class CategoryServiceImpl implements CategoryService{
                 if(child.getName().equals(categoryName)){
                     logger.info("--------------SAME SIBLING----------");
 //                    return false;
-                    throw new CategoryHierarchyException(" SAME SIBLING ALREADY EXIST ");
+//                    throw new CategoryHierarchyException(" SAME SIBLING ALREADY EXIST ");
+                    throw new CategoryHierarchyException(
+                            messageSource.getMessage("same.sibling.validation",null,"message",LocaleContextHolder.getLocale()));
                 }
             }
 
@@ -300,7 +311,10 @@ public class CategoryServiceImpl implements CategoryService{
 
                 if(category.getParent().getName().equals(categoryName)){
                     logger.info("--------------SAME NAME IN ROOT to NODE Path----------");
-                    throw  new CategoryHierarchyException(" SAME NAME IN ROOT TO NODE PATH ");
+//                    throw  new CategoryHierarchyException(" SAME NAME IN ROOT TO NODE PATH ");
+                    throw new CategoryHierarchyException(
+                            messageSource.getMessage("node.to.root.validation",null,"message",LocaleContextHolder.getLocale()));
+
                 }
                 category = category.getParent();
 

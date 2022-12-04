@@ -11,6 +11,7 @@ import com.sahil.Ecom.repository.BlacklistTokenRepository;
 import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.FileService;
+import com.sahil.Ecom.service.GeneralMailService;
 import com.sahil.Ecom.service.LoginService;
 import com.sahil.Ecom.service.UserService;
 import org.slf4j.Logger;
@@ -51,6 +52,9 @@ public class UserController {
 
     @Autowired
     private MessageSource messageSource;
+
+    @Autowired
+    private GeneralMailService generalMailService;
 
     @Value("${project.image}")
     private String path;
@@ -100,6 +104,13 @@ public class UserController {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             newAccessToken = this.jwtUtil.generateToken(userDetails);
 
+            //remove old token
+            loginService.removeAlreadyGeneratedTokens(username);
+
+            //save new tokens
+            loginService.saveJwtResponse(new LoginResponseDTO(newAccessToken,jwtRefreshToken),username);
+
+
             logger.info("------------------REFRESH________________");
             logger.info(newAccessToken);
 
@@ -121,6 +132,9 @@ public class UserController {
 
         if(userService.activateByEmail(email)) {
             String message = messageSource.getMessage("user.account.activated", null, "message", LocaleContextHolder.getLocale());
+            //send email
+            generalMailService.sendAccountActivationAck(email);
+            //
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
         }
 
@@ -169,6 +183,10 @@ public class UserController {
             if (email.equals(resetPassDTO.getUserEmail())) {
                 userService.resetPassword(email, resetPassDTO.getNewPassword());
             }
+
+            //send mail
+            generalMailService.sendPasswordUpdateAck(resetPassDTO.getUserEmail());
+
             String message = messageSource.getMessage("user.password.updated",null,"message",LocaleContextHolder.getLocale());
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,message, HttpStatus.OK));
         }
@@ -202,8 +220,11 @@ public class UserController {
                 }
 
             }
-            if (userService.resetPassword(username, resetPassDTO.getNewPassword()))
-                return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,"User Password Updated", HttpStatus.OK));
+            if (userService.resetPassword(username, resetPassDTO.getNewPassword())) {
+
+                generalMailService.sendPasswordUpdateAck(username);
+                return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, "User Password Updated", HttpStatus.OK));
+            }
         }
 
         throw new PassConfirmPassNotMatchingException();

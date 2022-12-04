@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ACTIVATION_TOKEN")
-public class ActivationToken extends Auditable {
+public class ActivationToken{
 
     @Column(name = "TOKEN")
     @Id

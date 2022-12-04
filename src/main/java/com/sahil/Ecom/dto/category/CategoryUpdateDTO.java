@@ -1,8 +1,15 @@
 package com.sahil.Ecom.dto.category;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class CategoryUpdateDTO {
 
+    @NotNull(message = "{not.null}")
     private Long categoryId;
+
+    @NotNull(message = "{not.null}")
+    @NotBlank(message = "{not.blank}")
     private String categoryName;
 
     public CategoryUpdateDTO() {

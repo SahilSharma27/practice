@@ -19,13 +19,10 @@ public interface UserService {
 
     Iterable<User> getAllUsers();
 
-//    List<FetchCustomerDTO> getAllCustomers();
-
     List<FetchCustomerDTO> getAllCustomersPaged(int page, int size,String sort);
 
     List<FetchSellerDTO> getAllSellersPaged(int page, int size,String sort);
 
-//    List<FetchSellerDTO> getAllSellers();
 
     boolean checkUserEmail(String email);
 
@@ -38,8 +35,6 @@ public interface UserService {
     String validateResetPasswordToken(String uuid);
 
     boolean resetPassword(String email,String newPassword);
-
-    void sendSellerAcknowledgement(String email);
 
     boolean logoutHelper(String username);
 

@@ -1,7 +1,12 @@
 package com.sahil.Ecom.dto.customer;
 
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
 public class CustomerProfileUpdateDTO {
+
 
     private String firstName;
 
@@ -9,6 +14,8 @@ public class CustomerProfileUpdateDTO {
 
     private String lastName;
 
+    @Size(max = 10,min = 10,message = "{contact.validation}")
+    @Pattern(regexp = "^[0-9]+$",message ="{contact.validation}" )
     private String contact;
 
     public CustomerProfileUpdateDTO() {

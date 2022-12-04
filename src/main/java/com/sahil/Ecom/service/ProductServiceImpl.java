@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +53,9 @@ public class ProductServiceImpl implements ProductService{
 
     Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
+    @Autowired
+    private MessageSource messageSource;
+
     @Value("${project.image.product}")
     private String path;
 
@@ -77,7 +82,10 @@ public class ProductServiceImpl implements ProductService{
 
         //check for leaf category
         if(category.getChildren().size()>0){
-            throw new CategoryHierarchyException("PRODUCT CAN ONLY BE ADDED IN LEAF CATEGORIES");
+//            throw new CategoryHierarchyException("PRODUCT CAN ONLY BE ADDED IN LEAF CATEGORIES");
+            throw new CategoryHierarchyException(messageSource
+                    .getMessage("product.leaf.category.validation",null,"message", LocaleContextHolder.getLocale()));
+
         }
 
         product.setCategory(category);
@@ -105,7 +113,8 @@ public class ProductServiceImpl implements ProductService{
             //check seller already having same product
             seller.getProducts().forEach(product ->{
                 if (product.getName().equalsIgnoreCase(addProductDTO.getName())) {
-                    throw new CategoryHierarchyException("PRODUCT ALREADY EXIST FOR " + seller.getEmail());
+//                    throw new CategoryHierarchyException("PRODUCT ALREADY EXIST FOR " + seller.getEmail());
+                    throw new CategoryHierarchyException(messageSource.getMessage("product.already.exist",null,"message",LocaleContextHolder.getLocale()) +" "+ seller.getEmail());
                 }
             });
         }
@@ -150,7 +159,9 @@ public class ProductServiceImpl implements ProductService{
             logger.info(newProductVariation.getMetadata().toString());
             logger.info(productVariation.getMetadata().toString());
             if(newProductVariation.getMetadata().toString().equalsIgnoreCase(productVariation.getMetadata().toString())){
-                throw new CategoryHierarchyException("PRODUCT VARIATION ALREADY EXIST");
+//                throw new CategoryHierarchyException("PRODUCT VARIATION ALREADY EXIST");
+                throw new CategoryHierarchyException(messageSource
+                        .getMessage("product.variation.already.exist",null,"message",LocaleContextHolder.getLocale()));
             }
         } );
     }
@@ -168,7 +179,9 @@ public class ProductServiceImpl implements ProductService{
 
         if(metadata.toString().equals("{}")){
             logger.info("CAUGHT EMPTY METADATA");
-            throw new CategoryHierarchyException("NO MATCHING FIELD FOUND FOR METADATA");
+//            throw new CategoryHierarchyException("NO MATCHING FIELD FOUND FOR METADATA");
+            throw new CategoryHierarchyException(messageSource
+                    .getMessage("no.matching.field ",null,"message",LocaleContextHolder.getLocale()));
         }
 
         Map<String, Set<String>> savedMetaData = new HashMap<>();
@@ -190,7 +203,9 @@ public class ProductServiceImpl implements ProductService{
                 logger.info("NOT MATCHING");
 //                logger.info(""+savedMetaData.containsKey(keyStr));
 //                logger.info(""+savedMetaData.get(keyStr).contains(keyValue));
-                throw new CategoryHierarchyException("NO MATCHING FIELD FOUND FOR METADATA");
+//                throw new CategoryHierarchyException("NO MATCHING FIELD FOUND FOR METADATA");
+                throw new CategoryHierarchyException(messageSource
+                        .getMessage("no.matching.field",null,"message",LocaleContextHolder.getLocale()));
             }
 
         }
@@ -358,7 +373,8 @@ public class ProductServiceImpl implements ProductService{
         Category savedCategory = categoryRepository.findById(categoryId).orElseThrow(IdNotFoundException::new);
 
         if(savedCategory.getChildren().size()>0){
-            throw new CategoryHierarchyException("NOT A LEAF CATEGORY");
+//            throw new CategoryHierarchyException("NOT A LEAF CATEGORY");
+            throw new CategoryHierarchyException(messageSource.getMessage("leaf.category.validation",null,"message", LocaleContextHolder.getLocale()));
         }
 
         Page <Product> products = productRepository.findAllByCategory(savedCategory,pageable);

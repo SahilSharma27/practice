@@ -1,13 +1,17 @@
 package com.sahil.Ecom.dto.category.metadata.field.value;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 public class AddCategoryMetaDataFieldValueDTO {
 
+    @NotNull(message = "{not.null}")
     private Long categoryId;
 
+    @NotNull(message = "{not.null}")
     private Long metaDataFieldId;
 
+    @NotNull(message = "{not.null}")
     private Set<String> metaDataFieldValues;
 
     public AddCategoryMetaDataFieldValueDTO() {

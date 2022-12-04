@@ -166,7 +166,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CategoryHierarchyException.class)
     public ResponseEntity<ApiError> handleCategoryHierarchyException(CategoryHierarchyException exception){
 
-        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.INTERNAL_SERVER_ERROR,exception.getMessage(),exception.getLocalizedMessage());
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.INTERNAL_SERVER_ERROR,exception.getMessage(),exception.getMessage());
         return new ResponseEntity<ApiError>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }

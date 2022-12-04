@@ -9,11 +9,8 @@ import com.sahil.Ecom.dto.seller.AddSellerDTO;
 import com.sahil.Ecom.dto.seller.SellerProfileUpdateDTO;
 import com.sahil.Ecom.exception.*;
 import com.sahil.Ecom.security.JwtUtil;
-import com.sahil.Ecom.service.LoginService;
-import com.sahil.Ecom.service.ProductService;
-import com.sahil.Ecom.service.SellerService;
+import com.sahil.Ecom.service.*;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
-import com.sahil.Ecom.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +54,9 @@ public class SellerController {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private GeneralMailService generalMailService;
+
     Logger logger = LoggerFactory.getLogger(SellerController.class);
 
 
@@ -88,7 +88,10 @@ public class SellerController {
         if (sellerService.register(addSellerDTO)) {
 
             //send acknowledgment
-             userService.sendSellerAcknowledgement(addSellerDTO.getEmail());
+
+//             userService.sendSellerAcknowledgement(addSellerDTO.getEmail());
+
+            generalMailService.sendAccountRegistrationAckForSeller(addSellerDTO.getEmail());
 
             ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
             responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", LocaleContextHolder.getLocale()));

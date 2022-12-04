@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableTransactionManagement
-//@EnableJdbcAuditing
 public class AuditConfig {
 
     @Bean

@@ -25,23 +25,6 @@ public class AuditorAwareImpl implements AuditorAware<String> {
         }
         return Optional.ofNullable(authentication.getName());
 
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            return Optional.empty();
-//        }
-
-//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        String username = "";
-//        if (principal instanceof UserDetails) {
-//            username = ((UserDetails) principal).getUsername();
-//        } else {
-//            username = principal.toString();
-//        }
-////            return ((MyUserDetails) authentication.getPrincipal()).getUser().get;
-//
-//        logger.info("-------------USERNAME_____________" + username)    ;
-//        return Optional.of(username);
     }
 
 

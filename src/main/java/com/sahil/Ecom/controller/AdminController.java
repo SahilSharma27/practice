@@ -152,7 +152,7 @@ public class AdminController {
     }
 
     @PostMapping(value = "/category/metadata")
-    public ResponseEntity<?> addMetaDataField(@RequestBody AddMetaDataFieldDTO addMetaDataFieldDTO){
+    public ResponseEntity<?> addMetaDataField(@Valid @RequestBody AddMetaDataFieldDTO addMetaDataFieldDTO){
 
         AddMetaDataFieldDTO savedMetaDatField = categoryService.addCategoryMetadataField(addMetaDataFieldDTO);
         return ResponseEntity.ok(savedMetaDatField);
@@ -178,14 +178,14 @@ public class AdminController {
 
 
     @PostMapping(value = "/category")
-    public ResponseEntity<?> addNewCategory(@RequestBody AddCategoryDTO addCategoryDTO){
+    public ResponseEntity<?> addNewCategory(@Valid @RequestBody AddCategoryDTO addCategoryDTO){
 
         return ResponseEntity.ok(categoryService.addCategory(addCategoryDTO));
 
     }
 
     @PutMapping(value = "/category-update")
-    public ResponseEntity<?> updateCategory(@RequestBody CategoryUpdateDTO categoryUpdateDTO){
+    public ResponseEntity<?> updateCategory(@Valid @RequestBody CategoryUpdateDTO categoryUpdateDTO){
 
         ResponseDTO responseDTO =new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
@@ -193,14 +193,16 @@ public class AdminController {
         if(categoryService.updateCategory(categoryUpdateDTO)){
 
             responseDTO.setSuccess(true);
-            responseDTO.setMessage("UPDATED SUCCESSFULLY");
+            responseDTO.setMessage(messageSource
+                    .getMessage("category.update.successful",null,"message",LocaleContextHolder.getLocale()));
             responseDTO.setResponseStatusCode(HttpStatus.OK);
 
             return ResponseEntity.ok(responseDTO);
         }
 
         responseDTO.setSuccess(false);
-        responseDTO.setMessage("SOMETHING WENT WRONG");
+        responseDTO.setMessage(messageSource
+                .getMessage("category.update.not.successful",null,"message",LocaleContextHolder.getLocale()));
         responseDTO.setResponseStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
 
         return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
@@ -224,15 +226,17 @@ public class AdminController {
 
         categoryService.addCategoryMetadataFieldWithValue(addCategoryMetaDataFieldValueDTO);
 
-        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,"added",HttpStatus.OK));
+        String message = messageSource.getMessage("category.metadata.field.value.added",null,"message",LocaleContextHolder.getLocale());
+        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
     }
 
     @PutMapping(value = "/category/metadata/value-update")
-    public ResponseEntity<?>updateCategoryMetaData(@RequestBody AddCategoryMetaDataFieldValueDTO updateCategoryMetaDataFieldValueDTO){
+    public ResponseEntity<?>updateCategoryMetaData(@Valid @RequestBody AddCategoryMetaDataFieldValueDTO updateCategoryMetaDataFieldValueDTO){
 
         categoryService.updateCategoryMetadataFieldWithValue(updateCategoryMetaDataFieldValueDTO);
+        String message = messageSource.getMessage("category.metadata.field.value.updated",null,"message",LocaleContextHolder.getLocale());
 
-        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,"updated",HttpStatus.OK));
+        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK));
 
     }
 
