@@ -26,16 +26,16 @@ import java.util.stream.Collectors;
 public class MyCustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     Logger logger = LoggerFactory.getLogger(MyCustomUserDetailsService.class);
 
     @Autowired
-    MessageSource messageSource;
+    private MessageSource messageSource;
 
 
     @Autowired
-    LockAccountService lockAccountService;
+    private LockAccountService lockAccountService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

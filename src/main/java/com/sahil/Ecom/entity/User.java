@@ -1,5 +1,7 @@
 package com.sahil.Ecom.entity;
 
+import com.sahil.Ecom.audit.Auditable;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -10,7 +12,7 @@ import java.util.Set;
 @Entity
 @Table(name = "USER")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public class User extends Auditable {
     @Id
     @Column(name = "ID")
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)

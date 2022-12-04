@@ -8,6 +8,7 @@ import com.sahil.Ecom.dto.customer.CustomerProfileDTO;
 import com.sahil.Ecom.dto.customer.CustomerProfileUpdateDTO;
 import com.sahil.Ecom.entity.*;
 import com.sahil.Ecom.exception.IdNotFoundException;
+import com.sahil.Ecom.exception.UniqueFieldException;
 import com.sahil.Ecom.exception.UserEmailNotFoundException;
 import com.sahil.Ecom.repository.AddressRepository;
 import com.sahil.Ecom.repository.CustomerRepository;
@@ -15,6 +16,8 @@ import com.sahil.Ecom.repository.RoleRepository;
 import com.sahil.Ecom.repository.UserRepository;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +53,9 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Override
     public boolean register(CustomerDTO customerDTO) {
@@ -102,6 +108,16 @@ public class CustomerServiceImpl implements CustomerService{
 
             User user = userRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
 
+            //check address already exist
+            user.getAddresses().forEach(address -> {
+                if(address.getLabel().equalsIgnoreCase(addressDTO.getLabel())){
+                    throw new UniqueFieldException(
+                            messageSource.getMessage("same.address.exist",null,"message", LocaleContextHolder.getLocale()
+                            )
+                    );
+                }
+            });
+
             Address newAddress = addressDTO.mapAddressDTOtoAddress();
             user.getAddresses().add(newAddress);
 
@@ -119,14 +135,27 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public void removeAddress(Long id) {
+    public void removeAddress(Long id,String userEmail) {
 
-        if(addressRepository.existsById(id)){
-            addressRepository.deleteById(id);
-            return;
-        }
+        User user =  userRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
 
-        throw new IdNotFoundException();
+//        user.getAddresses().forEach(address ->{
+//            if(address.getId().equals(id)){
+//                addressRepository.deleteById(id);
+//                return;
+//            }
+//        });
+
+        user.getAddresses()
+                .stream()
+                .filter(address -> address.getId().equals(id))
+                .findFirst().orElseThrow(IdNotFoundException::new);
+
+//        if(addressRepository.existsById(id)){
+//            addressRepository.deleteById(id);
+//            return;
+//        }
+//        throw new IdNotFoundException();
     }
 
     @Override

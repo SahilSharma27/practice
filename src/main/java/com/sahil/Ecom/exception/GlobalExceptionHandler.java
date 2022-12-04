@@ -171,6 +171,15 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(UniqueFieldException.class)
+    public ResponseEntity<ApiError> handleUniqueFieldException(UniqueFieldException exception){
+
+        String message = messageSource.getMessage("unique.constraint.failed",null,"message",LocaleContextHolder.getLocale());
+
+        ApiError apiError = new ApiError(LocalDateTime.now(),HttpStatus.BAD_REQUEST,message,exception.getMessage());
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.BAD_REQUEST);
+
+    }
 
 
 

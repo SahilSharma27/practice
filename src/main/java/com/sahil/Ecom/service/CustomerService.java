@@ -18,7 +18,7 @@ public interface CustomerService {
 
     List<AddressDTO> getAllCustomerAddresses(String userEmail);
 
-    void removeAddress(Long id);
+    void removeAddress(Long id,String userEmail);
 
     CustomerProfileDTO fetchCustomerProfileDetails(String userEmail);
 

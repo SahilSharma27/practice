@@ -14,28 +14,31 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class Auditable {
 
-    @JsonIgnore
-    @Column(name = "CREATED_DATE")
+//    @JsonIgnore
+//    @Column(name = "CREATED_DATE")
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
-    @JsonIgnore
-    @Column(name ="LAST_MODIFIED_DATE")
+//    @JsonIgnore
+//    @Column(name ="LAST_MODIFIED_DATE")
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastModifiedDate;
 
-    @JsonIgnore
-    @Column(name = "CREATED_BY")
+//    @JsonIgnore
+//    @Column(name = "CREATED_BY")
     @CreatedBy
     private String createdBy;
 
 
-    @JsonIgnore
-    @Column(name = "MODIFIED_BY")
+//    @JsonIgnore
+//    @Column(name = "MODIFIED_BY")
     @LastModifiedBy
     private String modifiedBy;
+
+    public Auditable() {
+    }
 
     public Date getCreatedDate() {
         return createdDate;

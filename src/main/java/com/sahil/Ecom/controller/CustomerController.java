@@ -173,11 +173,26 @@ public class CustomerController {
     }
 
     @DeleteMapping(value = "/users/address/{addressId}", params = "role=customer")
-    public ResponseEntity<?> deleteAddress(@PathVariable(name = "addressId") Long id) {
+    public ResponseEntity<?> deleteAddress(@PathVariable(name = "addressId") Long id,HttpServletRequest request) {
 
+        String requestHeader = request.getHeader("Authorization");
+
+        String userEmail = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+            String accessToken = requestHeader.substring("Bearer ".length());
+
+            try {
+                userEmail = this.jwtUtil.extractUsername(accessToken);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new InvalidTokenException();
+            }
+        }
         //find address by id and delete
 
-        customerService.removeAddress(id);
+        customerService.removeAddress(id,userEmail);
 
         String message = messageSource.getMessage("address.deleted", null, "message", LocaleContextHolder.getLocale());
 
