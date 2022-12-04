@@ -1,12 +1,14 @@
 package com.sahil.Ecom.entity;
 
 
+import com.sahil.Ecom.audit.Auditable;
+
 import javax.persistence.*;
 
 
 @Entity
 @Table(name = "BLACKLIST_TOKEN")
-public class BlacklistToken {
+public class BlacklistToken extends Auditable {
 
     @Id
     @Column(name = "ID")

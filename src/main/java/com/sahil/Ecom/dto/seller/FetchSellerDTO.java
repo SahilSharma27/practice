@@ -1,6 +1,6 @@
 package com.sahil.Ecom.dto.seller;
 
-import com.sahil.Ecom.dto.AddressDTO;
+import com.sahil.Ecom.dto.FetchAddressDTO;
 import com.sahil.Ecom.entity.Seller;
 
 //For admin
@@ -11,7 +11,7 @@ public class FetchSellerDTO {
     private String email;
     private boolean isActive;
     private String companyName;
-    private AddressDTO companyAddress;
+    private FetchAddressDTO companyAddress;
     private String companyContact;
 
     private String gst;
@@ -29,7 +29,7 @@ public class FetchSellerDTO {
         this.setCompanyContact(seller.getCompanyContact());
         this.setGst(seller.getCompanyContact());
         this.setActive(seller.isActive());
-        this.setCompanyAddress(seller.getAddresses().stream().map(AddressDTO::new).toList().get(0));
+        this.setCompanyAddress(seller.getAddresses().stream().map(FetchAddressDTO::new).toList().get(0));
 
     }
 
@@ -74,11 +74,11 @@ public class FetchSellerDTO {
         this.companyName = companyName;
     }
 
-    public AddressDTO getCompanyAddress() {
+    public FetchAddressDTO getCompanyAddress() {
         return companyAddress;
     }
 
-    public void setCompanyAddress(AddressDTO companyAddress) {
+    public void setCompanyAddress(FetchAddressDTO companyAddress) {
         this.companyAddress = companyAddress;
     }
 

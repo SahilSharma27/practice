@@ -2,7 +2,7 @@ package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.dto.category.FetchCategoryDTO;
-import com.sahil.Ecom.dto.seller.SellerDTO;
+import com.sahil.Ecom.dto.seller.AddSellerDTO;
 import com.sahil.Ecom.dto.seller.SellerProfileDTO;
 import com.sahil.Ecom.dto.seller.SellerProfileUpdateDTO;
 import com.sahil.Ecom.entity.Address;
@@ -70,23 +70,23 @@ public class SellerServiceImpl implements SellerService{
 
 
     @Override
-    public boolean register(SellerDTO sellerDTO) {
+    public boolean register(AddSellerDTO addSellerDTO) {
 
         Seller newSeller = new Seller();
 
-        newSeller.setEmail(sellerDTO.getEmail());
-        newSeller.setFirstName(sellerDTO.getFirstName());
-        newSeller.setMiddleName(sellerDTO.getMiddleName());
-        newSeller.setLastName(sellerDTO.getLastName());
-        newSeller.setCompanyName(sellerDTO.getCompanyName());
-        newSeller.setPassword(passwordEncoder.encode(sellerDTO.getPassword()));
-        newSeller.setCompanyContact(sellerDTO.getCompanyContact());
-        newSeller.setGst(sellerDTO.getGst());
+        newSeller.setEmail(addSellerDTO.getEmail());
+        newSeller.setFirstName(addSellerDTO.getFirstName());
+        newSeller.setMiddleName(addSellerDTO.getMiddleName());
+        newSeller.setLastName(addSellerDTO.getLastName());
+        newSeller.setCompanyName(addSellerDTO.getCompanyName());
+        newSeller.setPassword(passwordEncoder.encode(addSellerDTO.getPassword()));
+        newSeller.setCompanyContact(addSellerDTO.getCompanyContact());
+        newSeller.setGst(addSellerDTO.getGst());
 
 
         //Only one can be added
         List<Address> sellerAddressList = new ArrayList<>();
-        Address addressToBeSaved = sellerDTO.getAddress().mapAddressDTOtoAddress();
+        Address addressToBeSaved = addSellerDTO.getAddress().mapAddressDTOtoAddress();
         addressToBeSaved.setCreatedBy(newSeller.getEmail());
 //        addressToBeSaved.set
         sellerAddressList.add(addressToBeSaved);
@@ -142,11 +142,8 @@ public class SellerServiceImpl implements SellerService{
             sellerProfile.setCompanyName(seller.getCompanyName());
             sellerProfile.setCompanyContact(seller.getCompanyContact());
             sellerProfile.setGst(seller.getGst());
-            sellerProfile.setCompanyAddress(new AddressDTO(seller.getAddresses().get(0)));
+            sellerProfile.setCompanyAddress(new FetchAddressDTO(seller.getAddresses().get(0)));
 
-//            String url = "localhost:8080/images/users/"+seller.getId()+ ".jpg";
-//
-//            sellerProfile.setImageUrl(url + seller.getId()+ ".jpg");
             sellerProfile.setImageUrl(getImageUrlIfExist(seller.getId()));
 
             return sellerProfile;

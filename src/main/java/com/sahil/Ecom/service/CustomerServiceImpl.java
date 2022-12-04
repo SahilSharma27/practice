@@ -3,7 +3,7 @@ package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.dto.category.FetchCategoryDTO;
-import com.sahil.Ecom.dto.customer.CustomerDTO;
+import com.sahil.Ecom.dto.customer.AddCustomerDTO;
 import com.sahil.Ecom.dto.customer.CustomerProfileDTO;
 import com.sahil.Ecom.dto.customer.CustomerProfileUpdateDTO;
 import com.sahil.Ecom.entity.*;
@@ -21,6 +21,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,17 +59,17 @@ public class CustomerServiceImpl implements CustomerService{
     private MessageSource messageSource;
 
     @Override
-    public boolean register(CustomerDTO customerDTO) {
+    public boolean register(AddCustomerDTO addCustomerDTO) {
 
         Customer newCustomer = new Customer();
 
-        newCustomer.setEmail(customerDTO.getEmail());
-        newCustomer.setFirstName(customerDTO.getFirstName());
-        newCustomer.setMiddleName(customerDTO.getMiddleName());
-        newCustomer.setLastName(customerDTO.getLastName());
+        newCustomer.setEmail(addCustomerDTO.getEmail());
+        newCustomer.setFirstName(addCustomerDTO.getFirstName());
+        newCustomer.setMiddleName(addCustomerDTO.getMiddleName());
+        newCustomer.setLastName(addCustomerDTO.getLastName());
 
-        newCustomer.setPassword(passwordEncoder.encode(customerDTO.getPassword()));
-        newCustomer.setContact(customerDTO.getContact());
+        newCustomer.setPassword(passwordEncoder.encode(addCustomerDTO.getPassword()));
+        newCustomer.setContact(addCustomerDTO.getContact());
 
         newCustomer.setRoles(Collections.singletonList(roleRepository.findByAuthority("ROLE_CUSTOMER")));
 
@@ -104,13 +105,13 @@ public class CustomerServiceImpl implements CustomerService{
 
 
     @Override
-    public boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO) {
+    public boolean addAddressToCustomer(String userEmail, AddAddressDTO addAddressDTO) {
 
             User user = userRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
 
             //check address already exist
             user.getAddresses().forEach(address -> {
-                if(address.getLabel().equalsIgnoreCase(addressDTO.getLabel())){
+                if(address.getLabel().equalsIgnoreCase(addAddressDTO.getLabel())){
                     throw new UniqueFieldException(
                             messageSource.getMessage("same.address.exist",null,"message", LocaleContextHolder.getLocale()
                             )
@@ -118,7 +119,7 @@ public class CustomerServiceImpl implements CustomerService{
                 }
             });
 
-            Address newAddress = addressDTO.mapAddressDTOtoAddress();
+            Address newAddress = addAddressDTO.mapAddressDTOtoAddress();
             user.getAddresses().add(newAddress);
 
             userRepository.save(user);
@@ -127,10 +128,15 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public List<AddressDTO> getAllCustomerAddresses(String userEmail) {
+    public List<FetchAddressDTO> getAllCustomerAddresses(String userEmail) {
 
-        User user =  userRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
-        return user.getAddresses().stream().map(AddressDTO::new).collect(Collectors.toList());
+        User user =  userRepository
+                .findByEmail(userEmail)
+                .orElseThrow(UserEmailNotFoundException::new);
+
+        return user.getAddresses()
+                .stream().map(FetchAddressDTO::new)
+                .collect(Collectors.toList());
 
     }
 
@@ -164,11 +170,25 @@ public class CustomerServiceImpl implements CustomerService{
             Customer customer = customerRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
 
             CustomerProfileDTO customerProfileDTO = new CustomerProfileDTO(customer);
-            String url = "localhost:8080/images/users/";
-            customerProfileDTO.setImageUrl(url + customer.getId()+ ".jpg");
+//            String url = "localhost:8080/images/users/";
+//            customerProfileDTO.setImageUrl(url + customer.getId()+ ".jpg");
+        customerProfileDTO.setImageUrl(getImageUrlIfExist(customer.getId()));
 
             return customerProfileDTO;
 
+    }
+
+    private String getImageUrlIfExist(Long id){
+
+        String path = "./images/users/"+id+ ".jpg";
+
+        File f = new File(path.trim());
+        if(f.exists() && !f.isDirectory()) {
+            // do something
+
+            return "localhost:8080/images/users/"+id+".jpg";
+        }
+        return "Not Uploaded";
     }
 
     @Override

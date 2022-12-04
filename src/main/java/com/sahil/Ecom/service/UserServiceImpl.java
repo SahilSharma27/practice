@@ -59,31 +59,28 @@ public class UserServiceImpl implements UserService {
 
 
     @Autowired
-    SellerService sellerService;
+    private SellerService sellerService;
 
     @Autowired
-    MessageSource messageSource;
+    private MessageSource messageSource;
 
 
     @Autowired
-    AddressRepository addressRepository;
+    private AddressRepository addressRepository;
 
     @Autowired
-    BlacklistTokenRepository blacklistTokenRepository;
+    private BlacklistTokenRepository blacklistTokenRepository;
 
     @Autowired
-    FileService fileService;
+    private FileService fileService;
 
     @Autowired
-    LoginService loginService;
+    private LoginService loginService;
 
     @Value("${project.image}")
     private String path;
 
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-
-
-
 
     @Transactional
     @Override
@@ -361,15 +358,34 @@ public class UserServiceImpl implements UserService {
         user.setJwtAccessToken(null);
         user.setJwtRefreshToken(null);
 
-
         return true;
 
     }
 
     @Override
-    public void updateAddress(Long id, Address newAddress) {
+    public void updateAddress(Long id, Address newAddress,String username) {
 
-            Address addressToBeUpdated = addressRepository.findById(id).orElseThrow(IdNotFoundException::new);
+        User user = userRepository.findByEmail(username)
+                    .orElseThrow(UserEmailNotFoundException::new);
+
+
+        //check address already exist
+        user.getAddresses().forEach(address -> {
+            if(address.getLabel().equalsIgnoreCase(newAddress.getLabel())){
+                throw new UniqueFieldException(
+                        messageSource.getMessage("same.address.exist",null,"message", LocaleContextHolder.getLocale()
+                        )
+                );
+            }
+        });
+
+
+        Address addressToBeUpdated = user.getAddresses()
+                .stream()
+                .filter(address -> address.getId().equals(id))
+                .findFirst().orElseThrow(IdNotFoundException::new);
+
+//            Address addressToBeUpdated = addressRepository.findById(id).orElseThrow(IdNotFoundException::new);
 
             if (newAddress.getAddressLine() != null)
                 addressToBeUpdated.setAddressLine(newAddress.getAddressLine());

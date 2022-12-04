@@ -1,6 +1,7 @@
 package com.sahil.Ecom.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sahil.Ecom.audit.Auditable;
 
 import javax.persistence.*;
 import java.util.List;

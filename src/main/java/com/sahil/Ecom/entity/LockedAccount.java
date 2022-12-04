@@ -1,13 +1,14 @@
 package com.sahil.Ecom.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sahil.Ecom.audit.Auditable;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "LOCKED_ACCOUNT")
-public class LockedAccount {
+public class LockedAccount extends Auditable {
 
     @Id
     @Column(name = "USER_ID")

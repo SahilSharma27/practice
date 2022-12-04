@@ -1,11 +1,13 @@
 package com.sahil.Ecom.entity;
 
+import com.sahil.Ecom.audit.Auditable;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ACTIVATION_TOKEN")
-public class ActivationToken {
+public class ActivationToken extends Auditable {
 
     @Column(name = "TOKEN")
     @Id

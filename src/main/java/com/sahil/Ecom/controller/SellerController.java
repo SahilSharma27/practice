@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.dto.product.AddProductDTO;
 import com.sahil.Ecom.dto.product.variation.AddProductVariationDTO;
-import com.sahil.Ecom.dto.seller.SellerDTO;
+import com.sahil.Ecom.dto.seller.AddSellerDTO;
 import com.sahil.Ecom.dto.seller.SellerProfileUpdateDTO;
 import com.sahil.Ecom.exception.*;
 import com.sahil.Ecom.security.JwtUtil;
@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Locale;
 
 
 @RestController
@@ -63,33 +62,33 @@ public class SellerController {
 
 
     @PostMapping(value = "/register", params = "role=seller")
-    public ResponseEntity<?> registerSeller(@Valid @RequestBody SellerDTO sellerDTO) {
+    public ResponseEntity<?> registerSeller(@Valid @RequestBody AddSellerDTO addSellerDTO) {
 
 
         //check pass and cpass
-        if (!sellerDTO.getPassword().equals(sellerDTO.getConfirmPassword()))
+        if (!addSellerDTO.getPassword().equals(addSellerDTO.getConfirmPassword()))
             throw new PassConfirmPassNotMatchingException();
 
         //unique email
-        if (userService.checkUserEmail(sellerDTO.getEmail())) {
+        if (userService.checkUserEmail(addSellerDTO.getEmail())) {
             throw new EmailAlreadyRegisteredException();
         }
 
         //unique company name
-        if (sellerService.checkSellerCompanyName(sellerDTO.getCompanyName())) {
+        if (sellerService.checkSellerCompanyName(addSellerDTO.getCompanyName())) {
             throw new CompanyNameAlreadyRegisteredException();
         }
 
         //unique gst
-        if (sellerService.checkSellerGst(sellerDTO.getGst())) {
+        if (sellerService.checkSellerGst(addSellerDTO.getGst())) {
             throw new GstAlreadyRegisteredException();
         }
 
 //        1)save user
-        if (sellerService.register(sellerDTO)) {
+        if (sellerService.register(addSellerDTO)) {
 
             //send acknowledgment
-             userService.sendSellerAcknowledgement(sellerDTO.getEmail());
+             userService.sendSellerAcknowledgement(addSellerDTO.getEmail());
 
             ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
             responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", LocaleContextHolder.getLocale()));

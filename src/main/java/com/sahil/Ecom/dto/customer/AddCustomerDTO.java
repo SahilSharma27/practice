@@ -2,7 +2,7 @@ package com.sahil.Ecom.dto.customer;
 
 import javax.validation.constraints.*;
 
-public class CustomerDTO {
+public class AddCustomerDTO {
 
     @NotNull(message = "{not.null}")
     @NotBlank(message = "{not.blank}")
@@ -37,7 +37,7 @@ public class CustomerDTO {
     @Pattern(regexp = "^[0-9]+$",message ="{contact.validation}" )
     private String contact;
 
-    public CustomerDTO() {
+    public AddCustomerDTO() {
     }
 
     public String getEmail() {

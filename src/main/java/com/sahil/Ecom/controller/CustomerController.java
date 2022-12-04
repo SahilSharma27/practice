@@ -2,7 +2,7 @@ package com.sahil.Ecom.controller;
 
 
 import com.sahil.Ecom.dto.*;
-import com.sahil.Ecom.dto.customer.CustomerDTO;
+import com.sahil.Ecom.dto.customer.AddCustomerDTO;
 import com.sahil.Ecom.dto.customer.CustomerProfileUpdateDTO;
 import com.sahil.Ecom.dto.LoginRequestDTO;
 import com.sahil.Ecom.dto.LoginResponseDTO;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Locale;
 
 
 @RestController
@@ -56,29 +55,29 @@ public class CustomerController {
     Logger logger  = LoggerFactory.getLogger(CustomerController.class);
 
     @PostMapping(value = "/register", params = "role=customer")
-    public ResponseEntity<?> registerCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<?> registerCustomer(@Valid @RequestBody AddCustomerDTO addCustomerDTO) {
 
-        logger.info("Registering customer.."+customerDTO.getEmail());
+        logger.info("Registering customer.."+ addCustomerDTO.getEmail());
 
         //check pass and cpass
-        if (!customerDTO.getPassword().equals(customerDTO.getConfirmPassword()))
+        if (!addCustomerDTO.getPassword().equals(addCustomerDTO.getConfirmPassword()))
             throw new PassConfirmPassNotMatchingException();
 
 
         //Check if email taken
-        if (userService.checkUserEmail(customerDTO.getEmail())) {
+        if (userService.checkUserEmail(addCustomerDTO.getEmail())) {
             throw new EmailAlreadyRegisteredException();
         }
 
         //1)save user
-        if (customerService.register(customerDTO)) {
+        if (customerService.register(addCustomerDTO)) {
 
             //2)send activation link
-            userService.activationHelper(customerDTO.getEmail());
+            userService.activationHelper(addCustomerDTO.getEmail());
 
             ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
             responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", LocaleContextHolder.getLocale()));
-            logger.info("Successfully registered.."+customerDTO.getEmail());
+            logger.info("Successfully registered.."+ addCustomerDTO.getEmail());
             return ResponseEntity.ok(responseDTO);
         }
 
@@ -108,7 +107,7 @@ public class CustomerController {
 
 
     @PostMapping(value = "/users/address", params = "role=customer")
-    public ResponseEntity<?> addAddress(@Valid @RequestBody AddressDTO addressDTO, HttpServletRequest request) {
+    public ResponseEntity<?> addAddress(@Valid @RequestBody AddAddressDTO addAddressDTO, HttpServletRequest request) {
 
         //get token
         //get email form token
@@ -138,7 +137,7 @@ public class CustomerController {
         }
 
 
-        customerService.addAddressToCustomer(userEmail, addressDTO);
+        customerService.addAddressToCustomer(userEmail, addAddressDTO);
 
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());

@@ -8,8 +8,6 @@ public class FetchCustomerDTO {
     private String fullName;
     private String email;
     private boolean isActive;
-//    private String contact;
-//    private String imageUrl;
 
     public FetchCustomerDTO() {
     }
@@ -20,7 +18,7 @@ public class FetchCustomerDTO {
         this.setId(customer.getId());
         this.setFullName(customer.getFirstName() + " " + customer.getMiddleName() + " " + customer.getLastName());
 //        this.setContact(customer.getContact());
-//        this.setActive(customer.isActive());
+        this.setActive(customer.isActive());
 
     }
 

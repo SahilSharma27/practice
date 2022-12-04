@@ -43,7 +43,7 @@ public interface UserService {
 
     boolean logoutHelper(String username);
 
-    void updateAddress(Long id,Address address);
+    void updateAddress(Long id,Address address,String username);
 
     boolean saveUserImage(Long id, MultipartFile image);
 

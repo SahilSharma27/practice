@@ -2,45 +2,27 @@ package com.sahil.Ecom.dto;
 
 import com.sahil.Ecom.entity.Address;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+public class FetchAddressDTO {
 
-public class AddressDTO {
+    private Long id;
 
-    @NotNull(message = "{not.null}")
-    @NotBlank(message = "{not.blank}")
     private String city;
 
-    @NotNull(message = "{not.null}")
-    @NotBlank(message = "{not.blank}")
     private String state;
 
-    @NotNull(message = "{not.null}")
-    @NotBlank(message = "{not.blank}")
     private String country;
 
-    @NotNull(message = "{not.null}")
-    @NotBlank(message = "{not.blank}")
     private String addressLine;
 
-    @NotNull(message = "{not.null}")
-    @NotBlank(message = "{not.blank}")
-    @Size(min = 6,max = 6,message = "{zipcode.validation}")
-    @Pattern(regexp = "^[0-9]+$",message ="{zipcode.validation}" )
     private String zipCode;
 
-    @NotNull(message = "{not.null}")
-    @NotBlank(message = "{not.blank}")
     private String label;
 
-    public AddressDTO() {
+    public FetchAddressDTO() {
     }
 
-    public AddressDTO(Address address){
-
+    public FetchAddressDTO(Address address) {
+        this.setId(address.getId());
         this.setAddressLine(address.getAddressLine());
         this.setCity(address.getCity());
         this.setCountry(address.getCountry());
@@ -48,6 +30,14 @@ public class AddressDTO {
         this.setZipCode(address.getZipCode());
         this.setState(address.getState());
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getCity() {
@@ -97,20 +87,4 @@ public class AddressDTO {
     public void setLabel(String label) {
         this.label = label;
     }
-
-    public Address mapAddressDTOtoAddress(){
-
-        Address sellerAddress = new Address();
-        sellerAddress.setAddressLine(this.getAddressLine());
-        sellerAddress.setCity(this.getCity());
-        sellerAddress.setCountry(this.getCountry());
-        sellerAddress.setLabel(this.getLabel());
-        sellerAddress.setZipCode(this.getZipCode());
-        sellerAddress.setState(this.getState());
-
-
-        return sellerAddress;
-
-    }
-
 }

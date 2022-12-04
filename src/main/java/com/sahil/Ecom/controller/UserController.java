@@ -245,13 +245,33 @@ public class UserController {
 
     //common for customer and seller
     @PatchMapping(value = "users/address/{address_id}")
-    public ResponseEntity<?> updateAddress(@RequestBody Address address, @PathVariable(name = "address_id") Long id) {
+    public ResponseEntity<?> updateAddress(@RequestBody Address address, @PathVariable(name = "address_id") Long id,HttpServletRequest request) {
 
-        //find address by id
+        String requestHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        ResponseDTO responseDTO =  new ResponseDTO();
+        responseDTO.setTimestamp(LocalDateTime.now());
+
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer".length());
+
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+            //find address by id for the requesting user
         //update given fields
 
-        userService.updateAddress(id, address);
-        ResponseDTO responseDTO = new ResponseDTO();
+        userService.updateAddress(id, address,username);
+//        ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
         String message;
         message = messageSource.getMessage("user.address.updated", null, "message", LocaleContextHolder.getLocale());

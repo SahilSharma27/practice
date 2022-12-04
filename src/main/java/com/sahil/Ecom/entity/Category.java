@@ -2,6 +2,7 @@ package com.sahil.Ecom.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sahil.Ecom.audit.Auditable;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -13,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "CATEGORY")
-public class Category {
+public class Category  {
 
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)

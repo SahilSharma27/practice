@@ -1,11 +1,11 @@
 package com.sahil.Ecom.dto.seller;
 
-import com.sahil.Ecom.dto.AddressDTO;
+import com.sahil.Ecom.dto.AddAddressDTO;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
-public class SellerDTO {
+public class AddSellerDTO {
 
     @NotNull(message = "{not.null}")
     @NotBlank(message = "{not.blank}")
@@ -67,7 +67,7 @@ public class SellerDTO {
 
     @NotNull(message = "{not.null}")
     @Valid
-    AddressDTO address;
+    AddAddressDTO address;
 
     public String getEmail() {
         return email;
@@ -141,11 +141,11 @@ public class SellerDTO {
         this.companyName = companyName;
     }
 
-    public AddressDTO getAddress() {
+    public AddAddressDTO getAddress() {
         return address;
     }
 
-    public void setAddress(AddressDTO address) {
+    public void setAddress(AddAddressDTO address) {
         this.address = address;
     }
 

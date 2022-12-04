@@ -2,7 +2,7 @@ package com.sahil.Ecom.service;
 
 import com.sahil.Ecom.dto.*;
 import com.sahil.Ecom.dto.category.FetchCategoryDTO;
-import com.sahil.Ecom.dto.customer.CustomerDTO;
+import com.sahil.Ecom.dto.customer.AddCustomerDTO;
 import com.sahil.Ecom.dto.customer.CustomerProfileDTO;
 import com.sahil.Ecom.dto.customer.CustomerProfileUpdateDTO;
 
@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface CustomerService {
 
-    boolean register(CustomerDTO customerDTO);
+    boolean register(AddCustomerDTO addCustomerDTO);
 
     LoginResponseDTO loginCustomer(LoginRequestDTO loginRequestDTO) throws Exception;
 
-    boolean addAddressToCustomer(String userEmail, AddressDTO addressDTO);
+    boolean addAddressToCustomer(String userEmail, AddAddressDTO addAddressDTO);
 
-    List<AddressDTO> getAllCustomerAddresses(String userEmail);
+    List<FetchAddressDTO> getAllCustomerAddresses(String userEmail);
 
     void removeAddress(Long id,String userEmail);
 

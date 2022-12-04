@@ -1,6 +1,6 @@
 package com.sahil.Ecom.dto.seller;
 
-import com.sahil.Ecom.dto.AddressDTO;
+import com.sahil.Ecom.dto.FetchAddressDTO;
 
 public class SellerProfileDTO {
 
@@ -14,7 +14,7 @@ public class SellerProfileDTO {
     private boolean isActive;
     private String email;
     private String gst;
-    private AddressDTO companyAddress;
+    private FetchAddressDTO companyAddress;
 
     public SellerProfileDTO() {
     }
@@ -99,11 +99,11 @@ public class SellerProfileDTO {
         this.email = email;
     }
 
-    public AddressDTO getCompanyAddress() {
+    public FetchAddressDTO getCompanyAddress() {
         return companyAddress;
     }
 
-    public void setCompanyAddress(AddressDTO companyAddress) {
+    public void setCompanyAddress(FetchAddressDTO companyAddress) {
         this.companyAddress = companyAddress;
     }
 }
