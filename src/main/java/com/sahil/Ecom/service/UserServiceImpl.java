@@ -482,4 +482,14 @@ public class UserServiceImpl implements UserService {
     public FetchSellerDTO getSeller(String email) {
         return new FetchSellerDTO(sellerRepository.findByEmail(email).orElseThrow(UserEmailNotFoundException::new));
     }
+
+    @Override
+    public String getRole(String username) {
+
+        User user =  userRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
+
+
+        return user.getRoles().get(0).getAuthority();
+
+    }
 }

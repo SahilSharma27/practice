@@ -248,13 +248,41 @@ public class CustomerController {
         String message = messageSource.getMessage("user.profile.updated", null, "message", LocaleContextHolder.getLocale());
         return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
 
-
     }
 
 
-    @GetMapping(value = "/category", params = "role=customer")
-    public ResponseEntity<?> fetchAllCategoriesForCustomer(@RequestParam(name = "categoryId", required = false) Long categoryId) {
-        return ResponseEntity.ok(customerService.getAllCategoriesForCustomer(categoryId));
+    @GetMapping(value = "/categories", params = "role=customer")
+    public ResponseEntity<?> fetchAllCategoriesForCustomer(@RequestParam(name = "categoryId", required = false) Long categoryId,HttpServletRequest request) {
+
+     //  check role for customer
+        String requestHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new InvalidTokenException();
+            }
+
+        }
+
+        String role = userService.getRole(username);
+        logger.info("------------------"+role+"-------------------");
+
+        if(role.equals("ROLE_CUSTOMER")){
+//            return ResponseEntity.ok(categoryService.getAllCategories());
+            return ResponseEntity.ok(customerService.getAllCategoriesForCustomer(categoryId));
+        }else
+            throw new InvalidTokenException();
+
     }
 
 

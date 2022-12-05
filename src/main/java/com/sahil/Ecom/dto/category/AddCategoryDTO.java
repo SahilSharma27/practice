@@ -7,7 +7,6 @@ import javax.validation.constraints.NotNull;
 public class AddCategoryDTO {
 
 
-    @NotNull(message = "{not.null}")
     private Long parentId;
 
     @NotNull(message = "{not.null}")

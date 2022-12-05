@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface CategoryMetaDataFieldRepository extends JpaRepository<CategoryMetaDataField,Long> {
 
     Optional<CategoryMetaDataField> findByName(String name);
+
+    boolean existsByName(String fieldName);
 }

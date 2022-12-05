@@ -172,9 +172,39 @@ public class SellerController {
         throw new InvalidTokenException();
     }
 
-    @GetMapping(value = "/category",params = "role=seller")
-    public ResponseEntity<?>fetchAllCategoriesForSeller(){
-        return ResponseEntity.ok(sellerService.getAllCategoriesForSeller());
+    @GetMapping(value = "/categories",params = "role=seller")
+    public ResponseEntity<?>fetchAllCategoriesForSeller(HttpServletRequest request){
+
+        String requestHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new InvalidTokenException();
+            }
+
+        }
+
+        String role = userService.getRole(username);
+        logger.info("------------------"+role+"-------------------");
+
+        if(role.equals("ROLE_SELLER")){
+            return ResponseEntity.ok(sellerService.getAllCategoriesForSeller());
+        }else
+            throw new InvalidTokenException();
+
+
+
+//        return ResponseEntity.ok(sellerService.getAllCategoriesForSeller());
 
     }
 

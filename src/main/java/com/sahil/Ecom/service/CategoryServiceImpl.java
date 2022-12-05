@@ -46,6 +46,10 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public AddMetaDataFieldDTO addCategoryMetadataField(AddMetaDataFieldDTO metaDataFieldDTO) {
 
+        if(categoryMetaDataFieldRepository.existsByName(metaDataFieldDTO.getFieldName())){
+            throw new CategoryHierarchyException(messageSource
+                    .getMessage("field.already.exist",null,"message",LocaleContextHolder.getLocale()));
+        }
 
         CategoryMetaDataField savedCategoryMetaDataField =
                 categoryMetaDataFieldRepository.save(new CategoryMetaDataField(metaDataFieldDTO.getFieldName()));
@@ -111,6 +115,7 @@ public class CategoryServiceImpl implements CategoryService{
 
     }
 
+//    @Override
     public List<FetchCategoryDTO> getAllCategoriesPaged(int page, int size, String sort,String order) {
 
         Pageable pageable = PageRequest.of(page, size);

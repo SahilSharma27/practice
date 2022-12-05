@@ -1,12 +1,14 @@
 package com.sahil.Ecom.entity;
 
+import com.sahil.Ecom.audit.Auditable;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "CATEGORY_METADATA_FIELD")
-public class CategoryMetaDataField {
+public class CategoryMetaDataField extends Auditable {
 
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)

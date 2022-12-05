@@ -5,7 +5,6 @@ import javax.validation.constraints.NotNull;
 
 public class AddMetaDataFieldDTO {
 
-    @NotNull(message = "{not.null}")
     private Long id;
 
     @NotNull(message = "{not.null}")

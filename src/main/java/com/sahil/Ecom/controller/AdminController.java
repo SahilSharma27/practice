@@ -6,6 +6,8 @@ import com.sahil.Ecom.dto.category.metadata.field.value.AddCategoryMetaDataField
 import com.sahil.Ecom.dto.category.metadata.field.AddMetaDataFieldDTO;
 import com.sahil.Ecom.dto.category.CategoryUpdateDTO;
 import com.sahil.Ecom.entity.User;
+import com.sahil.Ecom.exception.InvalidTokenException;
+import com.sahil.Ecom.security.JwtUtil;
 import com.sahil.Ecom.security.TokenGeneratorHelper;
 import com.sahil.Ecom.service.*;
 import org.slf4j.Logger;
@@ -15,6 +17,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +57,8 @@ public class AdminController {
     Logger logger = LoggerFactory.getLogger(AdminController.class);
 
 
-
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostMapping(value = "/login", params = "role=admin")
     public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
@@ -209,15 +214,43 @@ public class AdminController {
 
     }
 //,params = "role=admin"
-    @GetMapping(value = "/category")
-    public ResponseEntity<?>fetchAllCategories(){
+    @GetMapping(value = "/categories",params = "role=admin")
+    public ResponseEntity<?>fetchAllCategories(HttpServletRequest request){
+//check for admin role
+        String requestHeader = request.getHeader("Authorization");
 
-        return ResponseEntity.ok(categoryService.getAllCategories());
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new InvalidTokenException();
+            }
+
+        }
+
+        String role = userService.getRole(username);
+        logger.info("------------------"+role+"-------------------");
+
+
+        if(role.equals("ROLE_ADMIN")){
+            return ResponseEntity.ok(categoryService.getAllCategories());
+        }else
+            throw new InvalidTokenException();
+
+//        return ResponseEntity.ok(categoryService.getAllCategories());
 
     }
 
-    @GetMapping(value = "/categoryy")
-    public ResponseEntity<?>fetchCategoryById(@RequestParam("categoryId")Long categoryId){
+    @GetMapping(value = "/category/{category_id}")
+    public ResponseEntity<?>fetchCategoryById(@PathVariable("category_id")Long categoryId){
         return ResponseEntity.ok(categoryService.getCategoryById(categoryId));
     }
 
