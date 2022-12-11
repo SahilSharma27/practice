@@ -373,8 +373,6 @@ public class SellerController {
                 productService
                         .getProductVariationForSeller(username,id));
 
-
-
     }
 
     @GetMapping(value = "/products/variation",params = "role=seller")
@@ -384,7 +382,6 @@ public class SellerController {
             @RequestParam(value = "sort",defaultValue = "id")String sort,
             @RequestParam(value = "order",defaultValue = "asc")String order,
             @RequestParam("product_id") String id,HttpServletRequest servletRequest) {
-
 
         String requestHeader = servletRequest.getHeader("Authorization");
         Long productId = Long.parseLong(id);
@@ -412,6 +409,42 @@ public class SellerController {
                         ,Integer.parseInt(size)
                         ,sort
                         ,order));
+    }
+
+
+    @PutMapping("/product/activate")
+    public ResponseEntity<?>activateProduct(@RequestParam("product_id") String id,HttpServletRequest request){
+        String requestHeader = request.getHeader("Authorization");
+
+        Long productId = Long.parseLong(id);
+
+        String username = null;
+        String accessToken = null;
+
+        //check format
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+
+            accessToken = requestHeader.substring("Bearer ".length());
+            try {
+                username = jwtUtil.extractUsername(accessToken);
+            }
+            catch (Exception e){
+                throw  new InvalidTokenException();
+            }
+
+            productService.activateProduct(username,productId);
+
+            ResponseDTO responseDTO = new ResponseDTO();
+            responseDTO.setMessage("PRODUCT ACTIVATED");
+            responseDTO.setSuccess(true);
+            responseDTO.setResponseStatusCode(HttpStatus.OK);
+            return ResponseEntity.ok(responseDTO);
+
+        }
+
+        throw new InvalidTokenException();
+
+
     }
 
 }

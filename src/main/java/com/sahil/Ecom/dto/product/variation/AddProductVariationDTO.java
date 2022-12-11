@@ -8,16 +8,16 @@ import javax.validation.constraints.NotNull;
 public class AddProductVariationDTO {
 
 
-    @NotNull
+    @NotNull(message = "{not.null}")
     private Long productId;
 
-    @NotNull
+    @NotNull(message = "{not.null}")
     private JSONObject metadata;
 
-    @NotNull
+    @NotNull(message = "{not.null}")
     private int quantityAvailable;
 
-    @NotNull
+    @NotNull(message = "{not.null}")
     private double price;
 
     public Long getProductId() {

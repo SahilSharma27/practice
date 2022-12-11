@@ -68,6 +68,8 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/category/metadata/value").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers("/category/metadata/value-update").hasRole(EcomRoles.ADMIN.label)
                 .antMatchers(HttpMethod.POST,"/products").hasRole(EcomRoles.SELLER.label)
+                .antMatchers(HttpMethod.PUT,"/product/activate").hasRole(EcomRoles.SELLER.label)
+
 //                .antMatchers(HttpMethod.GET"/products/**").hasAnyRole()Role(EcomRoles.SELLER.label)
                 .anyRequest().authenticated()
 //                .anyRequest().permitAll()

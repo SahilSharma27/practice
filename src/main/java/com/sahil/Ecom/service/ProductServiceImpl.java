@@ -24,7 +24,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 
@@ -394,4 +396,24 @@ public class ProductServiceImpl implements ProductService{
     }
 
 
+    @Override
+    @Transactional
+    public void activateProduct(String username, Long id) {
+        Seller seller = sellerRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
+        AtomicBoolean flag = new AtomicBoolean(false);
+        seller.getProducts().forEach(product -> {
+            if(product.getId().equals(id)){
+                //product.setActive(true);
+                flag.set(true);
+                productRepository.setProductActive(true,id);
+                return;
+            }
+        });
+
+        if(!flag.get())
+            throw new IdNotFoundException();
+//        sellerRepository.save(seller);
+
+
+    }
 }

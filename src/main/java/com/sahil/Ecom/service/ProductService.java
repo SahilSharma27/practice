@@ -29,4 +29,5 @@ public interface ProductService {
 
     FetchProductCustomerDTO getProductForCustomer(Long productId);
 
+    void activateProduct(String username, Long id);
 }

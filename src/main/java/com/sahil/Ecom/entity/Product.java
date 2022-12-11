@@ -1,12 +1,14 @@
 package com.sahil.Ecom.entity;
 
+import com.sahil.Ecom.audit.Auditable;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "PRODUCT")
-public class Product {
+public class Product extends Auditable {
 
     @Id
     @Column(name = "ID")

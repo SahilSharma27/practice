@@ -94,6 +94,7 @@ public class UserServiceImpl implements UserService {
         //if email valid
         //delete activation token
         //update isActive
+
         if (userRepository.existsByEmail(email)) {
             activationTokenRepository.deleteByUserEmail(email);
             return userRepository.updateIsActive(true, email) > 0;
