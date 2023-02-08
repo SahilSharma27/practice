@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <style>
+
+    body {
+        font-family: Arial Rounded MT Bold, serif !important;
+    }
+
+    .p-10 {
+        padding: 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border-color: #cccc98;
+    }
+
+    .invoice-table th {
+        padding: 8px;
+        text-align: left;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    hr {
+        color: #ddd;
+    }
+
+    .custom-font-size {
+        font-size: 15px;
+    }
+
+
+    td {
+        padding: 8px;
+    }
+
+    .custom-border{
+        border-bottom: 1px solid #cccc98;
+    }
+
+    .blue-row {
+        background-color: #c8e1f5;
+    }
+
+
+    .centre-text{
+        text-align: center;
+    }
+
+    .border-right {
+        border-right: 1px solid #cccc98;
+    }
+
+    .border-left {
+        border-left: 1px solid #cccc98;
+    }
+
+    .border-top {
+        border-top: 1px solid #cccc98;
+    }
+
+    .border-bottom {
+        border-bottom: 1px solid #cccc98;
+    }
+
+
+
+
+    </style>
+<body>
+
+<div>
+
+    <table class="grid-table">
+        <tr class="invoice-table blue-row">
+            <th class="p-10 border-right border-left border-top" colspan="2"
+                style="font-weight: bold; font-size: 14px; text-align: center;"> Grid Update details
+            </th>
+        </tr>
+    </table>
+    <br/>
+    <br/>
+
+    <div>
+        <table>
+
+            <thead>
+                <tr class="heading">
+                    <th class="column-title custom-border">Type</th>
+                    <th th:each="header: ${headers}" class="column-title custom-border" th:text="${header}"/>
+                </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="grid: ${grids}" id="tablerow">
+
+                <!-- partner name-->
+                <td>
+                    <table>
+                        <tbody>
+                            <span>
+                                <tr class="heading custom-border centre-text custom-font-size">
+                                    <td style="font-weight: bold;" th:text="${grid.groupName}"></td>
+                                </tr>
+                            </span>
+                        </tbody>
+                    </table>
+                </td>
+
+                <!-- Details -->
+                <td th:each="header: ${headers}">
+                    <table>
+                        <tbody>
+                        <span th:if="${grid.groupedGridDto.get(header) != null}">
+                            <tr class="heading custom-border centre-text custom-font-size">
+                                    <td th:text="${#strings.toUpperCase(grid.groupedGridDto.get(header).before)}"></td>
+                                    <td th:text="${#strings.toUpperCase(grid.groupedGridDto.get(header).after)}"></td>
+                            </tr>
+                        </span>
+                        <span th:unless="${grid.groupedGridDto.get(header) != null}">
+                            <tr class="heading custom-border centre-text custom-font-size">
+                                <td>NA</td>
+                                <td>NA</td>
+                            </tr>
+                        </span>
+
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
