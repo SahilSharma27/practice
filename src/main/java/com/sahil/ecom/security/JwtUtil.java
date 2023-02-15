@@ -4,6 +4,7 @@ import com.sahil.ecom.enums.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,9 @@ import java.util.function.Function;
 @Service
 public class JwtUtil {
 
-    private final String SECRET_KEY = "java";
+//    private final String SECRET_KEY = "java";
+    @Value("${jwt.secret}")
+    private String secret;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -30,7 +33,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
     public Boolean isTokenExpired(String token) {
@@ -56,7 +59,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 20 * 60 * 1000))// valid for 20 min
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+                .signWith(SignatureAlgorithm.HS256, secret).compact();
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -66,7 +69,7 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000))// valid for 10 min
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+                .signWith(SignatureAlgorithm.HS256, secret).compact();
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {

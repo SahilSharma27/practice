@@ -1,6 +1,7 @@
 package com.sahil.ecom.controller;
 
 
+import com.sahil.ecom.dto.response.ResponseDto;
 import com.sahil.ecom.repository.ProductVariationRepository;
 import com.sahil.ecom.service.impl.EmailSenderService;
 import com.sahil.ecom.service.FileService;
@@ -16,7 +17,7 @@ import javax.mail.MessagingException;
 
 
 @RestController
-public class testcontroller {
+public class testcontroller extends BaseController{
 
     @Autowired
     EmailSenderService emailSenderService;
@@ -33,8 +34,13 @@ public class testcontroller {
     @Value("${project.image}")
     private String path;
 
+    @GetMapping("/test")
+    public ResponseDto<?> testRequest(){
+        return super.getResponse("HELLO WORLD");
+    }
+
 //    @GetMapping("/welcome")
-//    public String  welcome(){
+//    public String welcome(){
 //        emailSenderService.sendEmail("sharma.sahil1560@gmail.com","TEST","TEST");
 //
 //        return "Lets go";
