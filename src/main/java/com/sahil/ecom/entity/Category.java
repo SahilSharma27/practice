@@ -3,6 +3,7 @@ package com.sahil.ecom.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sahil.ecom.audit.Auditable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,23 +17,23 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "CATEGORY")
+@Table(name = "category")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Category extends Auditable {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "ID")
-    private Long Id;
+    @Column(name = "id")
+    private Long id;
 
-    @Column(name = "NAME")
+    @Column(name = "name")
     private String name;
 
     @OneToOne
-    @JoinColumn(name = "PARENT_ID")
+    @JoinColumn(name = "parent_id")
     private Category parent;
 
     @JsonIgnore

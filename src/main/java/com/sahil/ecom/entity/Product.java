@@ -10,48 +10,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "PRODUCT")
+@Table(name = "product")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Product extends Auditable {
 
     @Id
-    @Column(name = "ID")
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "NAME")
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "DESCRIPTION")
+    @Column(name = "description")
     private String description;
 
-    @Column(name = "BRAND")
+    @Column(name = "brand")
     private String brand;
 
-    @Column(name = "IS_CANCELLABLE")
+    @Column(name = "is_cancellable")
     private boolean isCancellable;
 
-    @Column(name = "IS_RETURNABLE")
+    @Column(name = "is_returnable")
     private boolean isReturnable;
 
-    @Column(name = "IS_ACTIVE")
+    @Column(name = "is_active")
     private boolean isActive;
 
-    @Column(name = "IS_DELETED")
+    @Column(name = "is_deleted")
     private boolean isDeleted;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
     private List<ProductVariation> productVariations = new ArrayList<>();
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "CATEGORY_ID")
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "SELLER_ID")
+    @JoinColumn(name = "seller_id")
     private Seller seller;
 
     @Override

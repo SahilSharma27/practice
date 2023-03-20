@@ -37,6 +37,7 @@ public class Auditable {
     private String modifiedBy;
 
     public Auditable() {
+        // TODO document why this constructor is empty
     }
 
     public Date getCreatedDate() {

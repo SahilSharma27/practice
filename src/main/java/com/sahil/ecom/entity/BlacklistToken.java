@@ -1,33 +1,31 @@
 package com.sahil.ecom.entity;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 
 @Entity
-@Table(name = "BLACKLIST_TOKEN")
-public class BlacklistToken  {
+@Table(name = "blacklist_token")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class BlacklistToken {
 
     @Id
-    @Column(name = "ID")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name = "ACCESS_TOKEN")
+    @Column(name = "access_token")
     private String accessToken;
 
-    public BlacklistToken() {
-    }
-
     public BlacklistToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
 }

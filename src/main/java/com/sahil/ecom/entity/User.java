@@ -1,6 +1,7 @@
 package com.sahil.ecom.entity;
 
 import com.sahil.ecom.audit.Auditable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,61 +12,61 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "user")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class User extends Auditable {
     @Id
-    @Column(name = "ID")
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "EMAIL", unique = true)
+    @Column(name = "email", unique = true)
     @Email
     private String email;
 
-    @Column(name = "FIRST_NAME")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "MIDDLE_NAME")
+    @Column(name = "middle_name")
     private String middleName;
 
-    @Column(name = "LAST_NAME")
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "PASSWORD")
+    @Column(name = "password")
     private String password;
 
-    @Column(name = "IS_DELETED")
+    @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    @Column(name = "IS_ACTIVE")
+    @Column(name = "is_active")
     private boolean isActive;
 
-    @Column(name = "IS_EXPIRED")
+    @Column(name = "is_expired")
     private boolean isExpired;
 
-    @Column(name = "IS_LOCKED")
+    @Column(name = "is_locked")
     private boolean isLocked;
 
-    @Column(name = "INVALID_ATTEMPT_COUNT")
+    @Column(name = "invalid_attempt_count")
     private int invalidAttemptCount;
 
-    @Column(name = "PASSWORD_UPDATE_DATE")
+    @Column(name = "password_update_date")
     private Date passwordUpdateDate;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OrderBy("label ASC")
     private List<Address> addresses;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "USER_ROLE",
-            joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"),
-            inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID"))
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<Role> roles;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)

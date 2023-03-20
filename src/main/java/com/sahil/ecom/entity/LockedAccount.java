@@ -2,56 +2,32 @@ package com.sahil.ecom.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sahil.ecom.audit.Auditable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "LOCKED_ACCOUNT")
+@Table(name = "locked_account")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class LockedAccount extends Auditable {
 
     @Id
-    @Column(name = "USER_ID")
+    @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "LOCKED_TIME")
+    @Column(name = "locked_time")
     LocalDateTime lockedTime;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
-
-//    public LockedAccount(LocalDateTime lockedTime, User user) {
-//        this.lockedTime = lockedTime;
-//        this.user = user;
-//    }
-
-    public LockedAccount() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getLockedTime() {
-        return lockedTime;
-    }
-
-    public void setLockedTime(LocalDateTime lockedTime) {
-        this.lockedTime = lockedTime;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }

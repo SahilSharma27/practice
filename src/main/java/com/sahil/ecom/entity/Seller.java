@@ -1,6 +1,7 @@
 package com.sahil.ecom.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,19 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "SELLER")
+@Table(name = "seller")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Seller extends User{
 
-    @Column(name = "GST",unique = true)
+    @Column(name = "gst",unique = true)
     private String gst;
 
-    @Column(name = "COMPANY_CONTACT")
+    @Column(name = "company_contact")
     private String companyContact;
 
-    @Column(name = "COMPANY_NAME",unique = true)
+    @Column(name = "comapany_name",unique = true)
     private String companyName;
 
     @JsonIgnore

@@ -1,46 +1,28 @@
 package com.sahil.ecom.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ACTIVATION_TOKEN")
-public class ActivationToken{
+@Table(name = "activation_token")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ActivationToken {
 
-    @Column(name = "TOKEN")
+    @Column(name = "token")
     @Id
-    private String activationToken;
+    private String token;
 
-    @Column(name = "USER_EMAIL")
+    @Column(name = "user_email")
     private String userEmail;
 
-    @Column(name  = "TOKEN_TIME_LIMIT")
+    @Column(name = "token_time_limit")
     private LocalDateTime tokenTimeLimit;
-
-    public ActivationToken() {
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
-    public String getActivationToken() {
-        return activationToken;
-    }
-
-    public void setActivationToken(String activationToken) {
-        this.activationToken = activationToken;
-    }
-
-    public LocalDateTime getTokenTimeLimit() {
-        return tokenTimeLimit;
-    }
-
-    public void setTokenTimeLimit(LocalDateTime tokenTimeLimit) {
-        this.tokenTimeLimit = tokenTimeLimit;
-    }
 }

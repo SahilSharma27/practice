@@ -2,88 +2,41 @@ package com.sahil.ecom.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.json.simple.JSONObject;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "PRODUCT_VARIATION")
-
+@Table(name = "product_variation")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductVariation {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "ID")
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "QUANTITY_AVAILABLE")
+    @Column(name = "quantity_available")
     private int quantityAvailable;
 
-    @Column(name = "PRICE")
+    @Column(name = "price")
     private double price;
 
-    @Column(name = "METADATA")
+    @Column(name = "metadata")
     private JSONObject metadata;
 
-    @Column(name = "IS_ACTIVE")
+    @Column(name = "is_active")
     private boolean isActive;
 
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "PRODUCT_ID")
+    @JoinColumn(name = "product_id")
     private Product product;
-
-
-    public ProductVariation() {
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getQuantityAvailable() {
-        return quantityAvailable;
-    }
-
-    public void setQuantityAvailable(int quantityAvailable) {
-        this.quantityAvailable = quantityAvailable;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public JSONObject getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(JSONObject metadata) {
-        this.metadata = metadata;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
 }

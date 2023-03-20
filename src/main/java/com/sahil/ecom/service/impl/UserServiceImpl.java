@@ -194,7 +194,7 @@ public class UserServiceImpl implements UserService {
 
 //        save in db
         ActivationToken activationToken = new ActivationToken();
-        activationToken.setActivationToken(token);
+        activationToken.setToken(token);
         activationToken.setUserEmail(email);
 
         // setting time limits to the token
@@ -235,7 +235,7 @@ public class UserServiceImpl implements UserService {
         Locale locale = LocaleContextHolder.getLocale();
 
         //find token in table
-        ActivationToken activationToken = activationTokenRepository.findByActivationToken(uuid);
+        ActivationToken activationToken = activationTokenRepository.findByToken(uuid);
 
         //check expiration
         //return email id if all good
@@ -282,7 +282,7 @@ public class UserServiceImpl implements UserService {
         Locale locale = LocaleContextHolder.getLocale();
 
         //find token in table
-        ResetPasswordToken resetPasswordToken = resetPassTokenRepository.findByResetPassToken(uuid);
+        ResetPasswordToken resetPasswordToken = resetPassTokenRepository.findByToken(uuid);
 
         //check expiration
         //return email id if all good
@@ -328,7 +328,7 @@ public class UserServiceImpl implements UserService {
 
 //        save in db
         ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
-        resetPasswordToken.setResetPassToken(token);
+        resetPasswordToken.setToken(token);
         resetPasswordToken.setUserEmail(email);
         resetPasswordToken.setTokenTimeLimit(LocalDateTime.now().plusMinutes(1));
         resetPassTokenRepository.save(resetPasswordToken);

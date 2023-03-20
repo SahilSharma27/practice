@@ -16,20 +16,20 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
     @Query("UPDATE User SET isActive =:isActive WHERE email =:email")
-    public int updateIsActive(@Param("isActive") boolean isActive, @Param("email") String email);
+    int updateIsActive(@Param("isActive") boolean isActive, @Param("email") String email);
 
     @Modifying
     @Query("UPDATE User SET invalidAttemptCount =:i WHERE email =:email")
-    public int updateInvalidAttempts(@Param("i") int i,@Param("email") String email);
+    int updateInvalidAttempts(@Param("i") int i, @Param("email") String email);
 
     @Modifying
     @Query("UPDATE User SET isLocked =:isLocked WHERE email =:email")
-    public int updateIsLocked(@Param("isLocked") boolean isLocked, @Param("email") String email);
+    int updateIsLocked(@Param("isLocked") boolean isLocked, @Param("email") String email);
 
 
     @Modifying
     @Query("UPDATE User SET password =:newPassword,passwordUpdateDate = CURRENT_TIMESTAMP WHERE email =:userEmail")
-    public int updatePassword(@Param("newPassword") String newPassword, @Param("userEmail") String userEmail);
+    int updatePassword(@Param("newPassword") String newPassword, @Param("userEmail") String userEmail);
 
 
 }

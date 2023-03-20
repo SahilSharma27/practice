@@ -1,61 +1,32 @@
 package com.sahil.ecom.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "JWT_REFRESH_TOKEN")
+@Table(name = "jwt_refresh_token")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class JwtRefreshToken {
 
     @Id
-    @Column(name = "USER_ID")
+    @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "REFRESH_TOKEN")
+    @Column(name = "refresh_token")
     private String refreshToken;
-//
-//    @OneToMany(mappedBy = "jwtRefreshToken",cascade = CascadeType.ALL)
-//    private List<JwtAccessToken> jwtAccessToken;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 
-    public JwtRefreshToken() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-//    public List<JwtAccessToken> getJwtAccessToken() {
-//        return jwtAccessToken;
-//    }
-//
-//    public void setJwtAccessToken(List<JwtAccessToken> jwtAccessToken) {
-//        this.jwtAccessToken = jwtAccessToken;
-//    }
 }

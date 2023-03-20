@@ -2,6 +2,7 @@ package com.sahil.ecom.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sahil.ecom.audit.Auditable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,41 +13,42 @@ import javax.persistence.*;
 
 
 @Entity
-@SQLDelete(sql = "UPDATE ADDRESS SET IS_DELETED = 1 where ID = ?")
-@Where(clause = "IS_DELETED = 0")
-@Table(name = "ADDRESS")
+@SQLDelete(sql = "UPDATE address SET is_deleted = 1 where id = ?")
+@Where(clause = "is_deleted = 0")
+@Table(name = "address")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Address extends Auditable {
 
-    @Column(name = "ID")
+    @Column(name = "id")
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "CITY")
+    @Column(name = "city")
     private String city;
 
-    @Column(name = "STATE")
+    @Column(name = "state")
     private String state;
 
-    @Column(name = "COUNTRY")
+    @Column(name = "country")
     private String country;
 
-    @Column(name = "ADDRESS_LINE")
+    @Column(name = "addressLine")
     private String addressLine;
 
-    @Column(name = "ZIP_CODE")
+    @Column(name = "zip_code")
     private String zipCode;
 
-    //  (Ex. office/home)
-    @Column(name = "LABEL")
+    /***(Ex. office/home)*/
+
+    @Column(name = "label")
     private String label;
 
     @JsonIgnore
-    @Column(name = "IS_DELETED", nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
     @PrePersist

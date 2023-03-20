@@ -26,7 +26,7 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
 
 
     @Query(value = """
-            SELECT * FROM CATEGORY WHERE PARENT_ID IS NULL
+            SELECT * FROM category WHERE parent_id IS NULL
             """,nativeQuery = true)
     List<Category> findRootCategories();
 

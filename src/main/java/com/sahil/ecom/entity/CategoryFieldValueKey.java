@@ -1,5 +1,6 @@
 package com.sahil.ecom.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class CategoryFieldValueKey implements Serializable {
 
     @Column(name = "category_id")
@@ -19,12 +21,5 @@ public class CategoryFieldValueKey implements Serializable {
 
     @Column(name = "field_id")
     private Long fieldId;
-
-
-    public CategoryFieldValueKey(Long categoryId, Long fieldId) {
-        this.categoryId = categoryId;
-        this.fieldId = fieldId;
-    }
-
 
 }

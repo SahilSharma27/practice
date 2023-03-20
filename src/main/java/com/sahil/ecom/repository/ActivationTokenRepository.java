@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 
 public interface ActivationTokenRepository extends JpaRepository<ActivationToken,String> {
 
-    ActivationToken findByActivationToken(String token);
+    ActivationToken findByToken(String token);
 
     @Modifying
     void deleteByUserEmail(String userEmail);

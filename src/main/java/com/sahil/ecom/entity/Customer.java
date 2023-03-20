@@ -7,13 +7,13 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "CUSTOMER")
+@Table(name = "customer")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Customer extends User{
 
-    @Column(name = "CONTACT")
+    @Column(name = "contact")
     private String contact;
 
 }
