@@ -14,15 +14,15 @@ public interface CustomerService {
 
     LoginResponseDTO loginCustomer(LoginRequestDTO loginRequestDTO) throws Exception;
 
-    boolean addAddressToCustomer(String userEmail, AddAddressDTO addAddressDTO);
+    boolean addAddressToCustomer(AddAddressDTO addAddressDTO);
 
-    List<FetchAddressDTO> getAllCustomerAddresses(String userEmail);
+    List<FetchAddressDTO> getAllCustomerAddresses();
 
-    void removeAddress(Long id,String userEmail);
+    void removeAddress(Long id);
 
-    CustomerProfileDTO fetchCustomerProfileDetails(String userEmail);
+    CustomerProfileDTO fetchCustomerProfileDetails();
 
-    void updateProfile(String username, CustomerProfileUpdateDTO customerProfileUpdateDTO);
+    void updateProfile(CustomerProfileUpdateDTO customerProfileUpdateDTO);
 
     List<FetchCategoryDTO> getAllCategoriesForCustomer(Long categoryId);
 }

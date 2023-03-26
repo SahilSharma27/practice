@@ -17,6 +17,7 @@ import com.sahil.ecom.repository.AddressRepository;
 import com.sahil.ecom.repository.CustomerRepository;
 import com.sahil.ecom.repository.RoleRepository;
 import com.sahil.ecom.repository.UserRepository;
+import com.sahil.ecom.security.AuthUserService;
 import com.sahil.ecom.security.TokenGeneratorHelper;
 import com.sahil.ecom.service.CategoryService;
 import com.sahil.ecom.service.CustomerService;
@@ -46,6 +47,8 @@ public class CustomerServiceImpl implements CustomerService {
     private final LockAccountService lockAccountService;
     private final CategoryService categoryService;
     private final MessageSource messageSource;
+
+    private final AuthUserService authUserService;
 
     @Override
     public boolean register(AddCustomerDTO addCustomerDTO) {
@@ -91,9 +94,10 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     @Override
-    public boolean addAddressToCustomer(String userEmail, AddAddressDTO addAddressDTO) {
+    public boolean addAddressToCustomer(AddAddressDTO addAddressDTO) {
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
+        User user = authUserService.getCurrentAuthorizedUser();
+//        User user = userRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
 
         //check address already exist
         user.getAddresses().forEach(address -> {
@@ -111,14 +115,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<FetchAddressDTO> getAllCustomerAddresses(String userEmail) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new GenericException("user not found"));
+    public List<FetchAddressDTO> getAllCustomerAddresses() {
+        User user = authUserService.getCurrentAuthorizedUser();
         return user.getAddresses().stream().map(FetchAddressDTO::new).toList();
     }
 
     @Override
-    public void removeAddress(Long id, String userEmail) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
+    public void removeAddress(Long id) {
+        User user = authUserService.getCurrentAuthorizedUser();
 //        user.getAddresses().forEach(address ->{
 //            if(address.getId().equals(id)){
 //                addressRepository.deleteById(id);
@@ -136,9 +140,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerProfileDTO fetchCustomerProfileDetails(String userEmail) {
+    public CustomerProfileDTO fetchCustomerProfileDetails() {
 
-        Customer customer = customerRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
+        Customer customer = (Customer) authUserService.getCurrentAuthorizedUser();
 
         CustomerProfileDTO customerProfileDTO = new CustomerProfileDTO(customer);
 //            String url = "localhost:8080/images/users/";
@@ -163,9 +167,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void updateProfile(String username, CustomerProfileUpdateDTO customerProfileUpdateDTO) {
+    public void updateProfile(CustomerProfileUpdateDTO customerProfileUpdateDTO) {
 
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(GenericException::new);
+        Customer customer = (Customer) authUserService.getCurrentAuthorizedUser();
 
         if (customerProfileUpdateDTO.getFirstName() != null)
             customer.setFirstName(customerProfileUpdateDTO.getFirstName());

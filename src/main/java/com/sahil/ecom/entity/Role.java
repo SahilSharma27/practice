@@ -1,6 +1,7 @@
 package com.sahil.ecom.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sahil.ecom.audit.Auditable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class Role extends Auditable {
     @Column(name = "authority")
     private String authority;
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "roles")
     List<User> users;
 

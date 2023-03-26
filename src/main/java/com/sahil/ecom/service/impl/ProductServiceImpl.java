@@ -8,6 +8,7 @@ import com.sahil.ecom.dto.product.variation.FetchProductVariationSellerDTO;
 import com.sahil.ecom.entity.*;
 import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.repository.*;
+import com.sahil.ecom.security.AuthUserService;
 import com.sahil.ecom.service.FileService;
 import com.sahil.ecom.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -41,14 +42,15 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
     private final MessageSource messageSource;
 
+    private final AuthUserService authUserService;
+
     @Value("${project.image.product}")
     private String path;
 
     @Override
-    public void addProduct(AddProductDTO addProductDTO, String username) {
+    public void addProduct(AddProductDTO addProductDTO) {
 
-        Seller seller = sellerRepository.findByEmail(username).orElseThrow(GenericException::new);
-
+        Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
         //product name should be unique for a brand category and seller
         validateProduct(addProductDTO, seller);
 
@@ -61,14 +63,11 @@ public class ProductServiceImpl implements ProductService {
         product.setCancellable(addProductDTO.isCancellable());
 
 
-        Category category = categoryRepository
-                .findById(addProductDTO.getCategoryId())
-                .orElseThrow(GenericException::new);
+        Category category = categoryRepository.findById(addProductDTO.getCategoryId()).orElseThrow(GenericException::new);
 
         //check for leaf category
         if (!category.getChildren().isEmpty()) {
-            throw new GenericException(messageSource
-                    .getMessage("product.leaf.category.validation", null, "message", LocaleContextHolder.getLocale()));
+            throw new GenericException(messageSource.getMessage("product.leaf.category.validation", null, "message", LocaleContextHolder.getLocale()));
         }
 
         product.setCategory(category);
@@ -104,9 +103,7 @@ public class ProductServiceImpl implements ProductService {
     public void addProductVariation(AddProductVariationDTO addProductVariationDTO, MultipartFile file) {
 
 
-        Product savedProduct = productRepository
-                .findById(addProductVariationDTO.getProductId())
-                .orElseThrow(GenericException::new);
+        Product savedProduct = productRepository.findById(addProductVariationDTO.getProductId()).orElseThrow(GenericException::new);
 
         //check Metadata structure
         validateMetaDataForProductVariation(addProductVariationDTO, savedProduct);
@@ -138,8 +135,7 @@ public class ProductServiceImpl implements ProductService {
             log.info(productVariation.getMetadata().toString());
             if (newProductVariation.getMetadata().toString().equalsIgnoreCase(productVariation.getMetadata().toString())) {
 //                throw new GenricException()("PRODUCT VARIATION ALREADY EXIST");
-                throw new GenericException(messageSource
-                        .getMessage("product.variation.already.exist", null, "message", LocaleContextHolder.getLocale()));
+                throw new GenericException(messageSource.getMessage("product.variation.already.exist", null, "message", LocaleContextHolder.getLocale()));
             }
         });
     }
@@ -147,8 +143,7 @@ public class ProductServiceImpl implements ProductService {
 
     private void validateMetaDataForProductVariation(AddProductVariationDTO addProductVariationDTO, Product savedProduct) {
 
-        List<CategoryMetaDataFieldValue> categoryMetaDataFieldValueList =
-                savedProduct.getCategory().getCategoryMetaDataFieldValueList();
+        List<CategoryMetaDataFieldValue> categoryMetaDataFieldValueList = savedProduct.getCategory().getCategoryMetaDataFieldValueList();
 
         JSONObject metadata = addProductVariationDTO.getMetadata();
 
@@ -156,15 +151,12 @@ public class ProductServiceImpl implements ProductService {
         if (metadata.toString().equals("{}")) {
             log.info("CAUGHT EMPTY METADATA");
 //            throw new GenricException()("NO MATCHING FIELD FOUND FOR METADATA");
-            throw new GenericException(messageSource
-                    .getMessage("no.matching.field ", null, "message", LocaleContextHolder.getLocale()));
+            throw new GenericException(messageSource.getMessage("no.matching.field ", null, "message", LocaleContextHolder.getLocale()));
         }
 
         Map<String, Set<String>> savedMetaData = new HashMap<>();
 
-        categoryMetaDataFieldValueList.forEach(item ->
-                savedMetaData.put(item.getCategoryMetaDataField().getName(), convertStringValuesToSet(item.getValues()))
-        );
+        categoryMetaDataFieldValueList.forEach(item -> savedMetaData.put(item.getCategoryMetaDataField().getName(), convertStringValuesToSet(item.getValues())));
 
         for (Object key : metadata.keySet()) {
 
@@ -180,8 +172,7 @@ public class ProductServiceImpl implements ProductService {
 //                log.info(""+savedMetaData.containsKey(keyStr));
 //                log.info(""+savedMetaData.get(keyStr).contains(keyValue));
 //                throw new GenricException()("NO MATCHING FIELD FOUND FOR METADATA");
-                throw new GenericException(messageSource
-                        .getMessage("no.matching.field", null, "message", LocaleContextHolder.getLocale()));
+                throw new GenericException(messageSource.getMessage("no.matching.field", null, "message", LocaleContextHolder.getLocale()));
             }
 
         }
@@ -225,7 +216,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public List<FetchProductSellerDTO> getAllProductsForSeller(String sellerEmail, int page, int size, String sort, String order) {
+    public List<FetchProductSellerDTO> getAllProductsForSeller(int page, int size, String sort, String order) {
 
         Pageable pageable = null;
 
@@ -236,16 +227,11 @@ public class ProductServiceImpl implements ProductService {
         }
 
 
-        Seller seller = sellerRepository.findByEmail(sellerEmail)
-                .orElseThrow(GenericException::new);
+        Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
 
         Page<Product> products = productRepository.findAllBySeller(seller, pageable);
 
-        return
-                products
-                        .stream()
-                        .map(FetchProductSellerDTO::new)
-                        .toList();
+        return products.stream().map(FetchProductSellerDTO::new).toList();
 
     }
 
@@ -270,7 +256,7 @@ public class ProductServiceImpl implements ProductService {
 //    }
 
     @Override
-    public List<FetchProductVariationSellerDTO> getAllProductVariationsForSeller(String sellerEmail, Long productId, int page, int size, String sort, String order) {
+    public List<FetchProductVariationSellerDTO> getAllProductVariationsForSeller(Long productId, int page, int size, String sort, String order) {
 
 
         Pageable pageable = null;
@@ -281,30 +267,21 @@ public class ProductServiceImpl implements ProductService {
             pageable = PageRequest.of(page, size, Sort.by(sort).descending());
         }
 
-        Seller seller = sellerRepository.findByEmail(sellerEmail)
-                .orElseThrow(GenericException::new);
+        Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
 
-        Product productForSeller = seller.getProducts()
-                .stream()
-                .filter(product -> Objects.equals(product.getId(), productId))
-                .findFirst().orElseThrow(GenericException::new);
+        Product productForSeller = seller.getProducts().stream().filter(product -> Objects.equals(product.getId(), productId)).findFirst().orElseThrow(GenericException::new);
 
         Page<ProductVariation> productVariationPage = productVariationRepository.findAllByProduct(productForSeller, pageable);
 
-        return productVariationPage.getContent()
-                .stream()
-                .map(FetchProductVariationSellerDTO::new)
-                .toList();
+        return productVariationPage.getContent().stream().map(FetchProductVariationSellerDTO::new).toList();
 
     }
 
     @Override
-    public FetchProductSellerDTO getProductForSeller(String sellerEmail, Long productId) {
-        Seller seller = sellerRepository.findByEmail(sellerEmail)
-                .orElseThrow(GenericException::new);
+    public FetchProductSellerDTO getProductForSeller(Long productId) {
+        Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
 
-        return new FetchProductSellerDTO(seller.getProducts().stream().filter(product -> Objects.equals(product.getId(), productId))
-                .findFirst().orElseThrow(GenericException::new));
+        return new FetchProductSellerDTO(seller.getProducts().stream().filter(product -> Objects.equals(product.getId(), productId)).findFirst().orElseThrow(GenericException::new));
 
 //        Product product = productRepository.findById(productId).orElseThrow(GenricException()::new);
 ////        if(seller.getProducts().contains(product);
@@ -314,18 +291,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public FetchProductVariationSellerDTO getProductVariationForSeller(String sellerEmail, Long productVarId) {
-        Seller seller = sellerRepository.findByEmail(sellerEmail)
-                .orElseThrow(GenericException::new);
-
-        ProductVariation productVariation = productVariationRepository
-                .findById(productVarId)
-                .orElseThrow(GenericException::new);
+    public FetchProductVariationSellerDTO getProductVariationForSeller(Long productVarId) {
+        Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
+        ProductVariation productVariation = productVariationRepository.findById(productVarId).orElseThrow(GenericException::new);
 
         //variation should be of the authenticated customer
         if (Objects.equals(productVariation.getProduct().getSeller().getId(), seller.getId())) {
-            return
-                    new FetchProductVariationSellerDTO(productVariation);
+            return new FetchProductVariationSellerDTO(productVariation);
         }
 
         throw new GenericException();
@@ -368,8 +340,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void activateProduct(String username, Long id) {
-        Seller seller = sellerRepository.findByEmail(username).orElseThrow(GenericException::new);
+    public void activateProduct(Long id) {
+        Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
         AtomicBoolean flag = new AtomicBoolean(false);
         seller.getProducts().forEach(product -> {
             if (product.getId().equals(id)) {
@@ -379,8 +351,7 @@ public class ProductServiceImpl implements ProductService {
             }
         });
 
-        if (!flag.get())
-            throw new GenericException();
+        if (!flag.get()) throw new GenericException();
 //        sellerRepository.save(seller);
 
 

@@ -11,23 +11,23 @@ import java.util.List;
 
 public interface ProductService {
 
-    void addProduct(AddProductDTO addProductDTO, String username);
+    void addProduct(AddProductDTO addProductDTO);
 
     void addProductVariation(AddProductVariationDTO addProductVariationDTO, MultipartFile file);
 
     boolean saveProductImage(Long id, MultipartFile image);
 
-    List<FetchProductSellerDTO> getAllProductsForSeller(String sellerEmail, int page, int size, String sort, String order);
+    List<FetchProductSellerDTO> getAllProductsForSeller(int page, int size, String sort, String order);
 
-    List<FetchProductVariationSellerDTO> getAllProductVariationsForSeller(String sellerEmail, Long productId, int page, int size, String sort, String order);
+    List<FetchProductVariationSellerDTO> getAllProductVariationsForSeller(Long productId, int page, int size, String sort, String order);
 
-    FetchProductSellerDTO getProductForSeller(String username, Long productId);
+    FetchProductSellerDTO getProductForSeller(Long productId);
 
-    FetchProductVariationSellerDTO getProductVariationForSeller(String sellerEmail,Long productId);
+    FetchProductVariationSellerDTO getProductVariationForSeller(Long productId);
 
-    List<FetchProductCustomerDTO> getAllProductsForCustomer(Long categoryId,int page, int size, String sort, String order);
+    List<FetchProductCustomerDTO> getAllProductsForCustomer(Long categoryId, int page, int size, String sort, String order);
 
     FetchProductCustomerDTO getProductForCustomer(Long productId);
 
-    void activateProduct(String username, Long id);
+    void activateProduct(Long id);
 }

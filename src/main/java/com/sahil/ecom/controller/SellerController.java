@@ -9,6 +9,7 @@ import com.sahil.ecom.dto.product.AddProductDTO;
 import com.sahil.ecom.dto.product.variation.AddProductVariationDTO;
 import com.sahil.ecom.dto.seller.AddSellerDTO;
 import com.sahil.ecom.dto.seller.SellerProfileUpdateDTO;
+import com.sahil.ecom.enums.EcomRoles;
 import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.exception.InvalidTokenException;
 import com.sahil.ecom.security.JwtUtil;
@@ -27,7 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 
@@ -109,111 +109,31 @@ public class SellerController {
 
 
     @GetMapping(value = "users/profile", params = "role=seller")
-    public ResponseEntity<?> getSellerProfile(HttpServletRequest request) {
-        //get token
-        //get username
-        //get profile
-
-        String requestHeader = request.getHeader("Authorization");
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-            String accessToken = requestHeader.substring("Bearer ".length());
-
-            try {
-
-                String userEmail = this.jwtUtil.extractUsername(accessToken);
-                return ResponseEntity.ok(sellerService.fetchSellerProfileDetails(userEmail));
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new InvalidTokenException();
-            }
-        }
-        throw new InvalidTokenException();
-
+    public ResponseEntity<?> getSellerProfile() {
+        return ResponseEntity.ok(sellerService.fetchSellerProfileDetails());
     }
 
     @PatchMapping(value = "/users/update/profile", params = "role=seller")
-    public ResponseEntity<?> updateProfile(@RequestBody SellerProfileUpdateDTO sellerProfileUpdateDTO, HttpServletRequest request) {
+    public ResponseEntity<?> updateProfile(@RequestBody SellerProfileUpdateDTO sellerProfileUpdateDTO) {
 
-        String requestHeader = request.getHeader("Authorization");
-
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            username = jwtUtil.extractUsername(accessToken);
-
-            sellerService.updateSellerProfile(username, sellerProfileUpdateDTO);
-            String message = messageSource.getMessage("user.profile.updated", null, "message", LocaleContextHolder.getLocale());
-
-            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
-        }
-
-        throw new InvalidTokenException();
+        sellerService.updateSellerProfile(sellerProfileUpdateDTO);
+        String message = messageSource.getMessage("user.profile.updated", null, "message", LocaleContextHolder.getLocale());
+        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
     }
 
     @GetMapping(value = "/categories", params = "role=seller")
-    public ResponseEntity<?> fetchAllCategoriesForSeller(HttpServletRequest request) {
-
-        String requestHeader = request.getHeader("Authorization");
-
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new InvalidTokenException();
-            }
-
-        }
-
-        String role = userService.getRole(username);
-        log.info("------------------" + role + "-------------------");
-
-        if (role.equals("ROLE_SELLER")) {
+    public ResponseEntity<?> fetchAllCategoriesForSeller() {
+        String role = userService.getRole();
+        if (role.equals(EcomRoles.SELLER.role)) {
             return ResponseEntity.ok(sellerService.getAllCategoriesForSeller());
-        } else
-            throw new InvalidTokenException();
-
-
-//        return ResponseEntity.ok(sellerService.getAllCategoriesForSeller());
-
+        } else throw new InvalidTokenException();
     }
 
 
     @PostMapping(value = "/products")
-    public ResponseEntity<?> addProduct(@RequestBody AddProductDTO addProductDTO, HttpServletRequest request) {
+    public ResponseEntity<?> addProduct(@RequestBody AddProductDTO addProductDTO) {
 
-        String requestHeader = request.getHeader("Authorization");
-
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-            } catch (Exception e) {
-                throw new InvalidTokenException();
-            }
-
-        }
-
-        productService.addProduct(addProductDTO, username);
+        productService.addProduct(addProductDTO);
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
         responseDTO.setSuccess(true);
@@ -240,16 +160,13 @@ public class SellerController {
 //    }
 
     @PostMapping(value = "/products/variation")
-    public ResponseEntity<?> addProductVariationWithFile(
-            @RequestParam("primary_image") MultipartFile file,
-            @RequestParam("product_variation") String productVariation) {
+    public ResponseEntity<?> addProductVariationWithFile(@RequestParam("primary_image") MultipartFile file, @RequestParam("product_variation") String productVariation) {
 
         log.info(file.getOriginalFilename());
         log.info(productVariation);
         AddProductVariationDTO addProductVariationDTO;
         try {
-            addProductVariationDTO =
-                    objectMapper.readValue(productVariation, AddProductVariationDTO.class);
+            addProductVariationDTO = objectMapper.readValue(productVariation, AddProductVariationDTO.class);
 
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>("invalid request", HttpStatus.BAD_REQUEST);
@@ -267,160 +184,41 @@ public class SellerController {
     }
 
     @GetMapping(value = "/products", params = "role=seller")
-    public ResponseEntity<?> getAllProducts(
-            @RequestParam(value = "page", defaultValue = "0") String page,
-            @RequestParam(value = "size", defaultValue = "10") String size,
-            @RequestParam(value = "sort", defaultValue = "id") String sort,
-            @RequestParam(value = "order", defaultValue = "asc") String order,
-            HttpServletRequest servletRequest) {
-
-        String requestHeader = servletRequest.getHeader("Authorization");
-
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-            } catch (Exception e) {
-                throw new InvalidTokenException();
-            }
-
-        }
-
-
-        return ResponseEntity.ok(
-                productService
-                        .getAllProductsForSeller(username
-                                , Integer.parseInt(page)
-                                , Integer.parseInt(size)
-                                , sort
-                                , order));
-
+    public ResponseEntity<?> getAllProducts(@RequestParam(value = "page", defaultValue = "0") String page,
+                                            @RequestParam(value = "size", defaultValue = "10") String size,
+                                            @RequestParam(value = "sort", defaultValue = "id") String sort,
+                                            @RequestParam(value = "order", defaultValue = "asc") String order) {
+        return ResponseEntity.ok(productService.getAllProductsForSeller(Integer.parseInt(page), Integer.parseInt(size), sort, order));
     }
 
 
     @GetMapping(value = "/products/{product_id}", params = "role=seller")
-    public ResponseEntity<?> getProduct(@PathVariable("product_id") Long productId, HttpServletRequest servletRequest) {
-
-        String requestHeader = servletRequest.getHeader("Authorization");
-
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-            } catch (Exception e) {
-                throw new InvalidTokenException();
-            }
-
-        }
-
-        return ResponseEntity.ok(
-                productService
-                        .getProductForSeller(username, productId));
+    public ResponseEntity<?> getProduct(@PathVariable("product_id") Long productId) {
+        return ResponseEntity.ok(productService.getProductForSeller(productId));
 
     }
 
     @GetMapping(value = "/products/variation/{product_variation_id}", params = "role=seller")
-    public ResponseEntity<?> getProductVariation(@PathVariable("product_variation_id") Long id, HttpServletRequest servletRequest) {
-
-        String requestHeader = servletRequest.getHeader("Authorization");
-
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-            } catch (Exception e) {
-                throw new InvalidTokenException();
-            }
-
-        }
-
-        return ResponseEntity.ok(
-                productService
-                        .getProductVariationForSeller(username, id));
-
+    public ResponseEntity<?> getProductVariation(@PathVariable("product_variation_id") Long id) {
+        return ResponseEntity.ok(productService.getProductVariationForSeller(id));
     }
 
     @GetMapping(value = "/products/variation", params = "role=seller")
-    public ResponseEntity<?> getAllProductVariation(
-            @RequestParam(value = "page", defaultValue = "0") String page,
-            @RequestParam(value = "size", defaultValue = "10") String size,
-            @RequestParam(value = "sort", defaultValue = "id") String sort,
-            @RequestParam(value = "order", defaultValue = "asc") String order,
-            @RequestParam("product_id") String id, HttpServletRequest servletRequest) {
-
-        String requestHeader = servletRequest.getHeader("Authorization");
-        Long productId = Long.parseLong(id);
-
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-            } catch (Exception e) {
-                throw new InvalidTokenException();
-            }
-
-        }
-
-        return ResponseEntity.ok(productService
-                .getAllProductVariationsForSeller(
-                        username, productId
-                        , Integer.parseInt(page)
-                        , Integer.parseInt(size)
-                        , sort
-                        , order));
+    public ResponseEntity<?> getAllProductVariation(@RequestParam(value = "page", defaultValue = "0") String page, @RequestParam(value = "size", defaultValue = "10") String size, @RequestParam(value = "sort", defaultValue = "id") String sort, @RequestParam(value = "order", defaultValue = "asc") String order, @RequestParam("product_id") String id) {
+        return ResponseEntity.ok(productService.getAllProductVariationsForSeller(Long.valueOf(id), Integer.parseInt(page), Integer.parseInt(size), sort, order));
     }
 
 
     @PutMapping("/product/activate")
-    public ResponseEntity<?> activateProduct(@RequestParam("product_id") String id, HttpServletRequest request) {
-        String requestHeader = request.getHeader("Authorization");
+    public ResponseEntity<?> activateProduct(@RequestParam("product_id") String id) {
 
-        Long productId = Long.parseLong(id);
+        productService.activateProduct(Long.valueOf(id));
 
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-            } catch (Exception e) {
-                throw new InvalidTokenException();
-            }
-
-            productService.activateProduct(username, productId);
-
-            ResponseDTO responseDTO = new ResponseDTO();
-            responseDTO.setMessage("PRODUCT ACTIVATED");
-            responseDTO.setSuccess(true);
-            responseDTO.setResponseStatusCode(HttpStatus.OK);
-            return ResponseEntity.ok(responseDTO);
-
-        }
-
-        throw new InvalidTokenException();
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setMessage("PRODUCT ACTIVATED");
+        responseDTO.setSuccess(true);
+        responseDTO.setResponseStatusCode(HttpStatus.OK);
+        return ResponseEntity.ok(responseDTO);
 
 
     }

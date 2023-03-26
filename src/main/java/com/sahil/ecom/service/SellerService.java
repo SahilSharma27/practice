@@ -21,9 +21,9 @@ public interface SellerService {
 
     boolean checkSellerGst(String gst);
 
-    SellerProfileDTO fetchSellerProfileDetails(String userEmail);
+    SellerProfileDTO fetchSellerProfileDetails();
 
-    boolean updateSellerProfile(String username, SellerProfileUpdateDTO sellerProfileUpdateDTO);
+    boolean updateSellerProfile(SellerProfileUpdateDTO sellerProfileUpdateDTO);
 
     List<FetchCategoryDTO> getAllCategoriesForSeller();
 }

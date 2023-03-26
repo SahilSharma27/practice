@@ -1,10 +1,9 @@
 package com.sahil.ecom.security;
 
+import com.sahil.ecom.entity.User;
+
 public interface AuthUserService {
 
-    String getUserEmail(String accessToken);
-
-    String getUserRole(String accessToken);
-
+    User getCurrentAuthorizedUser();
 
 }

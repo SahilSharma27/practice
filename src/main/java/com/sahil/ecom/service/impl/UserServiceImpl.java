@@ -6,6 +6,7 @@ import com.sahil.ecom.entity.*;
 import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.exception.TokenExpiredException;
 import com.sahil.ecom.repository.*;
+import com.sahil.ecom.security.AuthUserService;
 import com.sahil.ecom.service.FileService;
 import com.sahil.ecom.service.LoginService;
 import com.sahil.ecom.service.SellerService;
@@ -51,6 +52,8 @@ public class UserServiceImpl implements UserService {
     private final LoginService loginService;
 
     private final GeneralMailService generalMailService;
+
+    private final AuthUserService authUserService;
 
 
     @Value("${project.image}")
@@ -455,8 +458,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String getRole(String username) {
-        User user = userRepository.findByEmail(username).orElseThrow(GenericException::new);
+    public String getRole() {
+        User user = authUserService.getCurrentAuthorizedUser();
         return user.getRoles().get(0).getAuthority();
     }
 }

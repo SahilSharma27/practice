@@ -13,6 +13,7 @@ import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.repository.RoleRepository;
 import com.sahil.ecom.repository.SellerRepository;
 import com.sahil.ecom.repository.UserRepository;
+import com.sahil.ecom.security.AuthUserService;
 import com.sahil.ecom.security.TokenGeneratorHelper;
 import com.sahil.ecom.service.CategoryService;
 import com.sahil.ecom.service.LoginService;
@@ -38,6 +39,7 @@ public class SellerServiceImpl implements SellerService {
     private final LoginService loginService;
     private final TokenGeneratorHelper tokenGeneratorHelper;
     private final CategoryService categoryService;
+    private final AuthUserService authUserService;
 
     @Override
     public boolean checkSellerCompanyName(String companyName) {
@@ -116,9 +118,9 @@ public class SellerServiceImpl implements SellerService {
 
 
     @Override
-    public SellerProfileDTO fetchSellerProfileDetails(String userEmail) {
+    public SellerProfileDTO fetchSellerProfileDetails() {
 
-        Seller seller = sellerRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
+        Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
 
         SellerProfileDTO sellerProfile = new SellerProfileDTO();
 
@@ -127,7 +129,7 @@ public class SellerServiceImpl implements SellerService {
         sellerProfile.setMiddleName(seller.getMiddleName());
         sellerProfile.setLastName(seller.getLastName());
         sellerProfile.setActive(seller.isActive());
-        sellerProfile.setEmail(userEmail);
+        sellerProfile.setEmail(seller.getEmail());
         sellerProfile.setCompanyName(seller.getCompanyName());
         sellerProfile.setCompanyContact(seller.getCompanyContact());
         sellerProfile.setGst(seller.getGst());
@@ -141,9 +143,9 @@ public class SellerServiceImpl implements SellerService {
 
 
     @Override
-    public boolean updateSellerProfile(String username, SellerProfileUpdateDTO sellerProfileUpdateDTO) {
+    public boolean updateSellerProfile(SellerProfileUpdateDTO sellerProfileUpdateDTO) {
 
-        Seller seller = sellerRepository.findByEmail(username).orElseThrow(GenericException::new);
+        Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
 
         if (sellerProfileUpdateDTO.getFirstName() != null)
             seller.setFirstName(sellerProfileUpdateDTO.getFirstName());
@@ -184,9 +186,7 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     public List<FetchCategoryDTO> getAllCategoriesForSeller() {
-
         List<FetchCategoryDTO> fetchCategoryList = categoryService.getAllCategories();
-
         return fetchCategoryList.stream().filter(fetchCategoryDTO -> fetchCategoryDTO.getChildren().isEmpty()).toList();
 
     }

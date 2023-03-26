@@ -216,7 +216,7 @@ public class AdminController {
 
         }
 
-        String role = userService.getRole(username);
+        String role = userService.getRole();
         log.info("------------------" + role + "-------------------");
 
 

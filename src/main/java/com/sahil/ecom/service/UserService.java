@@ -46,5 +46,5 @@ public interface UserService {
 
     FetchSellerDTO getSeller(String email);
 
-    String getRole(String username);
+    String getRole();
 }
