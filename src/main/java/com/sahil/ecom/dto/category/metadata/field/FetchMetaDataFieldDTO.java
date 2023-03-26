@@ -1,21 +1,16 @@
 package com.sahil.ecom.dto.category.metadata.field;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class FetchMetaDataFieldDTO {
 
     private String fieldName;
 
-    public FetchMetaDataFieldDTO() {
-    }
-
-    public FetchMetaDataFieldDTO(String fieldName) {
-        this.fieldName = fieldName;
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
-    }
 }

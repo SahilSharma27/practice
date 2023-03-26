@@ -1,15 +1,18 @@
 package com.sahil.ecom.service.impl;
 
 
-import com.sahil.ecom.dto.*;
+import com.sahil.ecom.dto.AddAddressDTO;
+import com.sahil.ecom.dto.FetchAddressDTO;
+import com.sahil.ecom.dto.LoginRequestDTO;
+import com.sahil.ecom.dto.LoginResponseDTO;
 import com.sahil.ecom.dto.category.FetchCategoryDTO;
 import com.sahil.ecom.dto.customer.AddCustomerDTO;
 import com.sahil.ecom.dto.customer.CustomerProfileDTO;
 import com.sahil.ecom.dto.customer.CustomerProfileUpdateDTO;
-import com.sahil.ecom.entity.*;
-import com.sahil.ecom.exception.IdNotFoundException;
-import com.sahil.ecom.exception.UniqueFieldException;
-import com.sahil.ecom.exception.UserEmailNotFoundException;
+import com.sahil.ecom.entity.Address;
+import com.sahil.ecom.entity.Customer;
+import com.sahil.ecom.entity.User;
+import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.repository.AddressRepository;
 import com.sahil.ecom.repository.CustomerRepository;
 import com.sahil.ecom.repository.RoleRepository;
@@ -18,48 +21,31 @@ import com.sahil.ecom.security.TokenGeneratorHelper;
 import com.sahil.ecom.service.CategoryService;
 import com.sahil.ecom.service.CustomerService;
 import com.sahil.ecom.service.LoginService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private LoginService loginService;
-
-    @Autowired
-    private TokenGeneratorHelper tokenGeneratorHelper;
-
-    @Autowired
-    private LockAccountService lockAccountService;
-
-    @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private MessageSource messageSource;
+    private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
+    private final LoginService loginService;
+    private final TokenGeneratorHelper tokenGeneratorHelper;
+    private final LockAccountService lockAccountService;
+    private final CategoryService categoryService;
+    private final MessageSource messageSource;
 
     @Override
     public boolean register(AddCustomerDTO addCustomerDTO) {
@@ -84,9 +70,7 @@ public class CustomerServiceImpl implements CustomerService {
         newCustomer.setInvalidAttemptCount(0);
 
 
-
         customerRepository.save(newCustomer);
-
         return true;
 
     }
@@ -106,48 +90,35 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-
     @Override
     public boolean addAddressToCustomer(String userEmail, AddAddressDTO addAddressDTO) {
 
-            User user = userRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
+        User user = userRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
 
-            //check address already exist
-            user.getAddresses().forEach(address -> {
-                if(address.getLabel().equalsIgnoreCase(addAddressDTO.getLabel())){
-                    throw new UniqueFieldException(
-                            messageSource.getMessage("same.address.exist",null,"message", LocaleContextHolder.getLocale()
-                            )
-                    );
-                }
-            });
+        //check address already exist
+        user.getAddresses().forEach(address -> {
+            if (address.getLabel().equalsIgnoreCase(addAddressDTO.getLabel())) {
+                throw new GenericException(messageSource.getMessage("same.address.exist", null, "message", LocaleContextHolder.getLocale()));
+            }
+        });
 
-            Address newAddress = addAddressDTO.mapAddressDTOtoAddress();
-            user.getAddresses().add(newAddress);
+        Address newAddress = addAddressDTO.mapAddressDTOtoAddress();
+        user.getAddresses().add(newAddress);
 
-            userRepository.save(user);
-            return true;
+        userRepository.save(user);
+        return true;
 
     }
 
     @Override
     public List<FetchAddressDTO> getAllCustomerAddresses(String userEmail) {
-
-        User user =  userRepository
-                .findByEmail(userEmail)
-                .orElseThrow(UserEmailNotFoundException::new);
-
-        return user.getAddresses()
-                .stream().map(FetchAddressDTO::new)
-                .collect(Collectors.toList());
-
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new GenericException("user not found"));
+        return user.getAddresses().stream().map(FetchAddressDTO::new).toList();
     }
 
     @Override
-    public void removeAddress(Long id,String userEmail) {
-
-        User user =  userRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
-
+    public void removeAddress(Long id, String userEmail) {
+        User user = userRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
 //        user.getAddresses().forEach(address ->{
 //            if(address.getId().equals(id)){
 //                addressRepository.deleteById(id);
@@ -155,10 +126,7 @@ public class CustomerServiceImpl implements CustomerService {
 //            }
 //        });
 
-        user.getAddresses()
-                .stream()
-                .filter(address -> address.getId().equals(id))
-                .findFirst().orElseThrow(IdNotFoundException::new);
+        user.getAddresses().stream().filter(address -> address.getId().equals(id)).findFirst().orElseThrow(GenericException::new);
 
 //        if(addressRepository.existsById(id)){
 //            addressRepository.deleteById(id);
@@ -170,26 +138,26 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerProfileDTO fetchCustomerProfileDetails(String userEmail) {
 
-            Customer customer = customerRepository.findByEmail(userEmail).orElseThrow(UserEmailNotFoundException::new);
+        Customer customer = customerRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
 
-            CustomerProfileDTO customerProfileDTO = new CustomerProfileDTO(customer);
+        CustomerProfileDTO customerProfileDTO = new CustomerProfileDTO(customer);
 //            String url = "localhost:8080/images/users/";
 //            customerProfileDTO.setImageUrl(url + customer.getId()+ ".jpg");
         customerProfileDTO.setImageUrl(getImageUrlIfExist(customer.getId()));
 
-            return customerProfileDTO;
+        return customerProfileDTO;
 
     }
 
-    private String getImageUrlIfExist(Long id){
+    private String getImageUrlIfExist(Long id) {
 
-        String path = "./images/users/"+id+ ".jpg";
+        String path = "./images/users/" + id + ".jpg";
 
         File f = new File(path.trim());
-        if(f.exists() && !f.isDirectory()) {
+        if (f.exists() && !f.isDirectory()) {
             // do something
 
-            return "localhost:8080/images/users/"+id+".jpg";
+            return "localhost:8080/images/users/" + id + ".jpg";
         }
         return "Not Uploaded";
     }
@@ -197,21 +165,20 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void updateProfile(String username, CustomerProfileUpdateDTO customerProfileUpdateDTO) {
 
-            Customer customer = customerRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
+        Customer customer = customerRepository.findByEmail(username).orElseThrow(GenericException::new);
 
-            if(customerProfileUpdateDTO.getFirstName()!=null)
-                customer.setFirstName(customerProfileUpdateDTO.getFirstName());
+        if (customerProfileUpdateDTO.getFirstName() != null)
+            customer.setFirstName(customerProfileUpdateDTO.getFirstName());
 
-            if(customerProfileUpdateDTO.getMiddleName()!=null)
-                customer.setMiddleName(customerProfileUpdateDTO.getMiddleName());
+        if (customerProfileUpdateDTO.getMiddleName() != null)
+            customer.setMiddleName(customerProfileUpdateDTO.getMiddleName());
 
-            if(customerProfileUpdateDTO.getLastName()!=null)
-                customer.setLastName(customerProfileUpdateDTO.getLastName());
+        if (customerProfileUpdateDTO.getLastName() != null)
+            customer.setLastName(customerProfileUpdateDTO.getLastName());
 
-            if(customerProfileUpdateDTO.getContact()!=null)
-                customer.setContact(customerProfileUpdateDTO.getContact());
+        if (customerProfileUpdateDTO.getContact() != null) customer.setContact(customerProfileUpdateDTO.getContact());
 
-            customerRepository.save(customer);
+        customerRepository.save(customer);
 
     }
 
@@ -219,16 +186,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<FetchCategoryDTO> getAllCategoriesForCustomer(Long categoryId) {
 
-        if(categoryId == null){
+        if (categoryId == null) {
             return categoryService.getAllRootCategories();
         }
 
-        return categoryService
-                .getCategoryById(categoryId)
-                .getChildren()
-                .stream()
-                .map(FetchCategoryDTO::new)
-                .collect(Collectors.toList());
+        return categoryService.getCategoryById(categoryId).getChildren().stream().map(FetchCategoryDTO::convertCategoryToFetchCategoryDTO).toList();
 
     }
 }

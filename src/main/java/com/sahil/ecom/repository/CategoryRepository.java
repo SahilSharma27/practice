@@ -19,9 +19,9 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
 
 
     @Query(value = """
-            SELECT COUNT(CATEGORY.NAME)
-            FROM CATEGORY
-            WHERE CATEGORY.NAME =:catName  and CATEGORY.PARENT_ID is Null;""",nativeQuery = true)
+            SELECT COUNT(category.name)
+            FROM category
+            WHERE category.name =:catName  and category.parent_id is NULL;""",nativeQuery = true)
     int checkUniqueAtRoot(String catName);
 
 

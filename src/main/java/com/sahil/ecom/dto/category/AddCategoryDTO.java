@@ -1,6 +1,7 @@
 package com.sahil.ecom.dto.category;
 
 import com.sahil.ecom.entity.Category;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class AddCategoryDTO {
 
     private Long parentId;
@@ -21,11 +23,6 @@ public class AddCategoryDTO {
 
     public AddCategoryDTO(Category category) {
         this.categoryName = category.getName();
-    }
-
-    public AddCategoryDTO(Long parentId, String categoryName) {
-        this.parentId = parentId;
-        this.categoryName = categoryName;
     }
 
     public AddCategoryDTO(String categoryName) {

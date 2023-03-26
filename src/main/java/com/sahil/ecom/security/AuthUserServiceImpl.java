@@ -1,6 +1,6 @@
 package com.sahil.ecom.security;
 
-import com.sahil.ecom.exception.GenricException;
+import com.sahil.ecom.exception.GenericException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw new GenricException("TOKEN INVALID");
+            throw new GenericException("TOKEN INVALID");
 
         }
     }

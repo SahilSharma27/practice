@@ -2,9 +2,7 @@ package com.sahil.ecom.dto.category;
 
 import com.sahil.ecom.entity.Category;
 import com.sahil.ecom.entity.CategoryMetaDataFieldValue;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
@@ -12,6 +10,8 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class FetchCategoryDTO {
     private Long id;
     private String name;
@@ -19,11 +19,13 @@ public class FetchCategoryDTO {
     private Set<Category> children;
     private List<CategoryMetaDataFieldValue> metaDataFieldValues;
 
-    public FetchCategoryDTO(Category category) {
-        this.id = category.getId();
-        this.name = category.getName();
-        this.parent = category.getParent();
-        this.children = category.getChildren();
-        this.metaDataFieldValues= category.getCategoryMetaDataFieldValueList();
+    public static FetchCategoryDTO convertCategoryToFetchCategoryDTO(Category category) {
+        return FetchCategoryDTO.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .parent(category.getParent())
+                .children(category.getChildren())
+                .metaDataFieldValues(category.getCategoryMetaDataFieldValueList())
+                .build();
     }
 }

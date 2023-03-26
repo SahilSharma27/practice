@@ -1,13 +1,16 @@
 package com.sahil.ecom.enums;
 
 public enum EcomRoles {
-    ADMIN("ADMIN"),
-    SELLER("SELLER"),
-    CUSTOMER("CUSTOMER");
+    ADMIN("ADMIN","ROLE_ADMIN"),
+    SELLER("SELLER","ROLE_SELLER"),
+    CUSTOMER("CUSTOMER","ROLE_CUSTOMER");
 
     public final String label;
 
-    private EcomRoles(String label) {
+    public final String role;
+
+    private EcomRoles(String label,String role) {
         this.label = label;
+        this.role = role;
     }
 }

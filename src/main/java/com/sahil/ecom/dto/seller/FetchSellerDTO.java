@@ -2,8 +2,15 @@ package com.sahil.ecom.dto.seller;
 
 import com.sahil.ecom.dto.FetchAddressDTO;
 import com.sahil.ecom.entity.Seller;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-//For admin
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class FetchSellerDTO {
 
     private Long id;
@@ -13,12 +20,7 @@ public class FetchSellerDTO {
     private String companyName;
     private FetchAddressDTO companyAddress;
     private String companyContact;
-
     private String gst;
-
-    public FetchSellerDTO() {
-
-    }
 
     public FetchSellerDTO(Seller seller) {
 
@@ -33,68 +35,4 @@ public class FetchSellerDTO {
 
     }
 
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
-    public FetchAddressDTO getCompanyAddress() {
-        return companyAddress;
-    }
-
-    public void setCompanyAddress(FetchAddressDTO companyAddress) {
-        this.companyAddress = companyAddress;
-    }
-
-    public String getCompanyContact() {
-        return companyContact;
-    }
-
-    public void setCompanyContact(String companyContact) {
-        this.companyContact = companyContact;
-    }
-
-    public String getGst() {
-        return gst;
-    }
-
-    public void setGst(String gst) {
-        this.gst = gst;
-    }
 }

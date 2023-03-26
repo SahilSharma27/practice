@@ -1,8 +1,16 @@
 package com.sahil.ecom.dto.product.variation;
 
 import com.sahil.ecom.entity.ProductVariation;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.json.simple.JSONObject;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class FetchProductVariationSellerDTO {
 
     private Long id;
@@ -18,11 +26,6 @@ public class FetchProductVariationSellerDTO {
     private String primaryImageURL;
 
 
-//    private Product product;
-
-    public FetchProductVariationSellerDTO() {
-    }
-
     public FetchProductVariationSellerDTO(ProductVariation productVariation) {
         this.id = productVariation.getId();
         this.quantityAvailable = productVariation.getQuantityAvailable();
@@ -36,59 +39,4 @@ public class FetchProductVariationSellerDTO {
 
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getQuantityAvailable() {
-        return quantityAvailable;
-    }
-
-    public void setQuantityAvailable(int quantityAvailable) {
-        this.quantityAvailable = quantityAvailable;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public JSONObject getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(JSONObject metadata) {
-        this.metadata = metadata;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public String getPrimaryImageURL() {
-        return primaryImageURL;
-    }
-
-    public void setPrimaryImageURL(String primaryImageURL) {
-        this.primaryImageURL = primaryImageURL;
-    }
-
-    //    public Product getProduct() {
-//        return product;
-//    }
-//
-//    public void setProduct(Product product) {
-//        this.product = product;
-//    }
 }

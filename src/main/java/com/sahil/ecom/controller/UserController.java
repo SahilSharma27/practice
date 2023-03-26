@@ -1,23 +1,21 @@
 package com.sahil.ecom.controller;
 
-import com.sahil.ecom.dto.password.ForgotPasswordDTO;
 import com.sahil.ecom.dto.LoginResponseDTO;
-import com.sahil.ecom.dto.password.ResetPassDTO;
 import com.sahil.ecom.dto.ResponseDTO;
-import com.sahil.ecom.entity.*;
+import com.sahil.ecom.dto.password.ForgotPasswordDTO;
+import com.sahil.ecom.dto.password.ResetPassDTO;
+import com.sahil.ecom.entity.Address;
+import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.exception.InvalidTokenException;
-import com.sahil.ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.ecom.repository.BlacklistTokenRepository;
 import com.sahil.ecom.security.JwtUtil;
 import com.sahil.ecom.security.TokenGeneratorHelper;
 import com.sahil.ecom.service.FileService;
-import com.sahil.ecom.service.impl.GeneralMailService;
 import com.sahil.ecom.service.LoginService;
 import com.sahil.ecom.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import com.sahil.ecom.service.impl.GeneralMailService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -38,46 +36,23 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private TokenGeneratorHelper tokenGeneratorHelper;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
-    private GeneralMailService generalMailService;
-
+    private final UserService userService;
+    private final TokenGeneratorHelper tokenGeneratorHelper;
+    private final UserDetailsService userDetailsService;
+    private final MessageSource messageSource;
+    private final GeneralMailService generalMailService;
+    private final JwtUtil jwtUtil;
+    private final LoginService loginService;
+    private final BlacklistTokenRepository blacklistTokenRepository;
+    private final FileService fileService;
     @Value("${project.image}")
     private String path;
-
-
     @Value("${project.image.product}")
     private String pathProduct;
-
-
-    Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-
-    @Autowired
-    private LoginService loginService;
-
-    @Autowired
-    private BlacklistTokenRepository blacklistTokenRepository;
-
-    @Autowired
-    private FileService fileService;
-
 
 
     @GetMapping("/token/refresh")
@@ -107,11 +82,11 @@ public class UserController {
             loginService.removeAlreadyGeneratedTokens(username);
 
             //save new tokens
-            loginService.saveJwtResponse(new LoginResponseDTO(newAccessToken,jwtRefreshToken),username);
+            loginService.saveJwtResponse(new LoginResponseDTO(newAccessToken, jwtRefreshToken), username);
 
 
-            logger.info("------------------REFRESH________________");
-            logger.info(newAccessToken);
+            log.info("------------------REFRESH________________");
+            log.info(newAccessToken);
 
         }
 
@@ -129,7 +104,7 @@ public class UserController {
 
         String email = userService.validateActivationToken(uuid);
 
-        if(userService.activateByEmail(email)) {
+        if (userService.activateByEmail(email)) {
             String message = messageSource.getMessage("user.account.activated", null, "message", LocaleContextHolder.getLocale());
             //send email
             generalMailService.sendAccountActivationAck(email);
@@ -138,7 +113,7 @@ public class UserController {
         }
 
         ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), false, HttpStatus.INTERNAL_SERVER_ERROR);
-        responseDTO.setMessage(messageSource.getMessage("user.not.activated", null, "message",LocaleContextHolder.getLocale()));
+        responseDTO.setMessage(messageSource.getMessage("user.not.activated", null, "message", LocaleContextHolder.getLocale()));
 
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -154,17 +129,17 @@ public class UserController {
         ResponseDTO responseDTO;
         String message;
 
-        if(userService.forgotPasswordHelper(forgotPasswordDTO.getUserEmail())){
-            message = messageSource.getMessage("reset.pass.email.sent",null,"message",LocaleContextHolder.getLocale());
-            responseDTO= new ResponseDTO(LocalDateTime.now(),true,message,HttpStatus.OK);
+        if (userService.forgotPasswordHelper(forgotPasswordDTO.getUserEmail())) {
+            message = messageSource.getMessage("reset.pass.email.sent", null, "message", LocaleContextHolder.getLocale());
+            responseDTO = new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK);
 
             return ResponseEntity.ok(responseDTO);
         }
 
-        message = messageSource.getMessage("email.not.sent",null,"message",LocaleContextHolder.getLocale());
-        responseDTO = new ResponseDTO(LocalDateTime.now(),false,message,HttpStatus.INTERNAL_SERVER_ERROR);
+        message = messageSource.getMessage("email.not.sent", null, "message", LocaleContextHolder.getLocale());
+        responseDTO = new ResponseDTO(LocalDateTime.now(), false, message, HttpStatus.INTERNAL_SERVER_ERROR);
 
-        return new ResponseEntity<>(responseDTO,HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 
 
     }
@@ -186,11 +161,11 @@ public class UserController {
             //send mail
             generalMailService.sendPasswordUpdateAck(resetPassDTO.getUserEmail());
 
-            String message = messageSource.getMessage("user.password.updated",null,"message",LocaleContextHolder.getLocale());
-            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true,message, HttpStatus.OK));
+            String message = messageSource.getMessage("user.password.updated", null, "message", LocaleContextHolder.getLocale());
+            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
         }
 
-        throw new PassConfirmPassNotMatchingException();
+        throw new GenericException("Pass not matching with confirm pass");
 
     }
 
@@ -198,9 +173,9 @@ public class UserController {
     @PatchMapping(value = "/users/update/password")
     public ResponseEntity<?> updatePassword(@Valid @RequestBody ResetPassDTO resetPassDTO, HttpServletRequest request) throws Exception {
 
-        logger.info("------------------------------------------------------------------");
-        logger.info(resetPassDTO.getNewPassword() + "  " + resetPassDTO.getConfirmNewPassword());
-        logger.info("------------------------------------------------------------------");
+        log.info("------------------------------------------------------------------");
+        log.info(resetPassDTO.getNewPassword() + "  " + resetPassDTO.getConfirmNewPassword());
+        log.info("------------------------------------------------------------------");
 
         if (resetPassDTO.getNewPassword().equals(resetPassDTO.getConfirmNewPassword())) {
             String requestHeader = request.getHeader("Authorization");
@@ -226,17 +201,17 @@ public class UserController {
             }
         }
 
-        throw new PassConfirmPassNotMatchingException();
+        throw new GenericException("Pass not matching with confirm pass");
 
     }
 
     @GetMapping(value = "/users/logout")
-    public ResponseEntity<?> logoutUser(@Valid @RequestHeader("Authorization")String requestHeader) {
+    public ResponseEntity<?> logoutUser(@Valid @RequestHeader("Authorization") String requestHeader) {
 
         String username = null;
         String accessToken = null;
 
-        ResponseDTO responseDTO =  new ResponseDTO();
+        ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
 
 
@@ -246,15 +221,15 @@ public class UserController {
             accessToken = requestHeader.substring("Bearer".length());
 
             try {
-                username=jwtUtil.extractUsername(accessToken);
-            }catch (Exception e){
+                username = jwtUtil.extractUsername(accessToken);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if(userService.logoutHelper(username)){
+            if (userService.logoutHelper(username)) {
                 responseDTO.setSuccess(true);
                 responseDTO.setResponseStatusCode(HttpStatus.OK);
-                responseDTO.setMessage(messageSource.getMessage("user.logged.out",null,"message",LocaleContextHolder.getLocale()));
+                responseDTO.setMessage(messageSource.getMessage("user.logged.out", null, "message", LocaleContextHolder.getLocale()));
                 return ResponseEntity.ok(responseDTO);
             }
 
@@ -265,14 +240,14 @@ public class UserController {
 
     //common for customer and seller
     @PatchMapping(value = "users/address/{address_id}")
-    public ResponseEntity<?> updateAddress(@RequestBody Address address, @PathVariable(name = "address_id") Long id,HttpServletRequest request) {
+    public ResponseEntity<?> updateAddress(@RequestBody Address address, @PathVariable(name = "address_id") Long id, HttpServletRequest request) {
 
         String requestHeader = request.getHeader("Authorization");
 
         String username = null;
         String accessToken = null;
 
-        ResponseDTO responseDTO =  new ResponseDTO();
+        ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
 
 
@@ -287,10 +262,10 @@ public class UserController {
                 e.printStackTrace();
             }
         }
-            //find address by id for the requesting user
+        //find address by id for the requesting user
         //update given fields
 
-        userService.updateAddress(id, address,username);
+        userService.updateAddress(id, address, username);
 //        ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
         String message;
@@ -308,7 +283,7 @@ public class UserController {
         responseDTO.setTimestamp(LocalDateTime.now());
 
 
-        logger.info("--------------------------"+image.getContentType());
+        log.info("--------------------------" + image.getContentType());
 
         if (userService.saveUserImage(id, image)) {
 

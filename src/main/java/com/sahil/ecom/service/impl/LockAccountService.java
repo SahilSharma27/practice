@@ -3,11 +3,11 @@ package com.sahil.ecom.service.impl;
 
 import com.sahil.ecom.entity.LockedAccount;
 import com.sahil.ecom.entity.User;
+import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.repository.LockedAccountRepository;
 import com.sahil.ecom.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -15,42 +15,36 @@ import java.time.LocalDateTime;
 
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class LockAccountService {
-
-    @Autowired
-    private UserRepository userRepository;
-
-    Logger logger = LoggerFactory.getLogger(LockAccountService.class);
-
-    @Autowired
-    private LockedAccountRepository lockedAccountRepository;
-
-    @Autowired
+    private final UserRepository userRepository;
+    private final LockedAccountRepository lockedAccountRepository;
     private GeneralMailService generalMailService;
 
     @Transactional
-    public void increaseCount(String userEmail){
+    public void increaseCount(String userEmail) {
 
-        User user = userRepository.findByEmail(userEmail).get();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new GenericException(""));
 
 
-        if(user.getInvalidAttemptCount() >= 2) {
+        if (user.getInvalidAttemptCount() >= 2) {
             lockAccount(user);
             return;
         }
 
-        user.setInvalidAttemptCount(user.getInvalidAttemptCount()+1);
-        logger.info("---------------------INCREASED COUNT---------------");
+        user.setInvalidAttemptCount(user.getInvalidAttemptCount() + 1);
+        log.info("---------------------INCREASED COUNT---------------");
 
-        userRepository.updateInvalidAttempts(user.getInvalidAttemptCount(),user.getEmail());
+        userRepository.updateInvalidAttempts(user.getInvalidAttemptCount(), user.getEmail());
     }
 
 
     @Transactional
-    private void lockAccount(User user){
+    public void lockAccount(User user) {
 
-        logger.info("---------------------COUNT REACHED 3---------------");
-        user.setInvalidAttemptCount(user.getInvalidAttemptCount()+1);
+        log.info("---------------------COUNT REACHED 3---------------");
+        user.setInvalidAttemptCount(user.getInvalidAttemptCount() + 1);
         user.setLocked(true);
 
         LockedAccount lockedAccount = new LockedAccount();
@@ -60,7 +54,7 @@ public class LockAccountService {
         user.setLockedAccount(lockedAccount);
 
         userRepository.save(user);
-        logger.info("---------------------ACCOUNT LOCKED---------------");
+        log.info("---------------------ACCOUNT LOCKED---------------");
         //send ack
         generalMailService.sendAccountLockedAck(user.getEmail());
 
@@ -81,7 +75,6 @@ public class LockAccountService {
         return false;
 
     }
-
 
 
 }

@@ -1,19 +1,20 @@
 package com.sahil.ecom.controller;
 
-import com.sahil.ecom.dto.*;
+import com.sahil.ecom.dto.LoginRequestDTO;
+import com.sahil.ecom.dto.LoginResponseDTO;
+import com.sahil.ecom.dto.ResponseDTO;
 import com.sahil.ecom.dto.category.AddCategoryDTO;
-import com.sahil.ecom.dto.category.metadata.field.value.AddCategoryMetaDataFieldValueDTO;
-import com.sahil.ecom.dto.category.metadata.field.AddMetaDataFieldDTO;
 import com.sahil.ecom.dto.category.CategoryUpdateDTO;
+import com.sahil.ecom.dto.category.metadata.field.AddMetaDataFieldDTO;
+import com.sahil.ecom.dto.category.metadata.field.value.AddCategoryMetaDataFieldValueDTO;
 import com.sahil.ecom.entity.User;
 import com.sahil.ecom.exception.InvalidTokenException;
 import com.sahil.ecom.security.JwtUtil;
 import com.sahil.ecom.security.TokenGeneratorHelper;
 import com.sahil.ecom.service.*;
 import com.sahil.ecom.service.impl.EmailSenderService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -26,37 +27,19 @@ import java.time.LocalDateTime;
 
 
 @RestController
+@AllArgsConstructor
+@Slf4j
 public class AdminController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private TokenGeneratorHelper tokenGeneratorHelper;
-
-    @Autowired
-    private EmailSenderService emailSenderService;
-
-    @Autowired
-    private SellerService sellerService;
-
-    @Autowired
-    private CustomerService customerService;
-
-    @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
-    private LoginService loginService;
-
-    @Autowired
-    private CategoryService categoryService;
-
-    Logger logger = LoggerFactory.getLogger(AdminController.class);
-
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final UserService userService;
+    private final TokenGeneratorHelper tokenGeneratorHelper;
+    private final EmailSenderService emailSenderService;
+    private final SellerService sellerService;
+    private final CustomerService customerService;
+    private final MessageSource messageSource;
+    private final LoginService loginService;
+    private final CategoryService categoryService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping(value = "/login", params = "role=admin")
     public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
@@ -234,7 +217,7 @@ public class AdminController {
         }
 
         String role = userService.getRole(username);
-        logger.info("------------------" + role + "-------------------");
+        log.info("------------------" + role + "-------------------");
 
 
         if (role.equals("ROLE_ADMIN")) {
@@ -259,7 +242,6 @@ public class AdminController {
         String message = messageSource.getMessage("category.metadata.field.value.added", null, "message", LocaleContextHolder.getLocale());
         return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
     }
-
 
 
     @PutMapping(value = "/category/metadata/value-update")

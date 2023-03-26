@@ -3,12 +3,18 @@ package com.sahil.ecom.dto.product;
 import com.sahil.ecom.dto.product.variation.FetchProductVariationSellerDTO;
 import com.sahil.ecom.entity.Category;
 import com.sahil.ecom.entity.Product;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class FetchProductCustomerDTO {
-
     private String name;
     private String description;
     private String brand;
@@ -17,10 +23,6 @@ public class FetchProductCustomerDTO {
     private boolean isActive;
     private Category category;
     private List<FetchProductVariationSellerDTO> productVariations;
-
-
-    public FetchProductCustomerDTO() {
-    }
 
     public FetchProductCustomerDTO(Product savedProduct) {
         this.name = savedProduct.getName();
@@ -36,89 +38,8 @@ public class FetchProductCustomerDTO {
                 savedProduct.getProductVariations()
                         .stream()
                         .map(FetchProductVariationSellerDTO::new)
-                        .collect(Collectors.toList());
-
-
+                        .toList();
 
     }
 
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    public boolean isCancellable() {
-        return isCancellable;
-    }
-
-    public void setCancellable(boolean cancellable) {
-        isCancellable = cancellable;
-    }
-
-    public boolean isReturnable() {
-        return isReturnable;
-    }
-
-    public void setReturnable(boolean returnable) {
-        isReturnable = returnable;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-//    public List<ProductVariation> getProductVariations() {
-//        return productVariations;
-//    }
-
-//    public void setProductVariations(List<ProductVariation> productVariations) {
-//        this.productVariations = productVariations;
-//    }
-
-    public void setProductVariations(List<FetchProductVariationSellerDTO> productVariations) {
-        this.productVariations = productVariations;
-    }
-
-    public List<FetchProductVariationSellerDTO> getProductVariations() {
-        return productVariations;
-    }
-    //    public String getPrimaryImageURL() {
-//        return primaryImageURL;
-//    }
-//
-//    public void setPrimaryImageURL(String primaryImageURL) {
-//        this.primaryImageURL = primaryImageURL;
-//    }
 }

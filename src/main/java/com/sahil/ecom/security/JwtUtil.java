@@ -17,8 +17,8 @@ import java.util.function.Function;
 public class JwtUtil {
 
 //    private final String SECRET_KEY = "java";
-    @Value("${jwt.secret}")
-    private String secret;
+//    @Value("${jwt.secret}")
+    private final String secret = "JAVA";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

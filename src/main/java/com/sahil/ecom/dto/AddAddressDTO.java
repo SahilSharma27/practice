@@ -1,12 +1,18 @@
 package com.sahil.ecom.dto;
 
 import com.sahil.ecom.entity.Address;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AddAddressDTO {
 
     @NotNull(message = "{not.null}")
@@ -35,83 +41,25 @@ public class AddAddressDTO {
     @NotBlank(message = "{not.blank}")
     private String label;
 
-    public AddAddressDTO() {
-    }
-
-    public AddAddressDTO(Address address){
-
-        this.setAddressLine(address.getAddressLine());
-        this.setCity(address.getCity());
-        this.setCountry(address.getCountry());
-        this.setLabel(address.getLabel());
-        this.setZipCode(address.getZipCode());
-        this.setState(address.getState());
-
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getAddressLine() {
-        return addressLine;
-    }
-
-    public void setAddressLine(String addressLine) {
-        this.addressLine = addressLine;
-    }
-
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
+    public static AddAddressDTO mapAddressToAddAddressDTO(Address address) {
+        return AddAddressDTO.builder()
+                .addressLine(address.getAddressLine())
+                .city(address.getCity())
+                .country(address.getCountry())
+                .label(address.getLabel())
+                .zipCode(address.getZipCode())
+                .state(address.getState()).build();
     }
 
     public Address mapAddressDTOtoAddress(){
-
-
         Address sellerAddress = new Address();
-
         sellerAddress.setAddressLine(this.getAddressLine());
         sellerAddress.setCity(this.getCity());
         sellerAddress.setCountry(this.getCountry());
         sellerAddress.setLabel(this.getLabel());
         sellerAddress.setZipCode(this.getZipCode());
         sellerAddress.setState(this.getState());
-
-
         return sellerAddress;
-
     }
 
 }

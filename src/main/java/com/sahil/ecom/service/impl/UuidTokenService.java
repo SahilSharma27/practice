@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.UUID;
 
 @Service
-public class UUIDTokenService {
+public class UuidTokenService {
 
     public String getUUIDToken(){
         return UUID.randomUUID().toString();

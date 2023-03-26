@@ -2,9 +2,8 @@ package com.sahil.ecom.service.impl;
 
 
 import com.sahil.ecom.RIUtilizationDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,28 +17,24 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class EmailSenderService {
 
-    @Autowired
-    private JavaMailSender javaMailSender;
-
-    @Autowired
-    private SpringTemplateEngine templateEngine;
-
-//    @Value("classpath:/templates/images/cloudkeeperlogo.jpg")
+    private final JavaMailSender javaMailSender;
+    private final SpringTemplateEngine templateEngine;
+//    @Value("images/cloudkeeperlogo.jpg")
 //    Resource cloudKeeperLogo;
-    @Value("images/cloudkeeperlogo.jpg")
-    Resource cloudKeeperLogo;
-
-    Logger logger = LoggerFactory.getLogger(EmailSenderService.class);
 
     @Async
-    public void sendEmail(String toEmail,String subject,String body){
-        SimpleMailMessage mailMessage =  new SimpleMailMessage();
+    public void sendEmail(String toEmail, String subject, String body) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom("sahil.sharma@tothenew.com");
         mailMessage.setTo(toEmail);
         mailMessage.setText(body);
@@ -56,9 +51,9 @@ public class EmailSenderService {
         Context context = new Context();
         Map<String, Object> properties = new HashMap<>();
 //        riUtilizationDetails
-        properties.put("riUtilizationDetails",riUtilizationList);
-        properties.put("numberOfUtilization",riUtilizationList.size());
-        properties.put("name","XYZ");
+        properties.put("riUtilizationDetails", riUtilizationList);
+        properties.put("numberOfUtilization", riUtilizationList.size());
+        properties.put("name", "XYZ");
 //        properties.put("cloudkeeperlogo",cloudKeeperLogo);
 //        properties.put("subscriptionDate", LocalDate.now().toString());
 //        properties.put("technologies", Arrays.asList("Python", "Go", "C#"));
@@ -66,10 +61,9 @@ public class EmailSenderService {
         helper.setFrom("sahil.sharma@tothenew.com");
         helper.setTo("sharma.sahil1560@gmail.com");
         helper.setSubject("TEMP TEST");
-        String html = templateEngine.process("temp1.html",context);
+        String html = templateEngine.process("temp1.html", context);
         helper.setText(html, true);
-
-        logger.info("Sending email with html body");
+        log.info("Sending email with html body");
         javaMailSender.send(message);
     }
 

@@ -6,16 +6,13 @@ import com.sahil.ecom.dto.product.FetchProductSellerDTO;
 import com.sahil.ecom.dto.product.variation.AddProductVariationDTO;
 import com.sahil.ecom.dto.product.variation.FetchProductVariationSellerDTO;
 import com.sahil.ecom.entity.*;
-import com.sahil.ecom.exception.CategoryHierarchyException;
-import com.sahil.ecom.exception.IdNotFoundException;
-import com.sahil.ecom.exception.UserEmailNotFoundException;
+import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.repository.*;
 import com.sahil.ecom.service.FileService;
 import com.sahil.ecom.service.ProductService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -29,36 +26,20 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private ProductVariationRepository productVariationRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-
-    @Autowired
-    private SellerRepository  sellerRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-
-    @Autowired
-    private FileService fileService;
-
-    Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
-
-    @Autowired
-    private MessageSource messageSource;
+    private final ProductRepository productRepository;
+    private final ProductVariationRepository productVariationRepository;
+    private final CategoryRepository categoryRepository;
+    private final SellerRepository sellerRepository;
+    private final UserRepository userRepository;
+    private final FileService fileService;
+    private final MessageSource messageSource;
 
     @Value("${project.image.product}")
     private String path;
@@ -66,10 +47,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void addProduct(AddProductDTO addProductDTO, String username) {
 
-        Seller seller =sellerRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
+        Seller seller = sellerRepository.findByEmail(username).orElseThrow(GenericException::new);
 
         //product name should be unique for a brand category and seller
-        validateProduct(addProductDTO,seller);
+        validateProduct(addProductDTO, seller);
 
         Product product = new Product();
 
@@ -81,26 +62,20 @@ public class ProductServiceImpl implements ProductService {
 
 
         Category category = categoryRepository
-                                .findById(addProductDTO.getCategoryId())
-                                .orElseThrow(IdNotFoundException::new);
+                .findById(addProductDTO.getCategoryId())
+                .orElseThrow(GenericException::new);
 
         //check for leaf category
-        if(category.getChildren().size()>0){
-//            throw new CategoryHierarchyException("PRODUCT CAN ONLY BE ADDED IN LEAF CATEGORIES");
-            throw new CategoryHierarchyException(messageSource
-                    .getMessage("product.leaf.category.validation",null,"message", LocaleContextHolder.getLocale()));
-
+        if (!category.getChildren().isEmpty()) {
+            throw new GenericException(messageSource
+                    .getMessage("product.leaf.category.validation", null, "message", LocaleContextHolder.getLocale()));
         }
 
         product.setCategory(category);
         product.setReturnable(addProductDTO.isReturnable());
-
         product.setSeller(seller);
-
         product.setDeleted(false);
-
         product.setActive(false);
-
         seller.addProducts(product);
 
         sellerRepository.save(seller);
@@ -112,13 +87,12 @@ public class ProductServiceImpl implements ProductService {
 
     private void validateProduct(AddProductDTO addProductDTO, Seller seller) {
 
-        if(productRepository.existsByName(addProductDTO.getName())){
+        if (productRepository.existsByName(addProductDTO.getName())) {
 
             //check seller already having same product
-            seller.getProducts().forEach(product ->{
+            seller.getProducts().forEach(product -> {
                 if (product.getName().equalsIgnoreCase(addProductDTO.getName())) {
-//                    throw new CategoryHierarchyException("PRODUCT ALREADY EXIST FOR " + seller.getEmail());
-                    throw new CategoryHierarchyException(messageSource.getMessage("product.already.exist",null,"message",LocaleContextHolder.getLocale()) +" "+ seller.getEmail());
+                    throw new GenericException(messageSource.getMessage("product.already.exist", null, "message", LocaleContextHolder.getLocale()) + " " + seller.getEmail());
                 }
             });
         }
@@ -132,10 +106,10 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository
                 .findById(addProductVariationDTO.getProductId())
-                .orElseThrow(IdNotFoundException::new);
+                .orElseThrow(GenericException::new);
 
         //check Metadata structure
-        validateMetaDataForProductVariation(addProductVariationDTO,savedProduct);
+        validateMetaDataForProductVariation(addProductVariationDTO, savedProduct);
 
         //check for same variation
 
@@ -150,26 +124,25 @@ public class ProductServiceImpl implements ProductService {
         productVariation.setProduct(savedProduct);
 
 
-        checkForSameVariationAlreadyExist(savedProduct,productVariation);
+        checkForSameVariationAlreadyExist(savedProduct, productVariation);
 
         ProductVariation savedProductVariation = productVariationRepository.save(productVariation);
 
-        saveProductImage(savedProductVariation.getId(),file);
+        saveProductImage(savedProductVariation.getId(), file);
 
     }
 
     private void checkForSameVariationAlreadyExist(Product savedProduct, ProductVariation newProductVariation) {
-        savedProduct.getProductVariations().forEach(productVariation ->{
-            logger.info(newProductVariation.getMetadata().toString());
-            logger.info(productVariation.getMetadata().toString());
-            if(newProductVariation.getMetadata().toString().equalsIgnoreCase(productVariation.getMetadata().toString())){
-//                throw new CategoryHierarchyException("PRODUCT VARIATION ALREADY EXIST");
-                throw new CategoryHierarchyException(messageSource
-                        .getMessage("product.variation.already.exist",null,"message",LocaleContextHolder.getLocale()));
+        savedProduct.getProductVariations().forEach(productVariation -> {
+            log.info(newProductVariation.getMetadata().toString());
+            log.info(productVariation.getMetadata().toString());
+            if (newProductVariation.getMetadata().toString().equalsIgnoreCase(productVariation.getMetadata().toString())) {
+//                throw new GenricException()("PRODUCT VARIATION ALREADY EXIST");
+                throw new GenericException(messageSource
+                        .getMessage("product.variation.already.exist", null, "message", LocaleContextHolder.getLocale()));
             }
-        } );
+        });
     }
-
 
 
     private void validateMetaDataForProductVariation(AddProductVariationDTO addProductVariationDTO, Product savedProduct) {
@@ -180,19 +153,18 @@ public class ProductServiceImpl implements ProductService {
         JSONObject metadata = addProductVariationDTO.getMetadata();
 
 
-
-        if(metadata.toString().equals("{}")){
-            logger.info("CAUGHT EMPTY METADATA");
-//            throw new CategoryHierarchyException("NO MATCHING FIELD FOUND FOR METADATA");
-            throw new CategoryHierarchyException(messageSource
-                    .getMessage("no.matching.field ",null,"message",LocaleContextHolder.getLocale()));
+        if (metadata.toString().equals("{}")) {
+            log.info("CAUGHT EMPTY METADATA");
+//            throw new GenricException()("NO MATCHING FIELD FOUND FOR METADATA");
+            throw new GenericException(messageSource
+                    .getMessage("no.matching.field ", null, "message", LocaleContextHolder.getLocale()));
         }
 
         Map<String, Set<String>> savedMetaData = new HashMap<>();
 
-        categoryMetaDataFieldValueList.forEach(item -> {
-            savedMetaData.put(item.getCategoryMetaDataField().getName(),convertStringValuesToSet(item.getValues()));
-        });
+        categoryMetaDataFieldValueList.forEach(item ->
+                savedMetaData.put(item.getCategoryMetaDataField().getName(), convertStringValuesToSet(item.getValues()))
+        );
 
         for (Object key : metadata.keySet()) {
 
@@ -201,23 +173,23 @@ public class ProductServiceImpl implements ProductService {
             keyStr = keyStr.toUpperCase();
             keyValue = keyValue.toUpperCase();
 
-            logger.info("CHECKING FOR |" + keyStr + "---" + keyValue+"|");
+            log.info("CHECKING FOR |" + keyStr + "---" + keyValue + "|");
 
             if (!(savedMetaData.containsKey(keyStr) && savedMetaData.get(keyStr).contains(keyValue))) {
-                logger.info("NOT MATCHING");
-//                logger.info(""+savedMetaData.containsKey(keyStr));
-//                logger.info(""+savedMetaData.get(keyStr).contains(keyValue));
-//                throw new CategoryHierarchyException("NO MATCHING FIELD FOUND FOR METADATA");
-                throw new CategoryHierarchyException(messageSource
-                        .getMessage("no.matching.field",null,"message",LocaleContextHolder.getLocale()));
+                log.info("NOT MATCHING");
+//                log.info(""+savedMetaData.containsKey(keyStr));
+//                log.info(""+savedMetaData.get(keyStr).contains(keyValue));
+//                throw new GenricException()("NO MATCHING FIELD FOUND FOR METADATA");
+                throw new GenericException(messageSource
+                        .getMessage("no.matching.field", null, "message", LocaleContextHolder.getLocale()));
             }
 
         }
-        logger.info("NO ISSUES FOUND");
+        log.info("NO ISSUES FOUND");
 
     }
 
-    private Set<String> convertStringValuesToSet(String values){
+    private Set<String> convertStringValuesToSet(String values) {
 
         String[] valueList = values.split(",");
         return new HashSet<>(Arrays.asList(valueList));
@@ -241,13 +213,13 @@ public class ProductServiceImpl implements ProductService {
 //    public List<FetchProductSellerDTO> getAllProducts(String sellerEmail) {
 //
 //        Seller seller =  sellerRepository.findByEmail(sellerEmail)
-//                .orElseThrow(UserEmailNotFoundException::new);
+//                .orElseThrow(GenricException::new);
 //
 //        return
 //                seller.getProducts()
 //                        .stream()
 //                        .map(FetchProductSellerDTO::new)
-//                        .collect(Collectors.toList());
+//                        .toList();
 //
 //    }
 
@@ -257,24 +229,23 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = null;
 
-        if(order.equalsIgnoreCase("ASC")){
-            pageable= PageRequest.of(page,size,Sort.by(sort).ascending());
-        }
-        else if(order.equalsIgnoreCase("DESC")) {
-           pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+        if (order.equalsIgnoreCase("ASC")) {
+            pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
+        } else if (order.equalsIgnoreCase("DESC")) {
+            pageable = PageRequest.of(page, size, Sort.by(sort).descending());
         }
 
 
         Seller seller = sellerRepository.findByEmail(sellerEmail)
-                .orElseThrow(UserEmailNotFoundException::new);
+                .orElseThrow(GenericException::new);
 
-        Page<Product> products = productRepository.findAllBySeller(seller,pageable);
+        Page<Product> products = productRepository.findAllBySeller(seller, pageable);
 
         return
                 products
                         .stream()
                         .map(FetchProductSellerDTO::new)
-                        .collect(Collectors.toList());
+                        .toList();
 
     }
 
@@ -282,19 +253,19 @@ public class ProductServiceImpl implements ProductService {
 //    public List<FetchProductVariationSellerDTO> getAllProductVariations(String sellerEmail, Long productId) {
 //
 //        Seller seller =  sellerRepository.findByEmail(sellerEmail)
-//                .orElseThrow(UserEmailNotFoundException::new);
+//                .orElseThrow(GenricException::new);
 //
 //
 //        Product productForSeller =seller.getProducts()
 //                .stream()
 //                .filter(product -> Objects.equals(product.getId(), productId))
-//                .findFirst().orElseThrow(IdNotFoundException::new);
+//                .findFirst().orElseThrow(GenricException::new);
 //
 //
 //        return productForSeller.getProductVariations()
 //                .stream()
 //                .map(FetchProductVariationSellerDTO::new)
-//                .collect(Collectors.toList());
+//                .toList();
 //
 //    }
 
@@ -304,39 +275,38 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = null;
 
-        if(order.equalsIgnoreCase("ASC")){
-            pageable= PageRequest.of(page,size,Sort.by(sort).ascending());
-        }
-        else if(order.equalsIgnoreCase("DESC")) {
+        if (order.equalsIgnoreCase("ASC")) {
+            pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
+        } else if (order.equalsIgnoreCase("DESC")) {
             pageable = PageRequest.of(page, size, Sort.by(sort).descending());
         }
 
-        Seller seller =  sellerRepository.findByEmail(sellerEmail)
-                .orElseThrow(UserEmailNotFoundException::new);
+        Seller seller = sellerRepository.findByEmail(sellerEmail)
+                .orElseThrow(GenericException::new);
 
         Product productForSeller = seller.getProducts()
                 .stream()
                 .filter(product -> Objects.equals(product.getId(), productId))
-                .findFirst().orElseThrow(IdNotFoundException::new);
+                .findFirst().orElseThrow(GenericException::new);
 
-        Page<ProductVariation> productVariationPage = productVariationRepository.findAllByProduct(productForSeller,pageable);
+        Page<ProductVariation> productVariationPage = productVariationRepository.findAllByProduct(productForSeller, pageable);
 
         return productVariationPage.getContent()
                 .stream()
                 .map(FetchProductVariationSellerDTO::new)
-                .collect(Collectors.toList());
+                .toList();
 
     }
 
     @Override
     public FetchProductSellerDTO getProductForSeller(String sellerEmail, Long productId) {
         Seller seller = sellerRepository.findByEmail(sellerEmail)
-                .orElseThrow(UserEmailNotFoundException::new);
+                .orElseThrow(GenericException::new);
 
         return new FetchProductSellerDTO(seller.getProducts().stream().filter(product -> Objects.equals(product.getId(), productId))
-                .findFirst().orElseThrow(IdNotFoundException::new));
+                .findFirst().orElseThrow(GenericException::new));
 
-//        Product product = productRepository.findById(productId).orElseThrow(IdNotFoundException::new);
+//        Product product = productRepository.findById(productId).orElseThrow(GenricException()::new);
 ////        if(seller.getProducts().contains(product);
 //        return
 //                new FetchProductSellerDTO(product);
@@ -346,44 +316,42 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public FetchProductVariationSellerDTO getProductVariationForSeller(String sellerEmail, Long productVarId) {
         Seller seller = sellerRepository.findByEmail(sellerEmail)
-                .orElseThrow(UserEmailNotFoundException::new);
+                .orElseThrow(GenericException::new);
 
         ProductVariation productVariation = productVariationRepository
                 .findById(productVarId)
-                .orElseThrow(IdNotFoundException::new);
+                .orElseThrow(GenericException::new);
 
         //variation should be of the authenticated customer
-        if(Objects.equals(productVariation.getProduct().getSeller().getId(), seller.getId())){
+        if (Objects.equals(productVariation.getProduct().getSeller().getId(), seller.getId())) {
             return
                     new FetchProductVariationSellerDTO(productVariation);
         }
 
-        throw new IdNotFoundException();
+        throw new GenericException();
 
     }
 
     @Override
-    public List<FetchProductCustomerDTO> getAllProductsForCustomer(Long categoryId,int page, int size, String sort, String order) {
+    public List<FetchProductCustomerDTO> getAllProductsForCustomer(Long categoryId, int page, int size, String sort, String order) {
 
         Pageable pageable = null;
 
-        if(order.equalsIgnoreCase("ASC")){
-            pageable= PageRequest.of(page,size,Sort.by(sort).ascending());
-        }
-        else if(order.equalsIgnoreCase("DESC")) {
+        if (order.equalsIgnoreCase("ASC")) {
+            pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
+        } else if (order.equalsIgnoreCase("DESC")) {
             pageable = PageRequest.of(page, size, Sort.by(sort).descending());
         }
 
-        Category savedCategory = categoryRepository.findById(categoryId).orElseThrow(IdNotFoundException::new);
+        Category savedCategory = categoryRepository.findById(categoryId).orElseThrow(GenericException::new);
 
-        if(savedCategory.getChildren().size()>0){
-//            throw new CategoryHierarchyException("NOT A LEAF CATEGORY");
-            throw new CategoryHierarchyException(messageSource.getMessage("leaf.category.validation",null,"message", LocaleContextHolder.getLocale()));
+        if (!savedCategory.getChildren().isEmpty()) {
+            throw new GenericException(messageSource.getMessage("leaf.category.validation", null, "message", LocaleContextHolder.getLocale()));
         }
 
-        Page <Product> products = productRepository.findAllByCategory(savedCategory,pageable);
+        Page<Product> products = productRepository.findAllByCategory(savedCategory, pageable);
 
-        return products.getContent().stream().map(FetchProductCustomerDTO::new).collect(Collectors.toList());
+        return products.getContent().stream().map(FetchProductCustomerDTO::new).toList();
 
     }
 
@@ -391,7 +359,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public FetchProductCustomerDTO getProductForCustomer(Long productId) {
 
-        Product savedProduct = productRepository.findById(productId).orElseThrow(IdNotFoundException::new);
+        Product savedProduct = productRepository.findById(productId).orElseThrow(GenericException::new);
 
         return new FetchProductCustomerDTO(savedProduct);
 
@@ -401,19 +369,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void activateProduct(String username, Long id) {
-        Seller seller = sellerRepository.findByEmail(username).orElseThrow(UserEmailNotFoundException::new);
+        Seller seller = sellerRepository.findByEmail(username).orElseThrow(GenericException::new);
         AtomicBoolean flag = new AtomicBoolean(false);
         seller.getProducts().forEach(product -> {
-            if(product.getId().equals(id)){
+            if (product.getId().equals(id)) {
                 //product.setActive(true);
                 flag.set(true);
-                productRepository.setProductActive(true,id);
-                return;
+                productRepository.setProductActive(true, id);
             }
         });
 
-        if(!flag.get())
-            throw new IdNotFoundException();
+        if (!flag.get())
+            throw new GenericException();
 //        sellerRepository.save(seller);
 
 

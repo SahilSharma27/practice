@@ -19,9 +19,9 @@ public class TemplateService {
         RIUtilizationDto riUtilizationDto1 =  new RIUtilizationDto();
 
 //        String reservation;
-        riUtilizationDto1.setReservation("arn:aws:ec2:us-west-2:632083551481:reserved-instances/51a25de8-0acf-4768-a7f1-9b73fce15502");
+        riUtilizationDto1.setReservation("arn:aws:ec2:us-west-2:reserved-instances/");
 //        String region;
-        riUtilizationDto1.setRegion("US West (Oregon)");
+        riUtilizationDto1.setRegion("US");
 //        String operatingSystem;
         riUtilizationDto1.setOperatingSystem("Linux/UNIX");
 //        String instanceType;
@@ -55,7 +55,6 @@ public class TemplateService {
 
         riUtilizationList.add(riUtilizationDto1);
         riUtilizationList.add(riUtilizationDto2);
-
 
         emailSenderService.sendHtmlMessage(riUtilizationList);
     }

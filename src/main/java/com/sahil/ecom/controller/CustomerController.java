@@ -1,20 +1,22 @@
 package com.sahil.ecom.controller;
 
 
-import com.sahil.ecom.dto.*;
-import com.sahil.ecom.dto.customer.AddCustomerDTO;
-import com.sahil.ecom.dto.customer.CustomerProfileUpdateDTO;
+import com.sahil.ecom.dto.AddAddressDTO;
 import com.sahil.ecom.dto.LoginRequestDTO;
 import com.sahil.ecom.dto.LoginResponseDTO;
-import com.sahil.ecom.exception.EmailAlreadyRegisteredException;
+import com.sahil.ecom.dto.ResponseDTO;
+import com.sahil.ecom.dto.customer.AddCustomerDTO;
+import com.sahil.ecom.dto.customer.CustomerProfileUpdateDTO;
+import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.exception.InvalidTokenException;
-import com.sahil.ecom.exception.PassConfirmPassNotMatchingException;
 import com.sahil.ecom.security.JwtUtil;
 import com.sahil.ecom.security.TokenGeneratorHelper;
-import com.sahil.ecom.service.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sahil.ecom.service.CustomerService;
+import com.sahil.ecom.service.LoginService;
+import com.sahil.ecom.service.ProductService;
+import com.sahil.ecom.service.UserService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -27,46 +29,31 @@ import java.time.LocalDateTime;
 
 
 @RestController
+@AllArgsConstructor
+@Slf4j
 public class CustomerController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CustomerService customerService;
-
-    @Autowired
-    private LoginService loginService;
-
-    @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private TokenGeneratorHelper tokenGeneratorHelper;
-
-
-    @Autowired
-    private ProductService productService;
-
-
-    Logger logger  = LoggerFactory.getLogger(CustomerController.class);
+    private final UserService userService;
+    private final CustomerService customerService;
+    private final LoginService loginService;
+    private final MessageSource messageSource;
+    private final JwtUtil jwtUtil;
+    private final TokenGeneratorHelper tokenGeneratorHelper;
+    private final ProductService productService;
 
     @PostMapping(value = "/register", params = "role=customer")
     public ResponseEntity<?> registerCustomer(@Valid @RequestBody AddCustomerDTO addCustomerDTO) {
 
-        logger.info("Registering customer.."+ addCustomerDTO.getEmail());
+        log.info("Registering customer.." + addCustomerDTO.getEmail());
 
         //check pass and cpass
         if (!addCustomerDTO.getPassword().equals(addCustomerDTO.getConfirmPassword()))
-            throw new PassConfirmPassNotMatchingException();
+            throw new GenericException("Password confirm password not matching");
 
 
         //Check if email taken
         if (userService.checkUserEmail(addCustomerDTO.getEmail())) {
-            throw new EmailAlreadyRegisteredException();
+            throw new GenericException("Email already registered");
         }
 
         //1)save user
@@ -77,7 +64,7 @@ public class CustomerController {
 
             ResponseDTO responseDTO = new ResponseDTO(LocalDateTime.now(), true, HttpStatus.OK);
             responseDTO.setMessage(messageSource.getMessage("user.registered.successful", null, "message", LocaleContextHolder.getLocale()));
-            logger.info("Successfully registered.."+ addCustomerDTO.getEmail());
+            log.info("Successfully registered.." + addCustomerDTO.getEmail());
             return ResponseEntity.ok(responseDTO);
         }
 
@@ -91,11 +78,11 @@ public class CustomerController {
 
     @PostMapping(value = "/login", params = "role=customer")
     public ResponseEntity<?> loginCustomer(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
-        logger.info("Logging In..."+loginRequestDTO.getUsername());
+        log.info("Logging In..." + loginRequestDTO.getUsername());
 
         LoginResponseDTO loginResponseDTO = customerService.loginCustomer(loginRequestDTO);
         if (loginResponseDTO != null) {
-            logger.info("Logged In..."+loginRequestDTO.getUsername());
+            log.info("Logged In..." + loginRequestDTO.getUsername());
             return ResponseEntity.ok(loginResponseDTO);
         }
 
@@ -172,7 +159,7 @@ public class CustomerController {
     }
 
     @DeleteMapping(value = "/users/address/{addressId}", params = "role=customer")
-    public ResponseEntity<?> deleteAddress(@PathVariable(name = "addressId") Long id,HttpServletRequest request) {
+    public ResponseEntity<?> deleteAddress(@PathVariable(name = "addressId") Long id, HttpServletRequest request) {
 
         String requestHeader = request.getHeader("Authorization");
 
@@ -191,7 +178,7 @@ public class CustomerController {
         }
         //find address by id and delete
 
-        customerService.removeAddress(id,userEmail);
+        customerService.removeAddress(id, userEmail);
 
         String message = messageSource.getMessage("address.deleted", null, "message", LocaleContextHolder.getLocale());
 
@@ -252,9 +239,9 @@ public class CustomerController {
 
 
     @GetMapping(value = "/categories", params = "role=customer")
-    public ResponseEntity<?> fetchAllCategoriesForCustomer(@RequestParam(name = "categoryId", required = false) Long categoryId,HttpServletRequest request) {
+    public ResponseEntity<?> fetchAllCategoriesForCustomer(@RequestParam(name = "categoryId", required = false) Long categoryId, HttpServletRequest request) {
 
-     //  check role for customer
+        //  check role for customer
         String requestHeader = request.getHeader("Authorization");
 
         String username = null;
@@ -275,19 +262,19 @@ public class CustomerController {
         }
 
         String role = userService.getRole(username);
-        logger.info("------------------"+role+"-------------------");
+        log.info("------------------" + role + "-------------------");
 
-        if(role.equals("ROLE_CUSTOMER")){
+        if (role.equals("ROLE_CUSTOMER")) {
 //            return ResponseEntity.ok(categoryService.getAllCategories());
             return ResponseEntity.ok(customerService.getAllCategoriesForCustomer(categoryId));
-        }else
+        } else
             throw new InvalidTokenException();
 
     }
 
 
-    @GetMapping(value = "/products/{product_id}",params = "role=customer")
-    public ResponseEntity<?> getProductForCustomer(@PathVariable("product_id")Long productId) {
+    @GetMapping(value = "/products/{product_id}", params = "role=customer")
+    public ResponseEntity<?> getProductForCustomer(@PathVariable("product_id") Long productId) {
         return ResponseEntity.ok(
                 productService
                         .getProductForCustomer(productId));
@@ -295,23 +282,23 @@ public class CustomerController {
     }
 
 
-    @GetMapping(value = "/products",params = "role=customer")
+    @GetMapping(value = "/products", params = "role=customer")
     public ResponseEntity<?> getAllProductsCustomer(
-            @RequestParam(value= "category_id")String categoryId,
-            @RequestParam(value = "page",defaultValue = "0") String page,
-            @RequestParam(value = "size",defaultValue = "10")String size,
-            @RequestParam(value = "sort",defaultValue = "id")String sort,
-            @RequestParam(value = "order",defaultValue = "asc")String order) {
+            @RequestParam(value = "category_id") String categoryId,
+            @RequestParam(value = "page", defaultValue = "0") String page,
+            @RequestParam(value = "size", defaultValue = "10") String size,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "order", defaultValue = "asc") String order) {
 
 
         return ResponseEntity.ok(
                 productService
                         .getAllProductsForCustomer(
                                 Long.parseLong(categoryId)
-                                ,Integer.parseInt(page)
-                                ,Integer.parseInt(size)
-                                ,sort
-                                ,order));
+                                , Integer.parseInt(page)
+                                , Integer.parseInt(size)
+                                , sort
+                                , order));
 
     }
 

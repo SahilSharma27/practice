@@ -5,7 +5,10 @@ import com.sahil.ecom.service.FileService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -14,7 +17,7 @@ import java.nio.file.StandardCopyOption;
 public class FileServiceImpl implements FileService {
 
     @Override
-    public String uploadImage(Long id,String path, MultipartFile file){
+    public String uploadImage(Long id, String path, MultipartFile file) {
         //file name
 
         String name = file.getOriginalFilename();
@@ -41,7 +44,7 @@ public class FileServiceImpl implements FileService {
 
         try {
             Files.copy(file.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -55,10 +58,10 @@ public class FileServiceImpl implements FileService {
     public InputStream getImage(String path, String filename) {
         //file separator is used in place of " / " as depending on the OS it may require " \ "
 
-        String fullPath = path+File.separator+filename;
+        String fullPath = path + File.separator + filename;
         InputStream inputStream;
         try {
-             inputStream =  new FileInputStream(fullPath);
+            inputStream = new FileInputStream(fullPath);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
