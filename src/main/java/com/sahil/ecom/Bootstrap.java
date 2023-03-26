@@ -3,9 +3,10 @@ package com.sahil.ecom;
 
 import com.sahil.ecom.entity.Admin;
 import com.sahil.ecom.entity.Role;
+import com.sahil.ecom.enums.EcomRoles;
 import com.sahil.ecom.repository.RoleRepository;
 import com.sahil.ecom.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -15,15 +16,13 @@ import java.util.Date;
 import java.util.List;
 
 @Component
+@AllArgsConstructor
 public class Bootstrap implements CommandLineRunner {
 
     private static final String ADMIN = "ADMIN";
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -31,11 +30,11 @@ public class Bootstrap implements CommandLineRunner {
 
             roleRepository.deleteAll();
             Role role1 = new Role();
-            role1.setAuthority("ROLE_ADMIN");
+            role1.setAuthority(EcomRoles.ADMIN.role);
             Role role2 = new Role();
-            role2.setAuthority("ROLE_SELLER");
+            role2.setAuthority(EcomRoles.SELLER.role);
             Role role3 = new Role();
-            role3.setAuthority("ROLE_CUSTOMER");
+            role3.setAuthority(EcomRoles.CUSTOMER.role);
             roleRepository.saveAll(List.of(role1, role2, role3));
 
 

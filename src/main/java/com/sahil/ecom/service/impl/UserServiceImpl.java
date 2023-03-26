@@ -20,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -231,13 +230,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public boolean resetPassword(String email, String newPassword) {
+    public boolean resetPassword(String newPassword) {
 
-
-        User foundUser = userRepository.findByEmail(email).orElseThrow(GenericException::new);
+        User foundUser = authUserService.getCurrentAuthorizedUser();
 
         if (foundUser.isActive()) {
-            return userRepository.updatePassword(passwordEncoder.encode(newPassword), email) > 0;
+            return userRepository.updatePassword(passwordEncoder.encode(newPassword), foundUser.getEmail()) > 0;
         } else {
             throw new GenericException();
         }
@@ -336,10 +334,9 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public boolean logoutHelper(String username) {
+    public boolean logoutHelper() {
 
-        User user = userRepository.findByEmail(username).orElseThrow(
-                () -> new UsernameNotFoundException(messageSource.getMessage("user.not.found", null, "message", LocaleContextHolder.getLocale())));
+        User user = authUserService.getCurrentAuthorizedUser();
 
         String accessToken = user.getJwtAccessToken().getAccessToken();
         String refreshToken = user.getJwtRefreshToken().getRefreshToken();
@@ -348,7 +345,7 @@ public class UserServiceImpl implements UserService {
         blacklistTokenRepository.save(new BlacklistToken(accessToken));
         blacklistTokenRepository.save(new BlacklistToken(refreshToken));
 
-        loginService.removeAlreadyGeneratedTokens(username);
+        loginService.removeAlreadyGeneratedTokens(user.getEmail());
 
         user.setJwtAccessToken(null);
         user.setJwtRefreshToken(null);
@@ -358,11 +355,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAddress(Long id, Address newAddress, String username) {
+    public void updateAddress(Long id, Address newAddress) {
 
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(GenericException::new);
-
+        User user = authUserService.getCurrentAuthorizedUser();
 
         //check address already exist
         user.getAddresses().forEach(address -> {

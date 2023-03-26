@@ -1,5 +1,6 @@
 package com.sahil.ecom.service.impl;
 
+import com.sahil.ecom.security.AuthUserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 public class GeneralMailService {
     private final EmailSenderService emailSenderService;
     private final MessageSource messageSource;
+
+    private final AuthUserService authUserService;
 
     public void sendAccountRegistrationAckForSeller(String email) {
         String emailBody = "ACCOUNT CREATED WAITING FOR APPROVAL";
@@ -69,11 +72,11 @@ public class GeneralMailService {
     }
 
 
-    public void sendPasswordUpdateAck(String email) {
+    public void sendPasswordUpdateAck() {
 
         String subject = messageSource.getMessage("user.password.updated.subject", null, "message", LocaleContextHolder.getLocale());
         String body = messageSource.getMessage("user.password.updated", null, "message", LocaleContextHolder.getLocale());
-        emailSenderService.sendEmail(email, subject, body);
+        emailSenderService.sendEmail(authUserService.getCurrentAuthorizedUser().getEmail(), subject, body);
 
     }
 

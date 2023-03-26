@@ -34,11 +34,11 @@ public interface UserService {
 
     String validateResetPasswordToken(String uuid);
 
-    boolean resetPassword(String email,String newPassword);
+    boolean resetPassword(String newPassword);
 
-    boolean logoutHelper(String username);
+    boolean logoutHelper();
 
-    void updateAddress(Long id,Address address,String username);
+    void updateAddress(Long id,Address address);
 
     boolean saveUserImage(Long id, MultipartFile image);
 

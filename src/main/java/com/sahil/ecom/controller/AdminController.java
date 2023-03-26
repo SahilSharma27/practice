@@ -8,11 +8,12 @@ import com.sahil.ecom.dto.category.CategoryUpdateDTO;
 import com.sahil.ecom.dto.category.metadata.field.AddMetaDataFieldDTO;
 import com.sahil.ecom.dto.category.metadata.field.value.AddCategoryMetaDataFieldValueDTO;
 import com.sahil.ecom.entity.User;
+import com.sahil.ecom.enums.EcomRoles;
 import com.sahil.ecom.exception.InvalidTokenException;
-import com.sahil.ecom.security.JwtUtil;
 import com.sahil.ecom.security.TokenGeneratorHelper;
-import com.sahil.ecom.service.*;
-import com.sahil.ecom.service.impl.EmailSenderService;
+import com.sahil.ecom.service.CategoryService;
+import com.sahil.ecom.service.LoginService;
+import com.sahil.ecom.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -33,13 +34,9 @@ public class AdminController {
 
     private final UserService userService;
     private final TokenGeneratorHelper tokenGeneratorHelper;
-    private final EmailSenderService emailSenderService;
-    private final SellerService sellerService;
-    private final CustomerService customerService;
     private final MessageSource messageSource;
     private final LoginService loginService;
     private final CategoryService categoryService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping(value = "/login", params = "role=admin")
     public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
@@ -177,16 +174,14 @@ public class AdminController {
         if (categoryService.updateCategory(categoryUpdateDTO)) {
 
             responseDTO.setSuccess(true);
-            responseDTO.setMessage(messageSource
-                    .getMessage("category.update.successful", null, "message", LocaleContextHolder.getLocale()));
+            responseDTO.setMessage(messageSource.getMessage("category.update.successful", null, "message", LocaleContextHolder.getLocale()));
             responseDTO.setResponseStatusCode(HttpStatus.OK);
 
             return ResponseEntity.ok(responseDTO);
         }
 
         responseDTO.setSuccess(false);
-        responseDTO.setMessage(messageSource
-                .getMessage("category.update.not.successful", null, "message", LocaleContextHolder.getLocale()));
+        responseDTO.setMessage(messageSource.getMessage("category.update.not.successful", null, "message", LocaleContextHolder.getLocale()));
         responseDTO.setResponseStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
 
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -195,38 +190,11 @@ public class AdminController {
 
     //,params = "role=admin"
     @GetMapping(value = "/categories", params = "role=admin")
-    public ResponseEntity<?> fetchAllCategories(HttpServletRequest request) {
-//check for admin role
-        String requestHeader = request.getHeader("Authorization");
-
-        String username = null;
-        String accessToken = null;
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer ".length());
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new InvalidTokenException();
-            }
-
-        }
-
+    public ResponseEntity<?> fetchAllCategories() {
         String role = userService.getRole();
-        log.info("------------------" + role + "-------------------");
-
-
-        if (role.equals("ROLE_ADMIN")) {
+        if (role.equals(EcomRoles.ADMIN.role)) {
             return ResponseEntity.ok(categoryService.getAllCategories());
-        } else
-            throw new InvalidTokenException();
-
-//        return ResponseEntity.ok(categoryService.getAllCategories());
-
+        } else throw new InvalidTokenException();
     }
 
     @GetMapping(value = "/category/{category_id}")
@@ -249,7 +217,6 @@ public class AdminController {
 
         categoryService.updateCategoryMetadataFieldWithValue(updateCategoryMetaDataFieldValueDTO);
         String message = messageSource.getMessage("category.metadata.field.value.updated", null, "message", LocaleContextHolder.getLocale());
-
         return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
 
     }

@@ -6,7 +6,6 @@ import com.sahil.ecom.dto.password.ForgotPasswordDTO;
 import com.sahil.ecom.dto.password.ResetPassDTO;
 import com.sahil.ecom.entity.Address;
 import com.sahil.ecom.exception.GenericException;
-import com.sahil.ecom.exception.InvalidTokenException;
 import com.sahil.ecom.repository.BlacklistTokenRepository;
 import com.sahil.ecom.security.JwtUtil;
 import com.sahil.ecom.security.TokenGeneratorHelper;
@@ -155,11 +154,11 @@ public class UserController {
             String email = userService.validateResetPasswordToken(token);
 
             if (email.equals(resetPassDTO.getUserEmail())) {
-                userService.resetPassword(email, resetPassDTO.getNewPassword());
+                userService.resetPassword(resetPassDTO.getNewPassword());
             }
 
             //send mail
-            generalMailService.sendPasswordUpdateAck(resetPassDTO.getUserEmail());
+            generalMailService.sendPasswordUpdateAck();
 
             String message = messageSource.getMessage("user.password.updated", null, "message", LocaleContextHolder.getLocale());
             return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
@@ -171,34 +170,11 @@ public class UserController {
 
 
     @PatchMapping(value = "/users/update/password")
-    public ResponseEntity<?> updatePassword(@Valid @RequestBody ResetPassDTO resetPassDTO, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody ResetPassDTO resetPassDTO) throws Exception {
 
-        log.info("------------------------------------------------------------------");
-        log.info(resetPassDTO.getNewPassword() + "  " + resetPassDTO.getConfirmNewPassword());
-        log.info("------------------------------------------------------------------");
-
-        if (resetPassDTO.getNewPassword().equals(resetPassDTO.getConfirmNewPassword())) {
-            String requestHeader = request.getHeader("Authorization");
-            String username = null;
-            String accessToken = null;
-
-            //check format
-            if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-                accessToken = requestHeader.substring("Bearer ".length());
-                try {
-                    username = this.jwtUtil.extractUsername(accessToken);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new InvalidTokenException();
-                }
-
-            }
-            if (userService.resetPassword(username, resetPassDTO.getNewPassword())) {
-
-                generalMailService.sendPasswordUpdateAck(username);
+        if (resetPassDTO.getNewPassword().equals(resetPassDTO.getConfirmNewPassword()) && (userService.resetPassword(resetPassDTO.getNewPassword()))) {
+                generalMailService.sendPasswordUpdateAck();
                 return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, "User Password Updated", HttpStatus.OK));
-            }
         }
 
         throw new GenericException("Pass not matching with confirm pass");
@@ -206,67 +182,24 @@ public class UserController {
     }
 
     @GetMapping(value = "/users/logout")
-    public ResponseEntity<?> logoutUser(@Valid @RequestHeader("Authorization") String requestHeader) {
-
-        String username = null;
-        String accessToken = null;
-
+    public ResponseEntity<?> logoutUser() {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
+        userService.logoutHelper();
+        responseDTO.setSuccess(true);
+        responseDTO.setResponseStatusCode(HttpStatus.OK);
+        responseDTO.setMessage(messageSource.getMessage("user.logged.out", null, "message", LocaleContextHolder.getLocale()));
+        return ResponseEntity.ok(responseDTO);
 
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer".length());
-
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            if (userService.logoutHelper(username)) {
-                responseDTO.setSuccess(true);
-                responseDTO.setResponseStatusCode(HttpStatus.OK);
-                responseDTO.setMessage(messageSource.getMessage("user.logged.out", null, "message", LocaleContextHolder.getLocale()));
-                return ResponseEntity.ok(responseDTO);
-            }
-
-        }
-
-        throw new InvalidTokenException();
     }
 
     //common for customer and seller
     @PatchMapping(value = "users/address/{address_id}")
-    public ResponseEntity<?> updateAddress(@RequestBody Address address, @PathVariable(name = "address_id") Long id, HttpServletRequest request) {
-
-        String requestHeader = request.getHeader("Authorization");
-
-        String username = null;
-        String accessToken = null;
+    public ResponseEntity<?> updateAddress(@RequestBody Address address, @PathVariable(name = "address_id") Long id) {
 
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(LocalDateTime.now());
-
-
-        //check format
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-
-            accessToken = requestHeader.substring("Bearer".length());
-
-            try {
-                username = jwtUtil.extractUsername(accessToken);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        //find address by id for the requesting user
-        //update given fields
-
-        userService.updateAddress(id, address, username);
-//        ResponseDTO responseDTO = new ResponseDTO();
+        userService.updateAddress(id, address);
         responseDTO.setTimestamp(LocalDateTime.now());
         String message;
         message = messageSource.getMessage("user.address.updated", null, "message", LocaleContextHolder.getLocale());
