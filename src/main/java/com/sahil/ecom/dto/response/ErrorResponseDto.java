@@ -23,23 +23,20 @@ public class ErrorResponseDto<T> implements ResponseDto<T> {
     private Long timestamp;
     private String error;
     private String message;
-    private Integer code;
     private Integer status;
     private T data;
 
-    /**
-     * Instantiates a new Error response dto.
-     *
-     * @param data       the data
-     * @param code       the code
-     * @param httpStatus the http status
-     */
-    public ErrorResponseDto(T data, Integer code, HttpStatus httpStatus) {
-        this.data = data;
-        this.status = httpStatus.value();
-        this.code = code;
-        this.error = httpStatus.getReasonPhrase();
+
+    public ErrorResponseDto(String message, Integer status) {
+        this.status = status;
         this.timestamp = new Date().getTime();
+        this.message = message;
     }
 
+    public ErrorResponseDto(T data, String message, Integer status) {
+        this.status = status;
+        this.timestamp = new Date().getTime();
+        this.message = message;
+        this.data = data;
+    }
 }

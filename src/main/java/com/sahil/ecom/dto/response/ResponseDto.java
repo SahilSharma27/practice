@@ -7,20 +7,12 @@ package com.sahil.ecom.dto.response;
  * @param <T> the type parameter
  */
 public interface ResponseDto<T> {
-
     /**
      * Sets message.
      *
      * @param message the message
      */
     void setMessage(String message);
-
-    /**
-     * Sets code.
-     *
-     * @param code the code
-     */
-    void setCode(Integer code);
 
     /**
      * Sets status.
@@ -42,13 +34,6 @@ public interface ResponseDto<T> {
      * @return the message
      */
     String getMessage();
-
-    /**
-     * Gets code.
-     *
-     * @return the code
-     */
-    Integer getCode();
 
     /**
      * Gets status.

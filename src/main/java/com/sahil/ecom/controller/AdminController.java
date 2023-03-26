@@ -7,6 +7,9 @@ import com.sahil.ecom.dto.category.AddCategoryDTO;
 import com.sahil.ecom.dto.category.CategoryUpdateDTO;
 import com.sahil.ecom.dto.category.metadata.field.AddMetaDataFieldDTO;
 import com.sahil.ecom.dto.category.metadata.field.value.AddCategoryMetaDataFieldValueDTO;
+import com.sahil.ecom.dto.response.ResponseDto;
+import com.sahil.ecom.dto.response.SuccessResponseDto;
+import com.sahil.ecom.dto.seller.FetchSellerDTO;
 import com.sahil.ecom.entity.User;
 import com.sahil.ecom.enums.EcomRoles;
 import com.sahil.ecom.exception.InvalidTokenException;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 
 @RestController
@@ -64,9 +69,7 @@ public class AdminController {
     public ResponseEntity<?> getAllCustomers(HttpServletRequest request) {
 
         String email = request.getParameter("email");
-
-        if (email == null) {
-
+        if (Objects.isNull(email)) {
             int page = (request.getParameter("page") == null) ? 0 : Integer.parseInt(request.getParameter("page"));
             int size = (request.getParameter("size") == null) ? 10 : Integer.parseInt(request.getParameter("size"));
             String sort = (request.getParameter("sort") == null) ? "id" : request.getParameter("sort");
@@ -74,8 +77,6 @@ public class AdminController {
             return new ResponseEntity<>(userService.getAllCustomersPaged(page, size, sort), HttpStatus.OK);
 
         } else {
-
-//            return ResponseEntity.ok(customerService.fetchCustomerProfileDetails(email));
             return ResponseEntity.ok(userService.getCustomer(email));
 
         }
@@ -83,19 +84,17 @@ public class AdminController {
     }
 
     @GetMapping(value = "/users/sellers")
-    public ResponseEntity<?> getAllSellers(HttpServletRequest request) {
+    public ResponseDto<?> getAllSellers(HttpServletRequest request) {
 
         String email = request.getParameter("email");
-        if (email == null) {
+        if (Objects.isNull(email)) {
+            int page = Objects.isNull(request.getParameter("page")) ? 0 : Integer.parseInt(request.getParameter("page"));
+            int size = Objects.isNull(request.getParameter("size")) ? 10 : Integer.parseInt(request.getParameter("size"));
+            String sort = Objects.isNull(request.getParameter("sort")) ? "id" : request.getParameter("sort");
 
-            int page = (request.getParameter("page") == null) ? 0 : Integer.parseInt(request.getParameter("page"));
-            int size = (request.getParameter("size") == null) ? 10 : Integer.parseInt(request.getParameter("size"));
-            String sort = (request.getParameter("sort") == null) ? "id" : request.getParameter("sort");
-
-            return new ResponseEntity<>(userService.getAllSellersPaged(page, size, sort), HttpStatus.OK);
+            return new SuccessResponseDto<>(userService.getAllSellersPaged(page, size, sort));
         } else {
-//            return ResponseEntity.ok(sellerService.fetchSellerProfileDetails(email));
-            return ResponseEntity.ok(userService.getSeller(email));
+            return new SuccessResponseDto<>(userService.getSeller(email));
         }
 
     }

@@ -19,34 +19,21 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 public class SuccessResponseDto<T> implements ResponseDto<T> {
 
-    String message;
-    Integer code = 1;
+    String message = "Request processed successfully.";
     Integer status = 200;
     T data;
-    T validationData;
 
     /**
      * Instantiates a new Success response dto.
-     *
-     * @param data            the data
-     * @param successResponse the success response
      */
-    public SuccessResponseDto(T data, SuccessResponse successResponse) {
+    public SuccessResponseDto(T data, Integer status) {
         this.data = data;
-        this.status = successResponse.getStatus().value();
+        this.status = status;
     }
 
-    /**
-     * Instantiates a new Success response dto.
-     *
-     * @param data            the data
-     * @param successResponse the success response
-     *
-     */
-    public SuccessResponseDto(T data,T validationData, SuccessResponse successResponse) {
+    public SuccessResponseDto(T data) {
         this.data = data;
-        this.validationData =validationData;
-        this.status = successResponse.getStatus().value();
     }
+
 
 }

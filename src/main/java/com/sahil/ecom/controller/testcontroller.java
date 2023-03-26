@@ -2,12 +2,12 @@ package com.sahil.ecom.controller;
 
 
 import com.sahil.ecom.dto.response.ResponseDto;
+import com.sahil.ecom.dto.response.SuccessResponseDto;
+import com.sahil.ecom.entity.User;
 import com.sahil.ecom.repository.ProductVariationRepository;
 import com.sahil.ecom.service.impl.EmailSenderService;
 import com.sahil.ecom.service.FileService;
 import com.sahil.ecom.service.impl.TemplateService;
-import com.sahil.ecom.util.PrepareResponseUtil;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import javax.mail.MessagingException;
 
 
 @RestController
-public class testcontroller extends BaseController{
+public class testcontroller{
 
     @Autowired
     EmailSenderService emailSenderService;
@@ -38,7 +38,7 @@ public class testcontroller extends BaseController{
 
     @GetMapping("/test")
     public ResponseDto<?> testRequest(){
-        return super.getResponse("HELLO WORLD");
+        return new SuccessResponseDto<>("HELLO WORLD");
     }
 
 //    @GetMapping("/welcome")
