@@ -15,11 +15,7 @@ public interface SellerService {
 
     boolean register(AddSellerDTO addSellerDTO);
 
-    LoginResponseDTO loginSeller(LoginRequestDTO loginRequestDTO) throws Exception;
-
-    boolean checkSellerCompanyName(String companyName);
-
-    boolean checkSellerGst(String gst);
+    LoginResponseDTO loginSeller(LoginRequestDTO loginRequestDTO);
 
     SellerProfileDTO fetchSellerProfileDetails();
 

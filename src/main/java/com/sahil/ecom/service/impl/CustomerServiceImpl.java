@@ -1,8 +1,8 @@
 package com.sahil.ecom.service.impl;
 
 
-import com.sahil.ecom.dto.AddAddressDTO;
-import com.sahil.ecom.dto.FetchAddressDTO;
+import com.sahil.ecom.dto.address.AddAddressDTO;
+import com.sahil.ecom.dto.address.FetchAddressDTO;
 import com.sahil.ecom.dto.LoginRequestDTO;
 import com.sahil.ecom.dto.LoginResponseDTO;
 import com.sahil.ecom.dto.category.FetchCategoryDTO;
@@ -12,6 +12,7 @@ import com.sahil.ecom.dto.customer.CustomerProfileUpdateDTO;
 import com.sahil.ecom.entity.Address;
 import com.sahil.ecom.entity.Customer;
 import com.sahil.ecom.entity.User;
+import com.sahil.ecom.enums.EcomRoles;
 import com.sahil.ecom.exception.GenericException;
 import com.sahil.ecom.repository.AddressRepository;
 import com.sahil.ecom.repository.CustomerRepository;
@@ -22,6 +23,7 @@ import com.sahil.ecom.security.TokenGeneratorHelper;
 import com.sahil.ecom.service.CategoryService;
 import com.sahil.ecom.service.CustomerService;
 import com.sahil.ecom.service.LoginService;
+import com.sahil.ecom.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -32,6 +34,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -47,12 +50,18 @@ public class CustomerServiceImpl implements CustomerService {
     private final LockAccountService lockAccountService;
     private final CategoryService categoryService;
     private final MessageSource messageSource;
-
     private final AuthUserService authUserService;
+    private final UserService userService;
 
     @Override
     public boolean register(AddCustomerDTO addCustomerDTO) {
+        validateCustomerDetails(addCustomerDTO);
+        saveNewCustomer(addCustomerDTO);
+        userService.activationHelper(addCustomerDTO.getEmail());
+        return true;
+    }
 
+    private void saveNewCustomer(AddCustomerDTO addCustomerDTO) {
         Customer newCustomer = new Customer();
 
         newCustomer.setEmail(addCustomerDTO.getEmail());
@@ -63,7 +72,7 @@ public class CustomerServiceImpl implements CustomerService {
         newCustomer.setPassword(passwordEncoder.encode(addCustomerDTO.getPassword()));
         newCustomer.setContact(addCustomerDTO.getContact());
 
-        newCustomer.setRoles(Collections.singletonList(roleRepository.findByAuthority("ROLE_CUSTOMER")));
+        newCustomer.setRoles(Collections.singletonList(roleRepository.findByAuthority(EcomRoles.CUSTOMER.role)));
 
         newCustomer.setActive(false);
         newCustomer.setDeleted(false);
@@ -74,12 +83,22 @@ public class CustomerServiceImpl implements CustomerService {
 
 
         customerRepository.save(newCustomer);
-        return true;
+    }
+
+    private void validateCustomerDetails(AddCustomerDTO addCustomerDTO) {
+        //check pass and cpass
+        if (!addCustomerDTO.getPassword().equals(addCustomerDTO.getConfirmPassword()))
+            throw new GenericException("Password confirm password not matching");
+
+        //Check if email taken
+        if (userService.checkUserEmail(addCustomerDTO.getEmail())) {
+            throw new GenericException("Email already registered");
+        }
 
     }
 
     @Override
-    public LoginResponseDTO loginCustomer(LoginRequestDTO loginRequestDTO) throws Exception {
+    public LoginResponseDTO loginCustomer(LoginRequestDTO loginRequestDTO) {
 
         loginService.removeAlreadyGeneratedTokens(loginRequestDTO.getUsername());
 
@@ -97,8 +116,6 @@ public class CustomerServiceImpl implements CustomerService {
     public boolean addAddressToCustomer(AddAddressDTO addAddressDTO) {
 
         User user = authUserService.getCurrentAuthorizedUser();
-//        User user = userRepository.findByEmail(userEmail).orElseThrow(GenericException::new);
-
         //check address already exist
         user.getAddresses().forEach(address -> {
             if (address.getLabel().equalsIgnoreCase(addAddressDTO.getLabel())) {
@@ -121,7 +138,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void removeAddress(Long id) {
+    public boolean removeAddress(Long id) {
         User user = authUserService.getCurrentAuthorizedUser();
 //        user.getAddresses().forEach(address ->{
 //            if(address.getId().equals(id)){
@@ -131,7 +148,7 @@ public class CustomerServiceImpl implements CustomerService {
 //        });
 
         user.getAddresses().stream().filter(address -> address.getId().equals(id)).findFirst().orElseThrow(GenericException::new);
-
+        return true;
 //        if(addressRepository.existsById(id)){
 //            addressRepository.deleteById(id);
 //            return;
@@ -144,13 +161,13 @@ public class CustomerServiceImpl implements CustomerService {
 
         Customer customer = (Customer) authUserService.getCurrentAuthorizedUser();
 
-        CustomerProfileDTO customerProfileDTO = new CustomerProfileDTO(customer);
-//            String url = "localhost:8080/images/users/";
-//            customerProfileDTO.setImageUrl(url + customer.getId()+ ".jpg");
-        customerProfileDTO.setImageUrl(getImageUrlIfExist(customer.getId()));
-
-        return customerProfileDTO;
-
+        return CustomerProfileDTO.builder()
+                .firstName(customer.getFirstName())
+                .lastName(customer.getLastName())
+                .isActive(customer.isActive())
+                .contact(customer.getContact())
+                .imageUrl(getImageUrlIfExist(customer.getId()))
+                .build();
     }
 
     private String getImageUrlIfExist(Long id) {
@@ -167,7 +184,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void updateProfile(CustomerProfileUpdateDTO customerProfileUpdateDTO) {
+    public boolean updateProfile(CustomerProfileUpdateDTO customerProfileUpdateDTO) {
 
         Customer customer = (Customer) authUserService.getCurrentAuthorizedUser();
 
@@ -183,6 +200,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (customerProfileUpdateDTO.getContact() != null) customer.setContact(customerProfileUpdateDTO.getContact());
 
         customerRepository.save(customer);
+        return true;
 
     }
 
@@ -190,11 +208,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<FetchCategoryDTO> getAllCategoriesForCustomer(Long categoryId) {
 
-        if (categoryId == null) {
+        if (Objects.isNull(categoryId)) {
             return categoryService.getAllRootCategories();
         }
-
-        return categoryService.getCategoryById(categoryId).getChildren().stream().map(FetchCategoryDTO::convertCategoryToFetchCategoryDTO).toList();
+        return categoryService.getCategoryById(categoryId)
+                .getChildren()
+                .stream()
+                .map(FetchCategoryDTO::convertCategoryToFetchCategoryDTO)
+                .toList();
 
     }
 }

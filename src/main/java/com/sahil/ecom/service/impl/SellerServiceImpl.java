@@ -1,6 +1,6 @@
 package com.sahil.ecom.service.impl;
 
-import com.sahil.ecom.dto.FetchAddressDTO;
+import com.sahil.ecom.dto.address.FetchAddressDTO;
 import com.sahil.ecom.dto.LoginRequestDTO;
 import com.sahil.ecom.dto.LoginResponseDTO;
 import com.sahil.ecom.dto.category.FetchCategoryDTO;
@@ -18,6 +18,7 @@ import com.sahil.ecom.security.TokenGeneratorHelper;
 import com.sahil.ecom.service.CategoryService;
 import com.sahil.ecom.service.LoginService;
 import com.sahil.ecom.service.SellerService;
+import com.sahil.ecom.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,30 +41,31 @@ public class SellerServiceImpl implements SellerService {
     private final TokenGeneratorHelper tokenGeneratorHelper;
     private final CategoryService categoryService;
     private final AuthUserService authUserService;
-
-    @Override
-    public boolean checkSellerCompanyName(String companyName) {
+    private final UserService userService;
+    private final GeneralMailService generalMailService;
+    
+    private boolean checkSellerCompanyName(String companyName) {
         return sellerRepository.existsByCompanyName(companyName);
     }
 
-    @Override
-    public boolean checkSellerGst(String gst) {
+    private boolean checkSellerGst(String gst) {
         return sellerRepository.existsByGst(gst);
     }
 
     @Override
     public Seller getSellerById(Long id) {
-//       if(sellerRepository.existsById(id)){
         return sellerRepository.findById(id).orElseThrow(GenericException::new);
-//        }
-//        throw new UsernameNotFoundException("SELLER SERVICE:USER ID NOT FOUND");
-//        return null;
     }
-
 
     @Override
     public boolean register(AddSellerDTO addSellerDTO) {
+        validateNewSeller(addSellerDTO);
+        saveNewSeller(addSellerDTO);
+        generalMailService.sendAccountRegistrationAckForSeller(addSellerDTO.getEmail());
+        return true;
+    }
 
+    private void saveNewSeller(AddSellerDTO addSellerDTO) {
         Seller newSeller = new Seller();
 
         newSeller.setEmail(addSellerDTO.getEmail());
@@ -74,37 +76,52 @@ public class SellerServiceImpl implements SellerService {
         newSeller.setPassword(passwordEncoder.encode(addSellerDTO.getPassword()));
         newSeller.setCompanyContact(addSellerDTO.getCompanyContact());
         newSeller.setGst(addSellerDTO.getGst());
-
-
-        //Only one can be added
-        List<Address> sellerAddressList = new ArrayList<>();
-        Address addressToBeSaved = addSellerDTO.getAddress().mapAddressDTOtoAddress();
-        addressToBeSaved.setCreatedBy(newSeller.getEmail());
-//        addressToBeSaved.set
-        sellerAddressList.add(addressToBeSaved);
-
-        newSeller.setAddresses(sellerAddressList);
-
-
         newSeller.setRoles(List.of(roleRepository.findByAuthority("ROLE_SELLER")));
-
         newSeller.setActive(false);
         newSeller.setDeleted(false);
         newSeller.setExpired(false);
         newSeller.setLocked(false);
-
         newSeller.setPasswordUpdateDate(new Date());
         newSeller.setInvalidAttemptCount(0);
+        setNewSellerAddress(addSellerDTO, newSeller);
 
         sellerRepository.save(newSeller);
+    }
 
-        return true;
+    private static void setNewSellerAddress(AddSellerDTO addSellerDTO, Seller newSeller) {
+        //Only one can be added
+        List<Address> sellerAddressList = new ArrayList<>();
+        Address addressToBeSaved = addSellerDTO.getAddress().mapAddressDTOtoAddress();
+        addressToBeSaved.setCreatedBy(newSeller.getEmail());
+        sellerAddressList.add(addressToBeSaved);
+        newSeller.setAddresses(sellerAddressList);
+    }
 
+    private void validateNewSeller(AddSellerDTO addSellerDTO) {
+
+        //check pass and cpass
+        if (!addSellerDTO.getPassword().equals(addSellerDTO.getConfirmPassword()))
+            throw new GenericException("Password not matching with confirm password");
+
+        //unique email
+        if (userService.checkUserEmail(addSellerDTO.getEmail())) {
+            throw new GenericException("Email already registered");
+        }
+
+        //unique company name
+        if(checkSellerCompanyName(addSellerDTO.getCompanyName())) {
+            throw new GenericException("Company name already registered");
+        }
+
+        //unique gst
+        if (checkSellerGst(addSellerDTO.getGst())) {
+            throw new GenericException("GST already registered");
+        }
     }
 
 
     @Override
-    public LoginResponseDTO loginSeller(LoginRequestDTO loginRequestDTO) throws Exception {
+    public LoginResponseDTO loginSeller(LoginRequestDTO loginRequestDTO){
 
         loginService.removeAlreadyGeneratedTokens(loginRequestDTO.getUsername());
 

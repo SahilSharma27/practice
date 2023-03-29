@@ -3,10 +3,8 @@ package com.sahil.ecom.security;
 import com.sahil.ecom.dto.LoginRequestDTO;
 import com.sahil.ecom.dto.LoginResponseDTO;
 import com.sahil.ecom.exception.GenericException;
-import com.sahil.ecom.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.*;
@@ -16,28 +14,27 @@ import org.springframework.stereotype.Service;
 import java.util.Locale;
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class TokenGeneratorHelper {
 
-    @Autowired
-    UserRepository userRepository;
-    Logger logger = LoggerFactory.getLogger(TokenGeneratorHelper.class);
-    @Autowired
-    MessageSource messageSource;
-    @Autowired
-    private MyCustomUserDetailsService customUserDetailsService;
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private AuthenticationManager authenticationManager;
 
-    public LoginResponseDTO generateTokenHelper(LoginRequestDTO loginRequestDTO) throws Exception {
+    private final MessageSource messageSource;
+
+    private final MyCustomUserDetailsService customUserDetailsService;
+
+    private final JwtUtil jwtUtil;
+
+    private final AuthenticationManager authenticationManager;
+
+    public LoginResponseDTO generateTokenHelper(LoginRequestDTO loginRequestDTO) {
 
         Locale locale = LocaleContextHolder.getLocale();
         try {
             this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
         } catch (BadCredentialsException e) {
 
-            logger.info("------------------------BAD CREDENTIAL EXCEPTION THROWN --------------------");
+            log.info("------------------------BAD CREDENTIAL EXCEPTION THROWN --------------------");
             throw new BadCredentialsException(messageSource.getMessage("user.login.bad.credentials", null, "message", locale));
 
         } catch (DisabledException e) {

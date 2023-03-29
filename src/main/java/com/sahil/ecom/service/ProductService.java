@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface ProductService {
 
-    void addProduct(AddProductDTO addProductDTO);
+    boolean addProduct(AddProductDTO addProductDTO);
 
-    void addProductVariation(AddProductVariationDTO addProductVariationDTO, MultipartFile file);
+    boolean addProductVariation(AddProductVariationDTO addProductVariationDTO, MultipartFile file);
 
     boolean saveProductImage(Long id, MultipartFile image);
 
@@ -29,5 +29,5 @@ public interface ProductService {
 
     FetchProductCustomerDTO getProductForCustomer(Long productId);
 
-    void activateProduct(Long id);
+    boolean activateProduct(Long id);
 }

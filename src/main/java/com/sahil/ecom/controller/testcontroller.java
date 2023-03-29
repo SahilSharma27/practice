@@ -3,7 +3,6 @@ package com.sahil.ecom.controller;
 
 import com.sahil.ecom.dto.response.ResponseDto;
 import com.sahil.ecom.dto.response.SuccessResponseDto;
-import com.sahil.ecom.entity.User;
 import com.sahil.ecom.repository.ProductVariationRepository;
 import com.sahil.ecom.service.impl.EmailSenderService;
 import com.sahil.ecom.service.FileService;
@@ -82,7 +81,7 @@ public class testcontroller{
 
 
     @GetMapping("/template")
-    public ResponseEntity<?> sendTempplateEmail() throws MessagingException {
+    public ResponseEntity<?> sendTemplateEmail() throws MessagingException {
         templateService.sendEmailTemplate();
         return ResponseEntity.ok(HttpStatus.OK);
     }

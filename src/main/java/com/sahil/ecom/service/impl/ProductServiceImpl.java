@@ -48,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
     private String path;
 
     @Override
-    public void addProduct(AddProductDTO addProductDTO) {
+    public boolean addProduct(AddProductDTO addProductDTO) {
 
         Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
         //product name should be unique for a brand category and seller
@@ -78,6 +78,7 @@ public class ProductServiceImpl implements ProductService {
         seller.addProducts(product);
 
         sellerRepository.save(seller);
+        return true;
 //        productRepository.save(product);
 
         //send mail to admin regarding product activation with product data
@@ -100,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public void addProductVariation(AddProductVariationDTO addProductVariationDTO, MultipartFile file) {
+    public boolean addProductVariation(AddProductVariationDTO addProductVariationDTO, MultipartFile file) {
 
 
         Product savedProduct = productRepository.findById(addProductVariationDTO.getProductId()).orElseThrow(GenericException::new);
@@ -125,7 +126,7 @@ public class ProductServiceImpl implements ProductService {
 
         ProductVariation savedProductVariation = productVariationRepository.save(productVariation);
 
-        saveProductImage(savedProductVariation.getId(), file);
+        return saveProductImage(savedProductVariation.getId(), file);
 
     }
 
@@ -340,7 +341,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void activateProduct(Long id) {
+    public boolean activateProduct(Long id) {
         Seller seller = (Seller) authUserService.getCurrentAuthorizedUser();
         AtomicBoolean flag = new AtomicBoolean(false);
         seller.getProducts().forEach(product -> {
@@ -352,6 +353,7 @@ public class ProductServiceImpl implements ProductService {
         });
 
         if (!flag.get()) throw new GenericException();
+        return true;
 //        sellerRepository.save(seller);
 
 

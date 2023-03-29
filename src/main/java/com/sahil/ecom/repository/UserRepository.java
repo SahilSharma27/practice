@@ -16,11 +16,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
     @Query("UPDATE User SET isActive =:isActive WHERE email =:email")
-    int updateIsActive(@Param("isActive") boolean isActive, @Param("email") String email);
+    void updateIsActive(@Param("isActive") boolean isActive, @Param("email") String email);
 
     @Modifying
     @Query("UPDATE User SET invalidAttemptCount =:i WHERE email =:email")
-    int updateInvalidAttempts(@Param("i") int i, @Param("email") String email);
+    void updateInvalidAttempts(@Param("i") int i, @Param("email") String email);
 
     @Modifying
     @Query("UPDATE User SET isLocked =:isLocked WHERE email =:email")

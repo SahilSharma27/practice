@@ -1,6 +1,8 @@
 package com.sahil.ecom.service;
 
 import com.sahil.ecom.dto.*;
+import com.sahil.ecom.dto.address.AddAddressDTO;
+import com.sahil.ecom.dto.address.FetchAddressDTO;
 import com.sahil.ecom.dto.category.FetchCategoryDTO;
 import com.sahil.ecom.dto.customer.AddCustomerDTO;
 import com.sahil.ecom.dto.customer.CustomerProfileDTO;
@@ -12,17 +14,17 @@ public interface CustomerService {
 
     boolean register(AddCustomerDTO addCustomerDTO);
 
-    LoginResponseDTO loginCustomer(LoginRequestDTO loginRequestDTO) throws Exception;
+    LoginResponseDTO loginCustomer(LoginRequestDTO loginRequestDTO);
 
     boolean addAddressToCustomer(AddAddressDTO addAddressDTO);
 
     List<FetchAddressDTO> getAllCustomerAddresses();
 
-    void removeAddress(Long id);
+    boolean removeAddress(Long id);
 
     CustomerProfileDTO fetchCustomerProfileDetails();
 
-    void updateProfile(CustomerProfileUpdateDTO customerProfileUpdateDTO);
+    boolean updateProfile(CustomerProfileUpdateDTO customerProfileUpdateDTO);
 
     List<FetchCategoryDTO> getAllCategoriesForCustomer(Long categoryId);
 }

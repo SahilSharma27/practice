@@ -1,11 +1,7 @@
 package com.sahil.ecom.dto.response;
 
 
-import com.sahil.ecom.enums.response.SuccessResponse;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 /**
@@ -17,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
+@AllArgsConstructor
 public class SuccessResponseDto<T> implements ResponseDto<T> {
 
     String message = "Request processed successfully.";
@@ -35,5 +32,9 @@ public class SuccessResponseDto<T> implements ResponseDto<T> {
         this.data = data;
     }
 
+    public SuccessResponseDto(T data, String message) {
+        this.data = data;
+        this.message = message;
+    }
 
 }

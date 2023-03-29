@@ -1,6 +1,6 @@
 package com.sahil.ecom.dto.seller;
 
-import com.sahil.ecom.dto.AddAddressDTO;
+import com.sahil.ecom.dto.address.AddAddressDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

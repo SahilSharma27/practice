@@ -1,9 +1,10 @@
 package com.sahil.ecom.service;
 
 
+import com.sahil.ecom.dto.address.UpdateAddressDTO;
 import com.sahil.ecom.dto.customer.FetchCustomerDTO;
+import com.sahil.ecom.dto.password.ResetPassDTO;
 import com.sahil.ecom.dto.seller.FetchSellerDTO;
-import com.sahil.ecom.entity.Address;
 import com.sahil.ecom.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,26 +20,20 @@ public interface UserService {
 
     Iterable<User> getAllUsers();
 
-    List<FetchCustomerDTO> getAllCustomersPaged(int page, int size,String sort);
+    List<FetchCustomerDTO> getAllCustomersPaged(int page, int size, String sort);
 
-    List<FetchSellerDTO> getAllSellersPaged(int page, int size,String sort);
+    List<FetchSellerDTO> getAllSellersPaged(int page, int size, String sort);
 
 
     boolean checkUserEmail(String email);
 
-    void  activationHelper(String email);
-
-    String validateActivationToken(String uuid);
+    void activationHelper(String email);
 
     boolean forgotPasswordHelper(String email);
 
-    String validateResetPasswordToken(String uuid);
-
-    boolean resetPassword(String newPassword);
-
     boolean logoutHelper();
 
-    void updateAddress(Long id,Address address);
+    void updateAddress(Long id, UpdateAddressDTO address);
 
     boolean saveUserImage(Long id, MultipartFile image);
 
@@ -47,4 +42,8 @@ public interface UserService {
     FetchSellerDTO getSeller(String email);
 
     String getRole();
+
+    Boolean validateAndResetPassword(String token, ResetPassDTO resetPassDTO);
+
+    Boolean validateAndUpdatePassword(ResetPassDTO resetPassDTO);
 }

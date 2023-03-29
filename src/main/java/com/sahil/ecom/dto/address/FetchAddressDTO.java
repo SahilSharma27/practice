@@ -1,4 +1,4 @@
-package com.sahil.ecom.dto;
+package com.sahil.ecom.dto.address;
 
 import com.sahil.ecom.entity.Address;
 import lombok.*;

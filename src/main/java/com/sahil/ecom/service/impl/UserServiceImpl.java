@@ -1,6 +1,8 @@
 package com.sahil.ecom.service.impl;
 
+import com.sahil.ecom.dto.address.UpdateAddressDTO;
 import com.sahil.ecom.dto.customer.FetchCustomerDTO;
+import com.sahil.ecom.dto.password.ResetPassDTO;
 import com.sahil.ecom.dto.seller.FetchSellerDTO;
 import com.sahil.ecom.entity.*;
 import com.sahil.ecom.exception.GenericException;
@@ -9,7 +11,6 @@ import com.sahil.ecom.repository.*;
 import com.sahil.ecom.security.AuthUserService;
 import com.sahil.ecom.service.FileService;
 import com.sahil.ecom.service.LoginService;
-import com.sahil.ecom.service.SellerService;
 import com.sahil.ecom.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,16 +35,13 @@ import java.util.Locale;
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final SellerRepository sellerRepository;
     private final ActivationTokenRepository activationTokenRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final EmailSenderService emailSenderService;
     private final UuidTokenService uuidTokenService;
     private final ResetPassTokenRepository resetPassTokenRepository;
-    private final SellerService sellerService;
     private final MessageSource messageSource;
     private final AddressRepository addressRepository;
     private final BlacklistTokenRepository blacklistTokenRepository;
@@ -58,30 +56,37 @@ public class UserServiceImpl implements UserService {
     @Value("${project.image}")
     private String path;
 
-    //customer activation through Activation Link
+    /**
+     * customer activation through Activation Link
+     * if email valid
+     * delete activation token
+     * update isActive
+     */
+
     @Transactional
     @Override
-    public boolean activateByEmail(String email) {
-
-        //if email valid
-        //delete activation token
-        //update isActive
-
+    public boolean activateByEmail(String uuid) {
+        String email = validateActivationToken(uuid);
         if (userRepository.existsByEmail(email)) {
             activationTokenRepository.deleteByUserEmail(email);
-            return userRepository.updateIsActive(true, email) > 0;
+            userRepository.updateIsActive(true, email);
+            generalMailService.sendAccountActivationAck(email);
         }
         throw new GenericException("User email not found");
 
     }
 
-    //admin activating accounts for seller and customer
+    /**
+     * admin activating accounts for seller and customer
+     * check if id exist
+     * check if already true then no action return true
+     * else change to true
+     */
+
     @Override
     @Transactional
     public boolean activateAccount(Long id) {
-        //check if id exist
-        //check if already true then no action return true
-        //else change to true
+
         if (userRepository.existsById(id)) {
             User foundUser = userRepository.findById(id).orElseThrow(GenericException::new);
             if (foundUser.getRoles().get(0).getAuthority().equals("ROLE_ADMIN")) {
@@ -102,15 +107,16 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-
-    // admin deactivating accounts for customer
+    /**
+     * admin deactivating accounts for customer
+     * check if id exist
+     * check if already false then no action return true
+     * else change to false
+     */
     @Override
     @Transactional
     public boolean deActivateAccount(Long id) {
 
-        //check if id exist
-        //check if already false then no action return true
-        //else change to false
 
         if (userRepository.existsById(id)) {
 
@@ -171,8 +177,7 @@ public class UserServiceImpl implements UserService {
             String url = uuidTokenService.generateActivationURL(token);
             generalMailService.sendAccountActivationUrlCustomer(email, url);
         } catch (MalformedURLException e) {
-            log
-                    .info("URL Error" + e);
+            log.info("URL Error" + e);
             e.printStackTrace();
         }
 
@@ -194,24 +199,24 @@ public class UserServiceImpl implements UserService {
         //emailSenderService.sendEmail(email,"Account activation",emailBody);
     }
 
-    @Override
-    public String validateActivationToken(String uuid) {
 
-        Locale locale = LocaleContextHolder.getLocale();
-
+    private String validateActivationToken(String uuid) {
         //find token in table
         ActivationToken activationToken = activationTokenRepository.findByToken(uuid);
 
-        //check expiration
-        //return email id if all good
+        /*
+           check expiration
+           return email id if all good
+        */
         if (activationToken != null) {
             if (activationToken.getTokenTimeLimit().isBefore(LocalDateTime.now())) {
 
-                log
-                        .info("-------------------TIME LIMIT EXCEEDED---------------");
+                log.info("-------------------TIME LIMIT EXCEEDED---------------");
 
-                //remove token from table
-                //send new url if time limit exceeds and throw exception
+                /*
+                remove token from table
+                send new url if time limit exceeds and throw exception
+                */
 
                 activationTokenRepository.deleteById(uuid);
 
@@ -221,46 +226,46 @@ public class UserServiceImpl implements UserService {
 
             }
 
-            log
-                    .info("-------------------UNDER TIME LIMIT---------------");
+            log.info("-------------------UNDER TIME LIMIT---------------");
             return activationToken.getUserEmail();
 
         } else throw new GenericException();
     }
 
-    @Override
     @Transactional
-    public boolean resetPassword(String newPassword) {
-
+    public boolean resetPassword(ResetPassDTO resetPassDTO) {
         User foundUser = authUserService.getCurrentAuthorizedUser();
-
         if (foundUser.isActive()) {
-            return userRepository.updatePassword(passwordEncoder.encode(newPassword), foundUser.getEmail()) > 0;
-        } else {
-            throw new GenericException();
+            return userRepository.updatePassword(passwordEncoder.encode(resetPassDTO.getNewPassword()), foundUser.getEmail()) > 0;
         }
+        throw new GenericException();
 
 
     }
 
-    public String validateResetPasswordToken(String uuid) {
+    private String validateResetPasswordToken(String uuid) {
 
         Locale locale = LocaleContextHolder.getLocale();
 
         //find token in table
         ResetPasswordToken resetPasswordToken = resetPassTokenRepository.findByToken(uuid);
 
-        //check expiration
-        //return email id if all good
+        /*
+            check expiration
+            return email id if all good
+        */
+
         if (resetPasswordToken != null) {
 
             if (resetPasswordToken.getTokenTimeLimit().isBefore(LocalDateTime.now())) {
 
-                log
-                        .info("-------------------TIME LIMIT EXCEEDED---------------");
+                log.info("-------------------TIME LIMIT EXCEEDED---------------");
 
-                //remove token from table
-                //send new url if time limit exceeds and throw exception
+                /*
+                  remove token from table
+                  send new url if time limit exceeds and throw exception
+                 */
+
 
                 resetPassTokenRepository.deleteById(uuid);
 
@@ -270,14 +275,12 @@ public class UserServiceImpl implements UserService {
 
             }
 
-            log
-                    .info("-------------------UNDER TIME LIMIT---------------");
+            log.info("-------------------UNDER TIME LIMIT---------------");
             return resetPasswordToken.getUserEmail();
         }
 
 
-        log
-                .info("-------------------UNDER TIME LIMIT STILL HERE--------------");
+        log.info("-------------------UNDER TIME LIMIT STILL HERE--------------");
 
         throw new GenericException();
 
@@ -308,8 +311,7 @@ public class UserServiceImpl implements UserService {
             generalMailService.sendForgotPasswordEmail(email, url);
 
         } catch (MalformedURLException e) {
-            log
-                    .info("URL Error" + e);
+            log.info("URL Error" + e);
             e.printStackTrace();
         }
         //generate url
@@ -355,45 +357,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAddress(Long id, Address newAddress) {
+    public void updateAddress(Long id, UpdateAddressDTO newAddress) {
 
         User user = authUserService.getCurrentAuthorizedUser();
-
-        //check address already exist
         user.getAddresses().forEach(address -> {
             if (address.getLabel().equalsIgnoreCase(newAddress.getLabel())) {
-                throw new GenericException(
-                        messageSource.getMessage("same.address.exist", null, "message", LocaleContextHolder.getLocale()
-                        )
-                );
+                throw new GenericException(messageSource.getMessage("same.address.exist", null, "message", LocaleContextHolder.getLocale()));
             }
         });
 
 
-        Address addressToBeUpdated = user.getAddresses()
-                .stream()
-                .filter(address -> address.getId().equals(id))
-                .findFirst().orElseThrow(GenericException::new);
+        Address addressToBeUpdated = user.getAddresses().stream().filter(address -> address.getId().equals(id)).findFirst().orElseThrow(GenericException::new);
 
-//            Address addressToBeUpdated = addressRepository.findById(id).orElseThrow(GenericException::new);
+        if (newAddress.getAddressLine() != null) addressToBeUpdated.setAddressLine(newAddress.getAddressLine());
 
-        if (newAddress.getAddressLine() != null)
-            addressToBeUpdated.setAddressLine(newAddress.getAddressLine());
+        if (newAddress.getCity() != null) addressToBeUpdated.setCity(newAddress.getCity());
 
-        if (newAddress.getCity() != null)
-            addressToBeUpdated.setCity(newAddress.getCity());
+        if (newAddress.getLabel() != null) addressToBeUpdated.setLabel(newAddress.getLabel());
 
-        if (newAddress.getLabel() != null)
-            addressToBeUpdated.setLabel(newAddress.getLabel());
+        if (newAddress.getZipCode() != null) addressToBeUpdated.setZipCode(newAddress.getZipCode());
 
-        if (newAddress.getZipCode() != null)
-            addressToBeUpdated.setZipCode(newAddress.getZipCode());
+        if (newAddress.getCountry() != null) addressToBeUpdated.setCountry(newAddress.getCountry());
 
-        if (newAddress.getCountry() != null)
-            addressToBeUpdated.setCountry(newAddress.getCountry());
-
-        if (newAddress.getState() != null)
-            addressToBeUpdated.setState(newAddress.getState());
+        if (newAddress.getState() != null) addressToBeUpdated.setState(newAddress.getState());
 
 
         addressRepository.save(addressToBeUpdated);
@@ -404,10 +390,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean saveUserImage(Long id, MultipartFile image) {
         try {
-
-            String fileName = fileService.uploadImage(id, path, image);
+            fileService.uploadImage(id, path, image);
             return true;
-
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -424,8 +408,6 @@ public class UserServiceImpl implements UserService {
         Page<Customer> customerPage = customerRepository.findAll(pageable);
 
         List<Customer> customerList = customerPage.getContent();
-
-        //Constructor reference
         return customerList.stream().map(FetchCustomerDTO::new).toList();
 
     }
@@ -456,5 +438,31 @@ public class UserServiceImpl implements UserService {
     public String getRole() {
         User user = authUserService.getCurrentAuthorizedUser();
         return user.getRoles().get(0).getAuthority();
+    }
+
+    @Override
+    @Transactional
+    public Boolean validateAndResetPassword(String token, ResetPassDTO resetPassDTO) {
+        if (resetPassDTO.getNewPassword().equals(resetPassDTO.getConfirmNewPassword())) {
+            String email = validateResetPasswordToken(token);
+            if (email.equals(resetPassDTO.getUserEmail()) && (resetPassword(resetPassDTO))) {
+                //send mail
+                generalMailService.sendPasswordUpdateAck();
+                return true;
+
+            }
+        }
+        throw new GenericException("Pass not matching with confirm pass");
+
+    }
+
+    @Override
+    @Transactional
+    public Boolean validateAndUpdatePassword(ResetPassDTO resetPassDTO) {
+        if (resetPassDTO.getNewPassword().equals(resetPassDTO.getConfirmNewPassword()) && (resetPassword(resetPassDTO))) {
+            generalMailService.sendPasswordUpdateAck();
+            return true;
+        }
+        throw new GenericException("Pass not matching with confirm pass");
     }
 }

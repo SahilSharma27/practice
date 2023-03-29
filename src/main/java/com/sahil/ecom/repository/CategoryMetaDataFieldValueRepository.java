@@ -6,8 +6,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CategoryMetaDataFieldValueRepository extends JpaRepository<CategoryMetaDataFieldValue, CategoryFieldValueKey> {
 
-
-//    @Query("")
-//    public int updateValues(String newValues);
-
 }

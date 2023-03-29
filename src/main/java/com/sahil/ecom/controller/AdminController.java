@@ -2,11 +2,14 @@ package com.sahil.ecom.controller;
 
 import com.sahil.ecom.dto.LoginRequestDTO;
 import com.sahil.ecom.dto.LoginResponseDTO;
-import com.sahil.ecom.dto.ResponseDTO;
 import com.sahil.ecom.dto.category.AddCategoryDTO;
 import com.sahil.ecom.dto.category.CategoryUpdateDTO;
+import com.sahil.ecom.dto.category.FetchCategoryDTO;
+import com.sahil.ecom.dto.category.SavedCategoryDTO;
 import com.sahil.ecom.dto.category.metadata.field.AddMetaDataFieldDTO;
+import com.sahil.ecom.dto.category.metadata.field.FetchMetaDataFieldDTO;
 import com.sahil.ecom.dto.category.metadata.field.value.AddCategoryMetaDataFieldValueDTO;
+import com.sahil.ecom.dto.customer.FetchCustomerDTO;
 import com.sahil.ecom.dto.response.ResponseDto;
 import com.sahil.ecom.dto.response.SuccessResponseDto;
 import com.sahil.ecom.dto.seller.FetchSellerDTO;
@@ -17,17 +20,15 @@ import com.sahil.ecom.security.TokenGeneratorHelper;
 import com.sahil.ecom.service.CategoryService;
 import com.sahil.ecom.service.LoginService;
 import com.sahil.ecom.service.UserService;
+import com.sahil.ecom.util.EcomConstants;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,12 +44,14 @@ public class AdminController {
     private final LoginService loginService;
     private final CategoryService categoryService;
 
-    @PostMapping(value = "/login", params = "role=admin")
-    public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
 
-        //remove all tokens in db for this user
-        //generate new tokens
-        //save new tokens in db
+    /**
+     * remove all tokens in db for this user
+     * generate new tokens
+     * save new tokens in db
+     */
+    @PostMapping(value = "/login", params = "role=admin")
+    public ResponseDto<LoginResponseDTO> loginAdmin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
 
         loginService.removeAlreadyGeneratedTokens(loginRequestDTO.getUsername());
 
@@ -56,17 +59,17 @@ public class AdminController {
 
         loginService.saveJwtResponse(loginResponseDTO, loginRequestDTO.getUsername());
 
-        return ResponseEntity.ok(loginResponseDTO);
+        return new SuccessResponseDto<>(loginResponseDTO);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> getAllUsers() {
-        return new ResponseEntity<Iterable<User>>(userService.getAllUsers(), HttpStatus.OK);
+    public ResponseDto<Iterable<User>> getAllUsers() {
+        return new SuccessResponseDto<>(userService.getAllUsers());
     }
 
 
     @GetMapping(value = "/users/customers")
-    public ResponseEntity<?> getAllCustomers(HttpServletRequest request) {
+    public ResponseDto<List<FetchCustomerDTO>> getAllCustomers(HttpServletRequest request) {
 
         String email = request.getParameter("email");
         if (Objects.isNull(email)) {
@@ -74,17 +77,16 @@ public class AdminController {
             int size = (request.getParameter("size") == null) ? 10 : Integer.parseInt(request.getParameter("size"));
             String sort = (request.getParameter("sort") == null) ? "id" : request.getParameter("sort");
 
-            return new ResponseEntity<>(userService.getAllCustomersPaged(page, size, sort), HttpStatus.OK);
+            return new SuccessResponseDto<>(userService.getAllCustomersPaged(page, size, sort));
 
         } else {
-            return ResponseEntity.ok(userService.getCustomer(email));
-
+            return new SuccessResponseDto<>(List.of(userService.getCustomer(email)));
         }
 
     }
 
     @GetMapping(value = "/users/sellers")
-    public ResponseDto<?> getAllSellers(HttpServletRequest request) {
+    public ResponseDto<List<FetchSellerDTO>> getAllSellers(HttpServletRequest request) {
 
         String email = request.getParameter("email");
         if (Objects.isNull(email)) {
@@ -94,130 +96,76 @@ public class AdminController {
 
             return new SuccessResponseDto<>(userService.getAllSellersPaged(page, size, sort));
         } else {
-            return new SuccessResponseDto<>(userService.getSeller(email));
+            return new SuccessResponseDto<>(List.of(userService.getSeller(email)));
         }
 
     }
 
 
     @PatchMapping(value = "users/activate/{id}")
-    public ResponseEntity<?> activateUserAccount(@PathVariable(name = "id") Long userId) {
-
-        String message;
-
-        if (userService.activateAccount(userId)) {
-
-            message = messageSource.getMessage("user.account.activated", null, "message", LocaleContextHolder.getLocale());
-            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
-
-        }
-        message = messageSource.getMessage("user.not.found", null, "message", LocaleContextHolder.getLocale());
-        return new ResponseEntity<>(new ResponseDTO(LocalDateTime.now(), false, message, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
-
+    public ResponseDto<Boolean> activateUserAccount(@PathVariable(name = "id") Long userId) {
+        return new SuccessResponseDto<>(userService.activateAccount(userId), messageSource.getMessage("user.account.activated", null, EcomConstants.DEFAULT_MESSAGE, LocaleContextHolder.getLocale()));
     }
 
 
     @PatchMapping(value = "users/deactivate/{id}")
-    public ResponseEntity<?> deActivateUserAccount(@PathVariable(name = "id") Long userId) {
-
-        String message;
-
-        if (userService.deActivateAccount(userId)) {
-            message = messageSource.getMessage("user.account.deactivated", null, "message", LocaleContextHolder.getLocale());
-            return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
-
-        }
-
-        message = messageSource.getMessage("user.not.found", null, "message", LocaleContextHolder.getLocale());
-        return new ResponseEntity<>(new ResponseDTO(LocalDateTime.now(), false, message, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
-
+    public ResponseDto<Boolean> deActivateUserAccount(@PathVariable(name = "id") Long userId) {
+        return new SuccessResponseDto<>(userService.deActivateAccount(userId), messageSource.getMessage("user.account.deactivated", null, EcomConstants.DEFAULT_MESSAGE, LocaleContextHolder.getLocale()));
     }
 
     @PostMapping(value = "/category/metadata")
-    public ResponseEntity<?> addMetaDataField(@Valid @RequestBody AddMetaDataFieldDTO addMetaDataFieldDTO) {
-
-        AddMetaDataFieldDTO savedMetaDatField = categoryService.addCategoryMetadataField(addMetaDataFieldDTO);
-        return ResponseEntity.ok(savedMetaDatField);
-
+    public ResponseDto<AddMetaDataFieldDTO> addMetaDataField(@Valid @RequestBody AddMetaDataFieldDTO addMetaDataFieldDTO) {
+        return new SuccessResponseDto<>(categoryService.addCategoryMetadataField(addMetaDataFieldDTO));
     }
 
-//    @PutMapping(value = "/category/metadata-update")
-//    public ResponseEntity<?> updateMetaDataField(@RequestBody AddMetaDataFieldDTO addMetaDataFieldDTO){
-//
-////        AddMetaDataFieldDTO savedMetaDatField = categoryService.addCategoryMetadataField(addMetaDataFieldDTO);
-////        return ResponseEntity.ok(savedMetaDatField);
-//
-//
-//    }
+    /**
+     * @PutMapping(value = "/category/metadata-update")
+     * public ResponseEntity<?> updateMetaDataField(@RequestBody AddMetaDataFieldDTO addMetaDataFieldDTO){
+     * AddMetaDataFieldDTO savedMetaDatField = categoryService.addCategoryMetadataField(addMetaDataFieldDTO);
+     * return ResponseEntity.ok(savedMetaDatField);
+     * }
+     */
 
 
     @GetMapping(value = "/category/metadata")
-    public ResponseEntity<?> fetchMetaDataField() {
-        return ResponseEntity.ok(categoryService.getAllMetaDataFields());
+    public ResponseDto<List<FetchMetaDataFieldDTO>> fetchMetaDataField() {
+        return new SuccessResponseDto<>(categoryService.getAllMetaDataFields());
     }
 
 
     @PostMapping(value = "/category")
-    public ResponseEntity<?> addNewCategory(@Valid @RequestBody AddCategoryDTO addCategoryDTO) {
-
-        return ResponseEntity.ok(categoryService.addCategory(addCategoryDTO));
-
+    public ResponseDto<SavedCategoryDTO> addNewCategory(@Valid @RequestBody AddCategoryDTO addCategoryDTO) {
+        return new SuccessResponseDto<>(categoryService.addCategory(addCategoryDTO));
     }
 
     @PutMapping(value = "/category-update")
-    public ResponseEntity<?> updateCategory(@Valid @RequestBody CategoryUpdateDTO categoryUpdateDTO) {
-
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setTimestamp(LocalDateTime.now());
-
-        if (categoryService.updateCategory(categoryUpdateDTO)) {
-
-            responseDTO.setSuccess(true);
-            responseDTO.setMessage(messageSource.getMessage("category.update.successful", null, "message", LocaleContextHolder.getLocale()));
-            responseDTO.setResponseStatusCode(HttpStatus.OK);
-
-            return ResponseEntity.ok(responseDTO);
-        }
-
-        responseDTO.setSuccess(false);
-        responseDTO.setMessage(messageSource.getMessage("category.update.not.successful", null, "message", LocaleContextHolder.getLocale()));
-        responseDTO.setResponseStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-
+    public ResponseDto<Boolean> updateCategory(@Valid @RequestBody CategoryUpdateDTO categoryUpdateDTO) {
+        return new SuccessResponseDto<>(categoryService.updateCategory(categoryUpdateDTO), messageSource.getMessage("category.update.successful", null, EcomConstants.DEFAULT_MESSAGE, LocaleContextHolder.getLocale()));
     }
 
-    //,params = "role=admin"
     @GetMapping(value = "/categories", params = "role=admin")
-    public ResponseEntity<?> fetchAllCategories() {
-        String role = userService.getRole();
-        if (role.equals(EcomRoles.ADMIN.role)) {
-            return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseDto<List<FetchCategoryDTO>> fetchAllCategories() {
+        if (userService.getRole().equals(EcomRoles.ADMIN.role)) {
+            return new SuccessResponseDto<>(categoryService.getAllCategories());
         } else throw new InvalidTokenException();
     }
 
     @GetMapping(value = "/category/{category_id}")
-    public ResponseEntity<?> fetchCategoryById(@PathVariable("category_id") Long categoryId) {
-        return ResponseEntity.ok(categoryService.getCategoryById(categoryId));
+    public ResponseDto<FetchCategoryDTO> fetchCategoryById(@PathVariable("category_id") Long categoryId) {
+        return new SuccessResponseDto<>(categoryService.getCategoryById(categoryId));
     }
 
     @PostMapping(value = "/category/metadata/value")
-    public ResponseEntity<?> addCategoryMetaData(@Valid @RequestBody AddCategoryMetaDataFieldValueDTO addCategoryMetaDataFieldValueDTO) {
-
+    public ResponseDto<Boolean> addCategoryMetaData(@Valid @RequestBody AddCategoryMetaDataFieldValueDTO addCategoryMetaDataFieldValueDTO) {
         categoryService.addCategoryMetadataFieldWithValue(addCategoryMetaDataFieldValueDTO);
-
-        String message = messageSource.getMessage("category.metadata.field.value.added", null, "message", LocaleContextHolder.getLocale());
-        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
+        return new SuccessResponseDto<>(true, messageSource.getMessage("category.metadata.field.value.added", null, EcomConstants.DEFAULT_MESSAGE, LocaleContextHolder.getLocale()));
     }
 
 
     @PutMapping(value = "/category/metadata/value-update")
-    public ResponseEntity<?> updateCategoryMetaData(@Valid @RequestBody AddCategoryMetaDataFieldValueDTO updateCategoryMetaDataFieldValueDTO) {
-
+    public ResponseDto<Boolean> updateCategoryMetaData(@Valid @RequestBody AddCategoryMetaDataFieldValueDTO updateCategoryMetaDataFieldValueDTO) {
         categoryService.updateCategoryMetadataFieldWithValue(updateCategoryMetaDataFieldValueDTO);
-        String message = messageSource.getMessage("category.metadata.field.value.updated", null, "message", LocaleContextHolder.getLocale());
-        return ResponseEntity.ok(new ResponseDTO(LocalDateTime.now(), true, message, HttpStatus.OK));
-
+        return new SuccessResponseDto<>(true, messageSource.getMessage("category.metadata.field.value.updated", null, EcomConstants.DEFAULT_MESSAGE, LocaleContextHolder.getLocale()));
     }
 
 
